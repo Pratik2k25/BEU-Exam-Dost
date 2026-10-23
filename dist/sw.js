@@ -1,5 +1,5 @@
 const CACHE='exam-dost-shell-v8';
-const SHELL=['./','./index.html','./style.css?v=9','./app.js?v=9','./core.js','./data.js','./schedule.js','./app-meta.js','./updates.js','./assets/exam-routine-2026.pdf','./manifest.webmanifest','./assets/logo.svg','./assets/icon-192.png','./assets/icon-512.png','./assets/study.png','./assets/outfit.ttf','./assets/paper.png','./assets/quiz.png','./assets/nav-home.webp','./assets/nav-subjects.webp','./assets/nav-pyqs.webp','./assets/nav-quiz.webp'];
+const SHELL=['./','./index.html','./style.css?v=9','./app.js?v=9','./core.js','./data.js','./schedule.js','./app-meta.js','./updates.js','./assets/exam-routine-2026.pdf','./manifest.webmanifest','./assets/logo.svg','./assets/icon-192.png','./assets/icon-512.png','./assets/icon-maskable-192.png','./assets/icon-maskable-512.png','./assets/study.png','./assets/outfit.ttf','./assets/paper.png','./assets/quiz.png','./assets/nav-home.webp','./assets/nav-subjects.webp','./assets/nav-pyqs.webp','./assets/nav-quiz.webp'];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL.map(url=>new Request(url,{cache:'reload'}))))));
 self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('exam-dost-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
 // Serve one complete cached release until the next worker safely takes over.
@@ -10,6 +10,32 @@ self.addEventListener('fetch',event=>{
   if(event.request.mode==='navigate')return await cache.match('./index.html')||fetch(event.request);
   return await cache.match(event.request)||fetch(event.request);
  })());
+});
+
+// PWABuilder App Capabilities: Background Sync, Periodic Sync, Push Notifications
+self.addEventListener('sync',event=>{
+ if(event.tag==='sync-study-progress')event.waitUntil(Promise.resolve());
+});
+self.addEventListener('periodicsync',event=>{
+ if(event.tag==='check-exam-updates')event.waitUntil(Promise.resolve());
+});
+self.addEventListener('push',event=>{
+ const data=event.data?event.data.json():{};
+ const title=data.title||'Exam Dost Update';
+ const options={
+  body:data.body||'New study notes or syllabus updates are available.',
+  icon:'./assets/icon-192.png',
+  badge:'./assets/icon-192.png',
+  data:data.url||'./'
+ };
+ event.waitUntil(self.registration.showNotification(title,options));
+});
+self.addEventListener('notificationclick',event=>{
+ event.notification.close();
+ event.waitUntil(self.clients.matchAll({type:'window',includeUncontrolled:true}).then(clientList=>{
+  for(const client of clientList){if(client.url&&'focus' in client)return client.focus();}
+  if(self.clients.openWindow)return self.clients.openWindow(event.notification.data||'./');
+ }));
 });
 
 let activation=null;
