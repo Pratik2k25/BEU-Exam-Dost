@@ -73,3 +73,14 @@
 @media(prefers-reduced-motion:reduce){.brand-shimmer{animation:none;background:none;-webkit-text-fill-color:currentColor}}
 
 .brand-signature .brand-byline{font-size:8.4cqw;font-weight:650;letter-spacing:-.04em;line-height:1.2;margin-top:6px}
+
+/* Official Logo image styles */
+.brand-logo-light{height:38px;width:auto;max-width:260px;object-fit:contain;display:block}
+.brand-logo-dark{height:38px;width:auto;max-width:260px;object-fit:contain;display:none}
+[data-theme=dark] .brand-logo-light{display:none}
+[data-theme=dark] .brand-logo-dark{display:block}
+.setup-brand .brand-logo-light,.setup-brand .brand-logo-dark{height:52px;max-width:300px}
+@media(max-width:520px){
+  .brand-logo-light,.brand-logo-dark{height:30px;max-width:190px}
+  .setup-brand .brand-logo-light,.setup-brand .brand-logo-dark{height:42px}
+}

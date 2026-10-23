@@ -1,7 +1,7 @@
 {
   "id": "/?source=pwa",
-  "name": "Exam Dost — BEU Exam Companion",
-  "short_name": "Exam Dost",
+  "name": "BEU Exam Dost",
+  "short_name": "BEU Exam Dost",
   "description": "Offline study planner, syllabus tracker, PYQs, and exam companion for Bihar Engineering University (BEU) students.",
   "start_url": "./",
   "scope": "./",
@@ -53,14 +53,14 @@
       "sizes": "768x1376",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "Exam Dost study planner and active subjects on mobile"
+      "label": "BEU Exam Dost study planner and active subjects on mobile"
     },
     {
       "src": "./assets/screenshot-desktop.png",
       "sizes": "1376x768",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "Exam Dost comprehensive dashboard on desktop"
+      "label": "BEU Exam Dost comprehensive dashboard on desktop"
     }
   ],
   "shortcuts": [
