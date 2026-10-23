@@ -37,3 +37,15 @@ Use HTTPS for service workers and installation. APK/AAB packaging has not been d
 The live review uses real zero-based progress, never invented personal scores. Only content examples carry demo labels. Browser data can be lost when storage is cleared; regular exports are recommended.
 
 The verified exam routine is maintained in `dist/schedule.js`, with the supplied source PDF bundled at `dist/assets/exam-routine-2026.pdf`. All six papers use the same 2–5 PM IST session. Home countdowns and study-plan priority read this shared module; legacy device/backup exam dates are retained for compatibility but ignored by these features.
+
+## Automatic releases (v0.2)
+
+GitHub source: https://github.com/Pratik2k25/BEU-Exam-Dost
+
+The connected Vercel project deploys `main` automatically; other branches produce previews. Every deployment runs syntax checks, tests, and `npm run build`. The build hashes all bundled content and writes a unique worker cache, versioned entry URLs, and `build/release.json`. No manually incremented service-worker cache constant is needed.
+
+Installed PWAs check for new workers on launch, return to the foreground, connectivity restoration, and about once per minute while open. A complete release is cached before activation. Every open app window must report that it is safe to switch; active quizzes, open dialogs and unsaved forms defer activation. Local state is saved before one automatic reload. Failed downloads retain the previous complete offline release. Offline or fully closed apps receive updates on their next online session; updates are not instantaneous background pushes to a closed phone app.
+
+`dist/` is editable source. `build/` is generated and ignored. Run `npm run check`, `npm test`, then `npm run build`. The GitHub workflow runs the same checks, while `vercel.json` makes passing checks part of the actual deployment build.
+
+The original ChatGPT Sites URL and a Git-connected Vercel URL are separate origins. Browser-local data does not move across origins: use Profile → Export backup on the old URL and Import backup on the new URL. Once using the new origin, subsequent automatic releases preserve its local data.

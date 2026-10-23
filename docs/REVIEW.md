@@ -47,3 +47,12 @@ Limitations: Internal HTTP preview is not a secure context, so actual service-wo
 - Replaced new-user branch choices with the base CSE course and all seven supplied specialisations. Previous saved CSE shorthand maps to the corresponding new label while editing; other legacy selections are preserved until changed.
 - Browser verified 58 college options, eight branch choices plus the prompt, supplied college/Networks branch save and reload, and exact LinkedIn destination. The test-preview branch was restored afterwards.
 - Syntax checks and existing automated tests pass (10/10). No email address has been configured yet.
+
+## Automatic releases and GitHub import · 2026-10-23
+
+- Complete source and binary assets imported to Pratik2k25/BEU-Exam-Dost before feature changes (commit 6da6a91).
+- Added a deterministic build fingerprint, complete versioned shell cache, release metadata and revalidating hosting headers.
+- Added worker polling and automatic safe reload; active quiz, unsaved form, modal and failed persistence defer reload. Open app windows vote before a waiting worker activates.
+- Added Git-connected Vercel configuration and CI checks; production build runs syntax checks and tests before publishing.
+- 15 automated tests pass, including build content-change detection, all-window activation votes, quiz/form deferral, persistence failures and single reload.
+- Real installed-PWA update delivery still requires HTTPS browser/device verification; HTTP local preview cannot register a service worker. An app must be online/opened to discover a new version.
