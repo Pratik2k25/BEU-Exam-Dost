@@ -1,0 +1,76 @@
+# BEU Exam Dost — Bihar Engineering University (BEU) 4th Sem CSE Exam Companion
+
+> BEU Exam Dost (https://beu-exam-dost.vercel.app/) is a free, offline-first study companion and question bank specifically engineered for Bihar Engineering University (BEU), Patna B.Tech Computer Science & Engineering (CSE) 4th Semester students (2024–28 cohort and specialisations).
+
+## Overview & Mission
+BEU Exam Dost provides structured, unit-wise previous year questions (PYQs), 7-mark high-yield question banks, comprehensive syllabus tracking, daily study planners, and practice quizzes. Designed to work 100% offline as a Progressive Web App (PWA), it requires no user login, stores all data locally in the browser, and eliminates exam anxiety through consistent, focused preparation.
+
+## Core Examination Details
+- **University:** Bihar Engineering University (BEU), Patna (formerly under AKU)
+- **Course & Batch:** B.Tech Computer Science and Engineering (CSE), Semester 4 (2024–28 Batch)
+- **Supported Branches:** Computer Science & Engineering (CSE), CSE (AI & ML), CSE (Data Science), CSE (Cyber Security), CSE (IoT)
+- **Exam Session:** 2:00 PM – 5:00 PM IST (Afternoon Session)
+- **Theory Paper Format:** 70 Marks total, 3 Hours duration
+- **Question Structure:**
+  - Question 1 (Compulsory): 7 Multiple Choice Questions (MCQs) × 2 marks each = 14 Marks
+  - Questions 2 to 9: Students must answer any 4 questions out of 8 (each question carries 14 marks, typically split into 7 + 7 mark sub-questions)
+
+## 4th Semester CSE Core Subjects (Syllabus & Units)
+
+### 1. Computer Networks (CN)
+- **Subject Code:** PCC-CS401 / Equivalent
+- **Focus Areas:** OSI and TCP/IP reference models, physical & data link layer protocols, framing, error control (CRC, Hamming code), sliding window protocols (Stop-and-Wait, Go-Back-N, Selective Repeat).
+- **Network Layer:** IPv4/IPv6 addressing, subnetting, CIDR, routing algorithms (Distance Vector, Link State, OSPF, BGP).
+- **Transport & Application:** TCP vs UDP, 3-way handshake, flow and congestion control, DNS, HTTP/HTTPS, FTP, SMTP.
+
+### 2. Computer Organization and Architecture (COA)
+- **Subject Code:** PCC-CS402 / Equivalent
+- **Focus Areas:** Functional units, register transfer language, bus architecture, arithmetic logic unit design.
+- **Computer Arithmetic:** Booth's multiplication algorithm, restoring and non-restoring division, IEEE 754 floating-point standard.
+- **Processor Design:** Instruction cycle, addressing modes, hardwired vs microprogrammed control unit, RISC vs CISC.
+- **Memory & I/O Hierarchy:** Cache memory mapping (direct, associative, set-associative), cache replacement policies, virtual memory, paging, segmentation, DMA controller, interrupt-driven I/O.
+
+### 3. Formal Languages and Automata Theory (FLAT)
+- **Subject Code:** PCC-CS403 / Equivalent
+- **Focus Areas:** Finite Automata (DFA, NFA, epsilon-NFA minimization), Regular Expressions, Arden's theorem, Pumping Lemma for Regular Languages.
+- **Context-Free Grammars (CFG):** Derivations, parse trees, ambiguity, Chomsky Normal Form (CNF), Greibach Normal Form (GNF), Pumping Lemma for CFLs.
+- **Pushdown Automata (PDA):** Deterministic and non-deterministic PDA, equivalence with CFG.
+- **Turing Machines:** Standard Turing machine design, variations, Church-Turing thesis, halting problem, undecidability, Chomsky hierarchy of languages.
+
+### 4. Database Management Systems (DBMS)
+- **Subject Code:** PCC-CS404 / Equivalent
+- **Focus Areas:** Database system architecture, 3-schema architecture, data independence, ER and EER modeling.
+- **Relational Model & Relational Algebra:** Tuple and domain relational calculus, SQL DDL/DML/DCL, integrity constraints, joins, views, triggers.
+- **Relational Database Design:** Functional dependencies, closure of attributes, normal forms (1NF, 2NF, 3NF, BCNF, 4NF, 5NF), lossless join decomposition, dependency preservation.
+- **Transactions & Concurrency Control:** ACID properties, schedule serializability (conflict and view serializability), two-phase locking (2PL), deadlock prevention and detection, database recovery techniques.
+
+### 5. Design and Analysis of Algorithms (DAA)
+- **Subject Code:** PCC-CS405 / Equivalent
+- **Focus Areas:** Asymptotic notations (Big-O, Omega, Theta), recurrence relations (Master Theorem, recursion tree, substitution method).
+- **Divide and Conquer:** Merge sort, Quick sort, Strassen's matrix multiplication, binary search analysis.
+- **Greedy Method:** Fractional knapsack, Huffman coding, Prim's and Kruskal's minimum spanning tree (MST), Dijkstra's shortest path.
+- **Dynamic Programming:** 0/1 Knapsack, Longest Common Subsequence (LCS), Matrix Chain Multiplication, Floyd-Warshall all-pairs shortest path.
+- **Graph Algorithms & Complexity:** BFS, DFS, Topological Sort, Backtracking (N-Queens, Subset Sum), Branch and Bound, NP-Completeness (P, NP, NP-Hard, NP-Complete, Cook's theorem).
+
+### 6. Effective Technical Communication (ETC)
+- **Subject Code:** HSMC-CS401 / Equivalent
+- **Focus Areas:** Technical writing ethics, report drafting, business proposals, research paper structure, executive summaries.
+- **Oral Presentation & Interpersonal Skills:** Technical presentations, group discussions (GD), interview techniques, cross-cultural communication, meeting minutes, technical resumes and cover letters.
+
+## High-Yield 7-Mark Question Blueprint for BEU Exams
+To achieve top grades in BEU 7-mark subjective questions:
+1. **Precise Technical Definition (1-2 Marks):** State concise, standard definitions using domain terminology.
+2. **Clear Block Diagrams / Schematics (2-3 Marks):** Include labelled diagrams (e.g., protocol stacks, pipeline stages, DFA transition graphs, ER diagrams).
+3. **Algorithm & Derivation (2 Marks):** Present pseudo-code, mathematical recurrence, or step-by-step state transitions.
+4. **Analysis & Comparison (1 Mark):** Conclude with time/space complexity or comparative advantages.
+
+## Application Architecture & Capabilities
+- **Offline PWA:** Installable via browser on Android, iOS, Windows, macOS, and Linux. Works completely without an active internet connection after initial load.
+- **Zero Account Barrier:** No registration, no login, no third-party tracking. All student data, bookmarks, quiz logs, and study tasks remain strictly on the user's device.
+- **Exam Countdown & Study Planner:** Dynamic daily scheduler allocating study topics based on student availability and proximity to official paper dates.
+- **Practice Quizzes:** Timed MCQ assessments with question-by-question review, answer explanations, and performance metrics.
+
+## Official Resources & Citations
+- **Web App URL:** https://beu-exam-dost.vercel.app/
+- **Syllabus & Exam Routine:** https://beu-exam-dost.vercel.app/sitemap.xml
+- **Support & Inquiries:** helpebookwallah@gmail.com

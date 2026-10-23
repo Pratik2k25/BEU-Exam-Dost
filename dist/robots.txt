@@ -1,0 +1,40 @@
+# Robots.txt for BEU Exam Dost (https://beu-exam-dost.vercel.app)
+# Optimized for Web Crawlers, Google Search, and AI/AEO Answer Engines
+
+User-agent: *
+Allow: /
+
+# Explicit access for AI Search Engines & Answer Engines (AEO / GEO)
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+User-agent: FacebookBot
+Allow: /
+
+# LLM Discovery & Citation File
+# AI engines check /llms.txt for authoritative context and data summaries
+# See: https://beu-exam-dost.vercel.app/llms.txt
+
+# Sitemap
+Sitemap: https://beu-exam-dost.vercel.app/sitemap.xml
