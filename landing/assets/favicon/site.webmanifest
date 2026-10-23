@@ -1,1 +1,44 @@
-{"name":"","short_name":"","icons":[{"src":"/android-chrome-192x192.png","sizes":"192x192","type":"image/png"},{"src":"/android-chrome-512x512.png","sizes":"512x512","type":"image/png"}],"theme_color":"#ffffff","background_color":"#ffffff","display":"standalone"}
+{
+  "name": "BEU Exam Dost",
+  "short_name": "BEU Exam Dost",
+  "description": "Official landing page and study companion for Bihar Engineering University students by BEU Developer.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0B1120",
+  "theme_color": "#2563EB",
+  "icons": [
+    {
+      "src": "../images/logo-emblem.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "../images/logo-emblem.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "../images/mockup/195shots_so.png",
+      "sizes": "1920x1280",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "BEU Exam Dost Multi-Screen Study Suite"
+    },
+    {
+      "src": "../images/mockup/48shots_so.png",
+      "sizes": "1920x1280",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "BEU Exam Dost Daily Exam Companion"
+    },
+    {
+      "src": "../images/mockup/894shots_so.png",
+      "sizes": "1920x1280",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "BEU Exam Dost Instant Quiz Results & Analytics"
+    }
+  ]
+}

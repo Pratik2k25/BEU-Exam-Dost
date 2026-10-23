@@ -41,7 +41,7 @@ Limitations: Internal HTTP preview is not a secure context, so actual service-wo
 
 ## Owner-supplied setup lists and attribution · 2026-10-23
 
-- Activated LinkedIn at https://www.linkedin.com/in/beu-developer.
+- Activated LinkedIn at https://www.linkedin.com/in/beu-developer-br.
 - Added By BEU Developer below the full-width wordmark, at a smaller responsive size with the same shimmer duration and phase. Verified light and dark appearances.
 - Imported all 58 college names exactly from the owner's attached markdown into the existing native college datalist. No college websites are contacted for suggestions.
 - Replaced new-user branch choices with the base CSE course and all seven supplied specialisations. Previous saved CSE shorthand maps to the corresponding new label while editing; other legacy selections are preserved until changed.

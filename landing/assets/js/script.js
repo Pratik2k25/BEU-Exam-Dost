@@ -171,14 +171,29 @@ var related_post = new Swiper(".blog_related-slider", {
 /********************
 accordion
 ********************/
-$(".card").on("hide.bs.collapse", function (e) {
-  var parentId = $(e.target).parent().attr("id");
-  $(`#${parentId} > .card-header > h5`).addClass("hidden");
+$("#accordion").on("click", ".card-header button", function (e) {
+  e.preventDefault();
+  var targetSelector = $(this).attr("data-target");
+  var $target = $(targetSelector);
+
+  if ($target.hasClass("show")) {
+    $target.collapse("hide");
+  } else {
+    $("#accordion .collapse.show").not($target).collapse("hide");
+    $target.collapse("show");
+  }
 });
 
-$(".card").on("show.bs.collapse", function (e) {
-  var parentId = $(e.target).parent().attr("id");
-  $(`#${parentId} > .card-header > h5`).removeClass("hidden");
+$("#accordion").on("hide.bs.collapse", function (e) {
+  var $card = $(e.target).closest(".card");
+  $card.find(".card-header h5").addClass("hidden");
+  $card.find(".card-header button").addClass("collapsed").attr("aria-expanded", "false");
+});
+
+$("#accordion").on("show.bs.collapse", function (e) {
+  var $card = $(e.target).closest(".card");
+  $card.find(".card-header h5").removeClass("hidden");
+  $card.find(".card-header button").removeClass("collapsed").attr("aria-expanded", "true");
 });
 
 /********************

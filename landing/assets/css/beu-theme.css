@@ -470,6 +470,42 @@ body {
 .about-pillar.p3 .icon { background-color: #ECFEFF; color: #0891B2; }
 
 /* ==========================================================================
+   FAQ Section
+   ========================================================================== */
+.questions__wrapper {
+  background-color: #F8FAFC !important;
+  border: 1px solid #E2E8F0;
+}
+
+.questions .card .card-header h5 button {
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  padding-left: 2.8rem;
+  color: var(--beu-text-main) !important;
+  transition: color 0.2s ease;
+}
+
+.questions .card .card-header h5 button:hover,
+.questions .card .card-header h5:not(.hidden) button {
+  color: var(--beu-primary) !important;
+}
+
+.questions .card .card-header h5::before {
+  color: var(--beu-primary) !important;
+  cursor: pointer;
+}
+
+.questions .card .card-header h5.hidden::before {
+  color: var(--beu-text-muted) !important;
+}
+
+.questions .card .card-body {
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
+}
+
+/* ==========================================================================
    Newsletter Section
    ========================================================================== */
 .newsletter__wrapper {

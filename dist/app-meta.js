@@ -4,6 +4,6 @@ export const appVersion='0.2.0';
 export const socialLinks=Object.freeze({
  website:'https://beudeveloper.in/',
  app:'https://app.beudeveloper.in/',
- linkedin:'https://www.linkedin.com/in/beu-developer',
+ linkedin:'https://www.linkedin.com/in/beu-developer-br',
  mail:'mailto:helpebookwallah@gmail.com'
 });
