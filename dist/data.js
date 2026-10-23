@@ -1308,250 +1308,494 @@ const pyqMcqData = {
     ]
   },
   "coa": {
-    "2024": [
-      [
-        "In two’s complement representation, the 8-bit representation of -18 is:",
-        [
-          "11101110",
-          "11101101",
-          "10010010",
-          "00010010"
-        ],
-        0,
-        "+18 in 8 bits is 00010010. One’s complement = 11101101. Adding 1 yields two’s complement: 11101110.",
-        1
-      ],
-      [
-        "Which addressing mode has zero memory access for fetching the operand?",
-        [
-          "Direct addressing",
-          "Register addressing",
-          "Indirect addressing",
-          "Indexed addressing"
-        ],
-        1,
-        "In register addressing mode, the operand resides in an internal CPU register, eliminating external memory bus access.",
-        2
-      ],
-      [
-        "A memory system has 16 MB capacity with 32-bit words. How many address lines are required for word addressing?",
-        [
-          "20",
-          "22",
-          "24",
-          "26"
-        ],
-        1,
-        "16 MB = 16 × 2^20 bytes = 2^24 bytes. Since each word is 32 bits (4 bytes), total words = 2^24 / 4 = 2^22 words. Thus 22 address lines are needed.",
-        4
-      ],
-      [
-        "The Translation Lookaside Buffer (TLB) is primarily implemented as:",
-        [
-          "DRAM",
-          "Associative Content-Addressable Memory (CAM)",
-          "Magnetic tape",
-          "Flash ROM"
-        ],
-        1,
-        "TLB is a fast associative cache (Content-Addressable Memory) that searches virtual-to-physical page translations simultaneously in hardware.",
-        4
-      ],
-      [
-        "During DMA transfer, cycle stealing mode means the DMA controller:",
-        [
-          "Steals all CPU clock cycles until transfer completes",
-          "Takes control of the system bus for one memory cycle at a time",
-          "Bypasses the system bus entirely",
-          "Uses secondary storage as RAM"
-        ],
-        1,
-        "Cycle stealing grants the DMA controller access to the system bus for one memory cycle at a time between CPU machine cycles.",
-        5
-      ],
-      [
-        "Which branch prediction technique updates prediction state dynamically based on execution history?",
-        [
-          "Static branch prediction",
-          "Dynamic 2-bit saturating counter",
-          "Compiler unrolling",
-          "Delayed branch slot"
-        ],
-        1,
-        "Dynamic branch prediction uses hardware tables (such as 2-bit saturating counters) to adaptively learn branch behavior during runtime.",
-        6
-      ],
-      [
-        "The Memory Address Register (MAR) holds:",
-        [
-          "Data read from memory",
-          "The address in memory being read from or written to",
-          "Current micro-instruction",
-          "Interrupt vector address"
-        ],
-        1,
-        "MAR holds the physical address on the address bus pointing to the memory location for read/write operations.",
-        2
-      ],
-      [
-        "Which mapping technique allows a memory block to be placed in any cache line?",
-        [
-          "Direct mapping",
-          "Fully associative mapping",
-          "2-way set associative mapping",
-          "Sector mapping"
-        ],
-        1,
-        "In fully associative cache mapping, any main memory block can be loaded into any available cache block line.",
-        4
-      ],
-      [
-        "Horizontal microcode differs from vertical microcode because horizontal microcode:",
-        [
-          "Uses encoded control bits",
-          "Has wider control words with unencoded, highly parallel control signals",
-          "Executes slower",
-          "Requires micro-instruction decoding logic"
-        ],
-        1,
-        "Horizontal microinstructions allocate dedicated unencoded bits to individual control lines, maximizing parallelism at the expense of control memory width.",
-        3
-      ],
-      [
-        "Memory interleaving is primarily used to:",
-        [
-          "Increase memory capacity",
-          "Overcome memory cycle time bottleneck and increase bandwidth",
-          "Reduce cache miss rate",
-          "Protect against power failures"
-        ],
-        1,
-        "Memory interleaving distributes contiguous memory addresses across independent memory banks, allowing simultaneous pipeline memory access.",
-        4
-      ]
-    ],
     "2025": [
       [
-        "Which addressing mode is suited for accessing consecutive array elements?",
-        [
-          "Immediate",
-          "Indexed",
-          "Implied",
-          "Relative"
-        ],
-        1,
-        "Indexed addressing mode adds an index register offset to a base address, allowing efficient stepping through consecutive array elements.",
-        2
+            "Which addressing mode is best suited to access elements of an array of contiguous memory locations?",
+            [
+                  "Indexed addressing mode",
+                  "Relative address mode",
+                  "Immediate addressing mode",
+                  "Displacement mode"
+            ],
+            0,
+            "Indexed addressing mode computes Effective Address = Base Address + (Index Register × Scale), making it ideal for stepping through contiguous array elements.",
+            1
       ],
       [
-        "In Booth’s multiplication algorithm, what operation is performed when the multiplier bit pair (Qn, Qn+1) is (1, 0)?",
-        [
-          "Add multiplicand",
-          "Subtract multiplicand",
-          "Shift only",
-          "Clear accumulator"
-        ],
-        1,
-        "Booth’s algorithm performs subtraction of the multiplicand (A = A - M) on transition 10, addition (A = A + M) on 01, and arithmetic right shift on 00 and 11.",
-        1
+            "In ______ method, the word is written to the block in both the cache and main memory, in parallel.",
+            [
+                  "Write through",
+                  "Write back",
+                  "Write protected",
+                  "Direct mapping"
+            ],
+            0,
+            "Write-through cache policy updates both cache memory and primary main memory simultaneously on every write operation to maintain strict coherence.",
+            3
       ],
       [
-        "A computer has a 32-bit address bus and byte-addressable memory. The maximum addressable memory size is:",
-        [
-          "1 GB",
-          "2 GB",
-          "4 GB",
-          "8 GB"
-        ],
-        2,
-        "With 32 address lines, 2^32 distinct locations can be addressed. For byte-addressable memory: 2^32 bytes = 4 GB.",
-        4
+            "How many 32K × 1 RAM chips are needed to provide a memory capacity of 256K bytes?",
+            [
+                  "8",
+                  "32",
+                  "64",
+                  "128"
+            ],
+            2,
+            "Total capacity needed = 256K bytes = 256K × 8 bits = 2048K bits. Capacity of one chip = 32K × 1 bit = 32K bits. Number of chips = 2048K / 32K = 64 chips.",
+            3
       ],
       [
-        "In a direct-mapped cache of size 64 KB with 16-byte block size and 32-bit address, how many bits are used for the Cache Index?",
-        [
-          "10 bits",
-          "12 bits",
-          "14 bits",
-          "16 bits"
-        ],
-        1,
-        "Number of cache lines = 64 KB / 16 B = 65,536 / 16 = 4,096 = 2^12 lines. Hence 12 bits are used for the cache index field.",
-        4
+            "The device which is used to connect a peripheral to bus is known as:",
+            [
+                  "Control register",
+                  "Communication protocol",
+                  "Interface",
+                  "None of these"
+            ],
+            2,
+            "An I/O Interface (or controller) synchronizes data transfer and bridges electrical/logical protocol differences between peripheral devices and the system bus.",
+            4
       ],
       [
-        "Which data transfer technique allows high-speed I/O devices to transfer data directly to/from memory without CPU intervention?",
-        [
-          "Programmed I/O",
-          "Interrupt-driven I/O",
-          "Direct Memory Access (DMA)",
-          "Serial polling"
-        ],
-        2,
-        "DMA (Direct Memory Access) transfers blocks of data directly between memory and peripheral controllers without constant CPU execution cycles.",
-        5
+            "Array processors are put in which one of the following categories?",
+            [
+                  "SISD",
+                  "MISD",
+                  "SIMD",
+                  "MIMD"
+            ],
+            2,
+            "Array (vector) processors execute a Single Instruction across Multiple Data streams simultaneously in parallel, categorizing them as SIMD under Flynn's classification.",
+            6
       ],
       [
-        "In a 5-stage instruction pipeline, executing 100 independent instructions under ideal conditions requires how many clock cycles?",
-        [
-          "100",
-          "104",
-          "500",
-          "105"
-        ],
-        1,
-        "Clock cycles for a k-stage pipeline executing n instructions = k + n - 1 = 5 + 100 - 1 = 104 clock cycles.",
-        6
+            "Which of the following holds data and instructions temporarily until the CPU needs it?",
+            [
+                  "ROM",
+                  "Control Unit",
+                  "Main memory",
+                  "Coprocessor chip"
+            ],
+            2,
+            "Main memory (RAM) holds executing program instructions and active operational data loaded from secondary storage until requested by CPU registers.",
+            1
       ],
       [
-        "Which pipeline hazard occurs when an instruction depends on the result of a previous instruction that has not yet completed?",
-        [
-          "Structural hazard",
-          "Data hazard",
-          "Control hazard",
-          "Branch hazard"
-        ],
-        1,
-        "Data hazards (RAW, WAR, WAW) occur when operand data dependencies conflict with concurrent execution across pipeline stages.",
-        6
+            "The number of cycles required to complete n tasks in a k-stage pipeline is:",
+            [
+                  "k + n − 1",
+                  "k + n + 1",
+                  "nk − 1",
+                  "None of these"
+            ],
+            0,
+            "The first task requires k cycles to fill all stages. Each of the remaining (n - 1) tasks completes at the rate of 1 task per cycle under ideal conditions, totaling k + n - 1 cycles.",
+            5
       ],
       [
-        "The program counter (PC) stores:",
-        [
-          "The operand being executed",
-          "The address of the next instruction to be fetched",
-          "The opcode of current instruction",
-          "Memory address of stack top"
-        ],
-        1,
-        "The Program Counter holds the memory address of the subsequent machine instruction waiting to be fetched and executed.",
-        2
+            "A micro-programmed control unit:",
+            [
+                  "Is faster than hard-wired control unit",
+                  "Facilitates easy implementation of new instructions",
+                  "Is useful when every small control program is to be run",
+                  "Usually refers to the control unit of microprocessors"
+            ],
+            1,
+            "Microprogrammed control stores control signals as microcode in control memory, making instruction set extensions and architectural modifications straightforward without rewiring logic gates.",
+            3
       ],
       [
-        "IEEE 754 single-precision floating point format allocates how many bits for the biased exponent?",
-        [
-          "7 bits",
-          "8 bits",
-          "11 bits",
-          "23 bits"
-        ],
-        1,
-        "IEEE 754 single precision (32 bits) uses 1 sign bit, 8 exponent bits (bias 127), and 23 mantissa/fraction bits.",
-        1
+            "Which type of data hazard is not possible?",
+            [
+                  "WAR",
+                  "RAR",
+                  "RAW",
+                  "WAW"
+            ],
+            1,
+            "Read After Read (RAR) is not a hazard because concurrent read operations do not modify register contents or cause data inconsistency.",
+            5
       ],
       [
-        "A microprogrammed control unit stores control words (microinstructions) in:",
-        [
-          "Hardwired gates",
-          "Control Memory (ROM)",
-          "Instruction Register",
-          "Cache memory"
-        ],
-        1,
-        "Microprogrammed control units generate control signals by fetching sequenced microinstructions stored in high-speed Control ROM.",
-        3
+            "A direct mapped cache memory with n blocks is nothing but which of the following set associative cache memory organization?",
+            [
+                  "0-way set associative",
+                  "2-way set associative",
+                  "1-way set associative",
+                  "n-way set associative"
+            ],
+            2,
+            "In direct mapping, each set consists of exactly 1 cache line (block), making direct-mapped cache mathematically identical to a 1-way set-associative cache.",
+            3
       ]
-    ]
+],
+    "2024": [
+      [
+            "What is the first step in the instruction execution cycle?",
+            [
+                  "Decode",
+                  "Execute",
+                  "Fetch",
+                  "Store"
+            ],
+            2,
+            "The CPU instruction execution cycle begins by fetching the instruction pointed to by the Program Counter (PC) from memory into the Instruction Register (IR).",
+            1
+      ],
+      [
+            "What is the advantage of carry look-ahead adders over ripple carry adders?",
+            [
+                  "Simplicity in design",
+                  "Increased latency",
+                  "Reduced power consumption",
+                  "Faster addition by reducing carry propagation delay"
+            ],
+            3,
+            "Carry Look-Ahead (CLA) adders compute carry bits concurrently in parallel using generate (G) and propagate (P) logic functions, eliminating the O(n) ripple carry propagation delay.",
+            2
+      ],
+      [
+            "Which type of control unit is faster but more difficult to modify?",
+            [
+                  "Hardwired control unit",
+                  "Microprogrammed control unit",
+                  "Cache control unit",
+                  "Memory management unit"
+            ],
+            0,
+            "Hardwired control units generate signals via fixed combinational logic circuits, achieving superior execution speed but requiring physical circuit redesign for modifications.",
+            3
+      ],
+      [
+            "Which I/O method involves the CPU polling the device until data is ready?",
+            [
+                  "DMA",
+                  "Program-controlled I/O",
+                  "Interrupt-driven I/O",
+                  "Asynchronous I/O"
+            ],
+            1,
+            "In programmed (polled) I/O, the processor repeatedly checks the status flag of an I/O device in a loop until it indicates readiness, wasting CPU cycles.",
+            4
+      ],
+      [
+            "What does a branch prediction mechanism in a CPU help reduce?",
+            [
+                  "Data hazards",
+                  "Control hazards",
+                  "Structural hazards",
+                  "Cache delay"
+            ],
+            1,
+            "Branch prediction anticipates branch outcomes before condition evaluation completes, avoiding pipeline stalls and speculative flush penalties that cause control hazards.",
+            5
+      ],
+      [
+            "Which is NOT a type of parallel processor architecture in Flynn's classification?",
+            [
+                  "SIMD",
+                  "SISD",
+                  "SIMO",
+                  "Multi-core"
+            ],
+            2,
+            "Flynn's classic taxonomy defines SISD, SIMD, MISD, and MIMD. SIMO (Single Instruction Multiple Output) is not a standard architectural category.",
+            6
+      ],
+      [
+            "Which cache replacement algorithm removes the least recently used block?",
+            [
+                  "FIFO",
+                  "LRU",
+                  "LFU",
+                  "Random replacement"
+            ],
+            1,
+            "The Least Recently Used (LRU) algorithm tracks access recency and replaces the cache block that has gone unreferenced for the longest time interval.",
+            6
+      ],
+      [
+            "Which technique is used to handle data hazards in pipelining?",
+            [
+                  "Increasing memory size",
+                  "Parallel processing",
+                  "Instruction scheduling",
+                  "Increasing clock speed"
+            ],
+            2,
+            "Compiler instruction scheduling (reordering independent instructions) and hardware operand forwarding fill hazard slots and eliminate pipeline stalls.",
+            5
+      ],
+      [
+            "Which addressing mode directly specifies the operand within the instruction?",
+            [
+                  "Direct addressing",
+                  "Immediate addressing",
+                  "Indirect addressing",
+                  "Indexed addressing"
+            ],
+            1,
+            "In immediate addressing mode, the actual numerical operand value is encoded directly inside the instruction's address field.",
+            1
+      ],
+      [
+            "A computer with 32-bit-wide data bus uses 1K × 8 static RAM chips. What is the smallest memory capacity this computer can have?",
+            [
+                  "32K bits (4K bytes)",
+                  "8K bytes",
+                  "16K bytes",
+                  "24K bytes"
+            ],
+            0,
+            "With a 32-bit data bus, each memory access must provide 32 bits. Using 8-bit chips, at least 32 / 8 = 4 chips must be accessed in parallel per bank, giving 4 × 1K = 4K bytes (32K bits).",
+            3
+      ]
+],
+    "2023": [
+      [
+            "A pipeline stage:",
+            [
+                  "Is sequential circuit",
+                  "Is combination circuit",
+                  "Consists of both sequential and combinational circuit",
+                  "None of these"
+            ],
+            2,
+            "A pipeline stage consists of combinational processing logic bounded by sequential synchronizing buffer latches/registers.",
+            5
+      ],
+      [
+            "A direct mapped cache with n blocks is equivalent to which set associative organization?",
+            [
+                  "0-way",
+                  "1-way",
+                  "2-way",
+                  "n-way"
+            ],
+            1,
+            "Direct-mapped cache has 1 block per set, making it functionally equivalent to 1-way set-associative cache.",
+            3
+      ],
+      [
+            "The performance of a pipelined processor suffers if:",
+            [
+                  "Pipeline stages have different delays",
+                  "Consecutive instructions are dependent",
+                  "Pipeline stages share hardware resources",
+                  "All of these"
+            ],
+            3,
+            "Unbalanced stage delays, operand data dependencies, and shared resource contention (structural hazards) all cause pipeline stalls.",
+            5
+      ],
+      [
+            "A computer with cache access time 100 ns, main memory access time 1000 ns, and hit ratio 0.9 produces access time of:",
+            [
+                  "250 ns",
+                  "200 ns",
+                  "190 ns",
+                  "None of these"
+            ],
+            1,
+            "In standard hierarchical access: T_avg = Hit Time + (Miss Rate × Miss Penalty) = 100 ns + (0.1 × 1000 ns) = 100 + 100 = 200 ns.",
+            3
+      ],
+      [
+            "Which of the following processor classifications has no practical modern usage?",
+            [
+                  "SISD",
+                  "SIMD",
+                  "MISD",
+                  "MIMD"
+            ],
+            2,
+            "MISD (Multiple Instruction, Single Data) has virtually no commercial practical applications, except specialized fault-tolerant voting systems.",
+            6
+      ],
+      [
+            "A micro programmed control unit:",
+            [
+                  "Is faster than hardwired control",
+                  "Facilitates easy implementation of new instructions",
+                  "Is useful when every small program is to be run",
+                  "Usually refers to microprocessor control"
+            ],
+            1,
+            "Microprogramming allows designers to add new or complex instructions simply by updating control store microcode routines.",
+            3
+      ],
+      [
+            "In memory-mapped I/O:",
+            [
+                  "I/O devices and memory share address space",
+                  "I/O devices have separate address space",
+                  "Memory and I/O have separate instruction sets",
+                  "A part of memory is specified for data transfer to I/O"
+            ],
+            0,
+            "Memory-mapped I/O assigns peripheral device registers into the standard unified physical memory address space.",
+            4
+      ],
+      [
+            "How many 128K × 8 RAM chips are needed to design 32K × 32 RAM?",
+            [
+                  "4",
+                  "8",
+                  "16",
+                  "32"
+            ],
+            0,
+            "Total bits required = 32K × 32 = 1024K bits. A 128K × 8 chip provides 1024K bits. To achieve 32-bit word width, 4 chips of 8 bits each are arranged in parallel (with address decoding).",
+            3
+      ],
+      [
+            "The stalling of the processor due to unavailability of the instruction is called:",
+            [
+                  "Control hazard",
+                  "Structural hazard",
+                  "Input hazard",
+                  "None of the above"
+            ],
+            0,
+            "Control hazards (branch hazards) occur when the pipeline cannot immediately determine the address of the next instruction to fetch due to conditional jumps.",
+            5
+      ],
+      [
+            "The addressing mode where you directly specify the operand value is:",
+            [
+                  "Immediate",
+                  "Direct",
+                  "Definite",
+                  "Relative"
+            ],
+            0,
+            "In immediate addressing mode, the operand operand constant is embedded directly in the instruction text.",
+            1
+      ]
+],
+    "2022": [
+      [
+            "The 8-bit encoding format used to store data in a computer is:",
+            [
+                  "ASCII",
+                  "EBCDIC",
+                  "ANCI",
+                  "USCII"
+            ],
+            1,
+            "Extended Binary Coded Decimal Interchange Code (EBCDIC) is an 8-bit character encoding system developed by IBM.",
+            2
+      ],
+      [
+            "The bus used to connect the monitor and graphics card to the CPU is:",
+            [
+                  "PCI bus",
+                  "SCSI bus",
+                  "Memory bus",
+                  "RAM bus"
+            ],
+            0,
+            "Peripheral Component Interconnect (PCI / PCIe) is the standard high-bandwidth expansion bus for connecting display adapters and peripherals.",
+            4
+      ],
+      [
+            "The alternate way of writing the instruction ADD #5, R1 is:",
+            [
+                  "ADD (5),[R1]",
+                  "ADD 5,R1",
+                  "ADDIME 5,[R1]",
+                  "There is no other way"
+            ],
+            1,
+            "The prefix # signifies immediate data 5; many assemblers represent this as ADD 5, R1 or explicit immediate opcodes.",
+            1
+      ],
+      [
+            "The instruction fetch phase ends with:",
+            [
+                  "Placing data from MAR into MDR",
+                  "Placing address of data into MAR",
+                  "Completing execution and storing address in MAR",
+                  "Decoding data in MDR and placing it in IR"
+            ],
+            3,
+            "Fetch retrieves the instruction word from memory into the MDR (Memory Data Register) and transfers it into the IR (Instruction Register) for decoding.",
+            1
+      ],
+      [
+            "For converting a virtual address into a physical address, programs are divided into:",
+            [
+                  "Pages",
+                  "Frames",
+                  "Segments",
+                  "Blocks"
+            ],
+            0,
+            "Virtual memory divides program address spaces into fixed-size logical units called Pages, which map to physical memory Frames.",
+            3
+      ],
+      [
+            "The transfer of large chunks of data with minimal involvement of the processor is done by:",
+            [
+                  "DMA controller",
+                  "Arbitrator",
+                  "User system programs",
+                  "None of the above"
+            ],
+            0,
+            "The Direct Memory Access (DMA) controller manages high-speed block data transfers directly to/from memory, freeing the CPU.",
+            4
+      ],
+      [
+            "The computer architecture aimed at reducing the time of execution of instructions is:",
+            [
+                  "CISC",
+                  "RISC",
+                  "ISA",
+                  "ANNA"
+            ],
+            1,
+            "Reduced Instruction Set Computer (RISC) architectures streamline instruction sets to execute simple, single-cycle instructions with high clock frequency.",
+            1
+      ],
+      [
+            "Which table stores addresses of interrupt-handling subroutines?",
+            [
+                  "Interrupt-vector table",
+                  "Vector table",
+                  "Symbol link table",
+                  "None"
+            ],
+            0,
+            "The Interrupt Vector Table (IVT) contains memory pointers to the entry points of all Interrupt Service Routines (ISRs).",
+            4
+      ],
+      [
+            "The situation wherein the data of operands are not available is called:",
+            [
+                  "Data hazard",
+                  "Stack",
+                  "Deadlock",
+                  "Structural hazard"
+            ],
+            0,
+            "A data hazard occurs when an instruction in the pipeline depends on the output of a preceding instruction that has not yet been written back.",
+            5
+      ],
+      [
+            "A standard DMA controller typically has how many primary internal registers?",
+            [
+                  "4",
+                  "2",
+                  "3",
+                  "1"
+            ],
+            2,
+            "A typical basic DMA controller features at least 3 primary registers: Address Register, Word Count Register, and Control/Status Register.",
+            4
+      ]
+]
   },
   "flat": {
     "2024": [
@@ -3144,222 +3388,606 @@ const masterMcqData = {
   ],
   "coa": [
     [
-      "In computer arithmetic, the range of signed 8-bit integers in two’s complement form is:",
-      [
-        "-128 to +127",
-        "-127 to +127",
-        "0 to 255",
-        "-256 to +255"
-      ],
-      0,
-      "For n bits in two’s complement, the range is -2^(n-1) to +2^(n-1) - 1. For 8 bits: -2^7 to +2^7 - 1 = -128 to +127.",
-      1
+        "Which register holds the address of the next instruction to be fetched?",
+        [
+            "MAR",
+            "PC",
+            "IR",
+            "MDR"
+        ],
+        1,
+        "The Program Counter (PC) holds the memory address of the next instruction waiting to be fetched from memory.",
+        1
     ],
     [
-      "In IEEE 754 double-precision format, the exponent bias is:",
-      [
-        "127",
-        "255",
-        "1023",
-        "2047"
-      ],
-      2,
-      "Double-precision allocates 11 bits for the exponent, resulting in an exponent bias of 2^(11-1) - 1 = 1023.",
-      1
+        "Which addressing mode places the actual operand in the instruction?",
+        [
+            "Direct",
+            "Indirect",
+            "Immediate",
+            "Indexed"
+        ],
+        2,
+        "In immediate addressing mode, the actual numerical operand value is encoded directly inside the instruction's address field.",
+        1
     ],
     [
-      "Which logic circuit performs addition of three binary bits (two operands plus carry-in)?",
-      [
-        "Half adder",
-        "Full adder",
-        "Decoder",
-        "Multiplexer"
-      ],
-      1,
-      "A full adder adds three 1-bit binary inputs (A, B, and Carry-in) producing Sum and Carry-out outputs.",
-      1
+        "If register R1 contains address 2000 and memory[2000] = 45, register-indirect addressing using R1 yields operand:",
+        [
+            "2000",
+            "45",
+            "R1",
+            "2045"
+        ],
+        1,
+        "In register-indirect addressing, R1 holds the memory pointer 2000; accessing memory at address 2000 yields operand value 45.",
+        1
     ],
     [
-      "In a stack-based computer architecture, instructions typically use which format?",
-      [
-        "Three-address",
-        "Two-address",
-        "One-address",
-        "Zero-address"
-      ],
-      3,
-      "Stack-organized CPUs implicitly operate on top-of-stack operands (using PUSH and POP), requiring zero memory address fields in ALU instructions.",
-      2
+        "An instruction has 8-bit opcode and 12-bit address field. Maximum number of distinct opcodes is:",
+        [
+            "8",
+            "12",
+            "256",
+            "4096"
+        ],
+        2,
+        "With 8 opcode bits, the maximum number of distinct operations that can be encoded is 2^8 = 256.",
+        1
     ],
     [
-      "In relative addressing mode, the effective address is computed by adding the address field to the contents of:",
-      [
-        "Accumulator",
-        "Program Counter (PC)",
-        "Base Register",
-        "Stack Pointer"
-      ],
-      1,
-      "In PC-relative addressing mode: Effective Address = (Contents of PC) + Address Field offset.",
-      2
+        "Which operation is normally performed by the ALU?",
+        [
+            "Instruction fetching",
+            "Integer addition",
+            "Cache replacement",
+            "DMA arbitration"
+        ],
+        1,
+        "The Arithmetic Logic Unit (ALU) performs fundamental arithmetic operations (such as integer addition and subtraction) and bitwise logic.",
+        1
     ],
     [
-      "Which processor register stores the instruction currently being executed?",
-      [
-        "Program Counter",
-        "Instruction Register (IR)",
-        "Memory Buffer Register",
-        "Accumulator"
-      ],
-      1,
-      "The Instruction Register holds the machine instruction code fetched from memory while it is being decoded and executed.",
-      2
+        "Which architecture is traditionally classified as CISC?",
+        [
+            "ARMv8-A",
+            "RISC-V",
+            "x86",
+            "MIPS"
+        ],
+        2,
+        "Intel/AMD x86 processors implement a Complex Instruction Set Computer (CISC) design with variable-length instructions and memory-operand operations.",
+        1
     ],
     [
-      "Compared to microprogrammed control units, hardwired control units are generally:",
-      [
-        "Faster and optimized for RISC architectures",
-        "Easier to modify and reconfigure",
-        "Slower and larger in size",
-        "Microcode dependent"
-      ],
-      0,
-      "Hardwired control units generate signals using fixed combinational logic gates, delivering maximum execution speed suited for RISC designs.",
-      3
+        "Which register normally contains the instruction currently being decoded?",
+        [
+            "IR",
+            "PC",
+            "MAR",
+            "SP"
+        ],
+        0,
+        "The Instruction Register (IR) holds the machine instruction word fetched from memory while the control unit decodes and executes it.",
+        1
     ],
     [
-      "In a microprogrammed control unit, the next microinstruction address is determined by the:",
-      [
-        "Program Counter",
-        "Control Address Register (CAR)",
-        "Instruction Register",
-        "Stack Pointer"
-      ],
-      1,
-      "The Control Address Register holds the address of the next control word/microinstruction to be read from control memory.",
-      3
+        "An instruction contains an address field of 500; memory[500] = 900; memory[900] = 25. With memory-indirect addressing, the operand is:",
+        [
+            "500",
+            "900",
+            "25",
+            "Cannot be determined"
+        ],
+        2,
+        "Memory-indirect addressing looks up memory[500] to obtain effective address 900, and then fetches the operand at memory[900], which is 25.",
+        1
     ],
     [
-      "Nanoprogramming is primarily employed in computer architectures to:",
-      [
-        "Increase clock frequency",
-        "Reduce the total size of control memory storage",
-        "Eliminate pipeline stalls",
-        "Expand cache capacity"
-      ],
-      1,
-      "Nanoprogramming uses a two-level control memory to avoid storing duplicate wide control words, substantially reducing total ROM bit count.",
-      3
+        "The 8-bit two's complement representation of −13 is:",
+        [
+            "00001101",
+            "11110010",
+            "11110011",
+            "10001101"
+        ],
+        2,
+        "+13 is 00001101. Its 1's complement is 11110010. Adding 1 gives 2's complement: 11110011.",
+        2
     ],
     [
-      "A system has L1 cache hit time 2 ns, L1 hit rate 90%, and miss penalty 50 ns. Average Memory Access Time (AMAT) is:",
-      [
-        "5 ns",
-        "7 ns",
-        "12 ns",
-        "52 ns"
-      ],
-      1,
-      "AMAT = Hit Time + (Miss Rate × Miss Penalty) = 2 ns + (0.10 × 50 ns) = 2 + 5 = 7 ns.",
-      4
+        "The range of signed 8-bit two's complement integers is:",
+        [
+            "−127 to +127",
+            "−128 to +127",
+            "0 to 255",
+            "−256 to +255"
+        ],
+        1,
+        "The range of an n-bit two's complement signed integer is -2^(n-1) to +2^(n-1) - 1. For n = 8: -128 to +127.",
+        2
     ],
     [
-      "Which cache write policy guarantees that main memory is updated simultaneously on every cache write?",
-      [
-        "Write-back",
-        "Write-through",
-        "Write-allocate only",
-        "Lazy write"
-      ],
-      1,
-      "Write-through writes data to both cache and main memory concurrently, ensuring memory consistency at the cost of higher bus traffic.",
-      4
+        "In Booth multiplication, bit pair (Q0, Q−1) = (1, 0) means:",
+        [
+            "Add multiplicand",
+            "Subtract multiplicand",
+            "No arithmetic operation",
+            "Clear accumulator"
+        ],
+        1,
+        "In Booth's algorithm, transition 10 signifies the beginning of a block of 1s, which requires subtracting the multiplicand from accumulator A (A = A - M).",
+        2
     ],
     [
-      "In virtual memory systems with paging, internal fragmentation occurs because:",
-      [
-        "Pages are swapped to disk",
-        "A process does not fully occupy its final allocated page frame",
-        "Page tables grow too large",
-        "Segments vary in length"
-      ],
-      1,
-      "Paging uses fixed-size memory blocks; the last page allocated to a process is rarely filled completely, leaving unused space inside the page.",
-      4
+        "In Booth multiplication, bit pair (Q0, Q−1) = (0, 1) means:",
+        [
+            "Add multiplicand",
+            "Subtract multiplicand",
+            "Stop",
+            "Complement multiplier"
+        ],
+        0,
+        "Transition 01 signifies the end of a block of 1s, requiring the addition of the multiplicand to accumulator A (A = A + M).",
+        2
     ],
     [
-      "In an interrupt-driven system, vectored interrupts determine the ISR starting address through:",
-      [
-        "Polling every device sequentially",
-        "An interrupt vector table index supplied directly by the interrupting device",
-        "A hardcoded BIOS jump",
-        "A software timer check"
-      ],
-      1,
-      "In vectored interrupts, the I/O interface places a vector code on the data bus, which points to the device’s specific Interrupt Service Routine.",
-      5
+        "In a 4-bit adder, generate and propagate for bit i are usually defined as:",
+        [
+            "Gi=Ai+Bi, Pi=AiBi",
+            "Gi=AiBi, Pi=Ai⊕Bi",
+            "Gi=Ai⊕Bi, Pi=Ci",
+            "Gi=Ci, Pi=AiBi"
+        ],
+        1,
+        "Carry generate Gi = Ai AND Bi (generates a carry regardless of carry-in); carry propagate Pi = Ai XOR Bi (propagates carry-in).",
+        2
     ],
     [
-      "Which I/O scheme maps peripheral device registers into the standard CPU memory address space?",
-      [
-        "Isolated I/O",
-        "Memory-Mapped I/O",
-        "Direct Channel I/O",
-        "Asynchronous Strobe I/O"
-      ],
-      1,
-      "In memory-mapped I/O, I/O ports share the same address space and read/write control signals as primary RAM, using standard load/store instructions.",
-      5
+        "In a carry-lookahead adder, C2 equals:",
+        [
+            "G1 + P1G0 + P1P0C0",
+            "G0 + P0C0",
+            "G1P1 + G0P0",
+            "P1P0 only"
+        ],
+        0,
+        "Expanding carry equations: C1 = G0 + P0C0; C2 = G1 + P1C1 = G1 + P1(G0 + P0C0) = G1 + P1G0 + P1P0C0.",
+        2
     ],
     [
-      "Priority arbitration among multiple bus masters arranged in a physical serial chain is known as:",
-      [
-        "Independent request",
-        "Daisy chaining",
-        "Polling arbitration",
-        "Decentralized token passing"
-      ],
-      1,
-      "Daisy chaining uses a serial bus grant line passed from the highest-priority device to lower-priority devices in physical sequence.",
-      5
+        "In IEEE 754 single precision, exponent field width is:",
+        [
+            "8 bits",
+            "11 bits",
+            "23 bits",
+            "32 bits"
+        ],
+        0,
+        "IEEE 754 single precision allocates 1 sign bit, 8 exponent bits, and 23 fraction/mantissa bits (total 32 bits).",
+        2
     ],
     [
-      "A non-pipelined processor executes an instruction in 10 ns. A 5-stage pipeline with 2 ns clock cycle achieves theoretical maximum speedup of:",
-      [
-        "2.5",
-        "5",
-        "10",
-        "1"
-      ],
-      1,
-      "Maximum speedup for an ideal k-stage pipeline over an equivalent unpipelined processor is equal to the number of stages k = 5.",
-      6
+        "The exponent bias in IEEE 754 single precision is:",
+        [
+            "63",
+            "127",
+            "128",
+            "1023"
+        ],
+        1,
+        "With an 8-bit exponent, the bias constant is 2^(8-1) - 1 = 127.",
+        2
     ],
     [
-      "Operand forwarding (bypassing) in pipelined CPUs is used to eliminate stalls caused by:",
-      [
-        "Structural hazards",
-        "RAW (Read-After-Write) data hazards",
-        "Branch mispredictions",
-        "Cache misses"
-      ],
-      1,
-      "Operand forwarding routes the newly computed ALU result directly to the inputs of dependent instructions without waiting for write-back to the register file.",
-      6
+        "What is the 8-bit two's complement result of 01111111 + 00000001?",
+        [
+            "10000000 with signed overflow",
+            "10000000 without overflow",
+            "00000000",
+            "01111110"
+        ],
+        0,
+        "01111111 (+127) plus 00000001 (+1) yields 10000000 (-128 in two's complement). Adding two positive numbers produced a negative result, triggering signed overflow (V=1).",
+        2
     ],
     [
-      "Branch target buffers (BTB) in high-performance pipelines are used to mitigate:",
-      [
-        "Data hazards",
-        "Control hazards",
-        "Memory bus conflicts",
-        "Overflow errors"
-      ],
-      1,
-      "A BTB caches the branch target address and prediction bits, allowing the pipeline to fetch the target instruction with zero branch delay cycles.",
-      6
+        "How many 32K×1 RAM chips are needed for 256 KiB memory?",
+        [
+            "8",
+            "32",
+            "64",
+            "128"
+        ],
+        2,
+        "256 KiB = 256 × 8 = 2048 Kbits. Each chip is 32 Kbits. 2048 / 32 = 64 chips.",
+        3
+    ],
+    [
+        "How many 64K×8 chips are needed to build 256K×16 memory?",
+        [
+            "4",
+            "6",
+            "8",
+            "16"
+        ],
+        2,
+        "Row expansion = 256K / 64K = 4. Word width expansion = 16 / 8 = 2. Total chips = 4 × 2 = 8 chips.",
+        3
+    ],
+    [
+        "A 32-bit address system has 4 KiB cache blocks. Block offset bits required:",
+        [
+            "8",
+            "10",
+            "12",
+            "16"
+        ],
+        2,
+        "Block size = 4 KiB = 4096 bytes = 2^12 bytes. Therefore, 12 bits are needed for the byte offset within each cache line.",
+        3
+    ],
+    [
+        "A direct-mapped cache contains 64 lines. The cache line index requires:",
+        [
+            "4 bits",
+            "6 bits",
+            "8 bits",
+            "12 bits"
+        ],
+        1,
+        "Number of cache lines = 64 = 2^6. Hence 6 bits are required for the cache index.",
+        3
+    ],
+    [
+        "A 32-bit byte-addressed system has a 16 KiB direct-mapped cache with 64-byte blocks. Tag bits required:",
+        [
+            "12",
+            "16",
+            "18",
+            "20"
+        ],
+        2,
+        "Block offset = log2(64) = 6 bits. Number of cache lines = 16 KiB / 64 B = 256 lines = 2^8 (8 index bits). Tag bits = 32 - (8 + 6) = 18 bits.",
+        3
+    ],
+    [
+        "A cache has hit time 2 ns, miss rate 5%, miss penalty 80 ns. AMAT is:",
+        [
+            "2 ns",
+            "4 ns",
+            "6 ns",
+            "82 ns"
+        ],
+        2,
+        "Average Memory Access Time (AMAT) = Hit Time + (Miss Rate × Miss Penalty) = 2 ns + (0.05 × 80 ns) = 2 + 4 = 6 ns.",
+        3
+    ],
+    [
+        "A 4-way set associative cache contains 128 total lines. Number of sets:",
+        [
+            "16",
+            "32",
+            "64",
+            "512"
+        ],
+        1,
+        "Number of sets = Total lines / Associativity = 128 / 4 = 32 sets.",
+        3
+    ],
+    [
+        "Which cache write policy immediately updates main memory on every cache write?",
+        [
+            "Write-back",
+            "Write-through",
+            "Write-allocate",
+            "No-write-allocate"
+        ],
+        1,
+        "Write-through updates primary main memory simultaneously with every cache write, preventing stale data in memory.",
+        3
+    ],
+    [
+        "Which statement about microprogrammed control is correct?",
+        [
+            "Always faster than hardwired",
+            "Control signals are generated using stored microinstructions",
+            "Cannot implement complex instructions",
+            "Uses no control memory"
+        ],
+        1,
+        "Microprogrammed control units fetch sequential microinstructions from internal control ROM to generate control signals.",
+        3
+    ],
+    [
+        "Which method transfers large blocks between an I/O device and main memory with minimal CPU intervention?",
+        [
+            "Programmed I/O",
+            "DMA",
+            "Polling",
+            "Register addressing"
+        ],
+        1,
+        "Direct Memory Access (DMA) transfers large data blocks directly between peripheral controllers and memory, bypassing the CPU during transfer.",
+        4
+    ],
+    [
+        "In cycle stealing, a DMA controller:",
+        [
+            "Disables all interrupts",
+            "Temporarily uses memory bus cycles",
+            "Deletes cache contents",
+            "Stops the system clock"
+        ],
+        1,
+        "In cycle stealing, the DMA controller temporarily borrows one bus cycle from the CPU to transfer a word of data.",
+        4
+    ],
+    [
+        "A DMA transfer moves 4096 bytes at 1024 bytes/ms. Ideal transfer time is:",
+        [
+            "1 ms",
+            "2 ms",
+            "4 ms",
+            "8 ms"
+        ],
+        2,
+        "Transfer time = 4096 bytes / (1024 bytes/ms) = 4 ms.",
+        4
+    ],
+    [
+        "In memory-mapped I/O, peripheral registers:",
+        [
+            "Use the normal memory address space",
+            "Require only special I/O addresses",
+            "Cannot be accessed by CPU",
+            "Are stored only in cache"
+        ],
+        0,
+        "Memory-mapped I/O shares the unified physical address space between memory and peripheral registers, using standard load/store instructions.",
+        4
+    ],
+    [
+        "In interrupt-driven I/O, the CPU normally:",
+        [
+            "Polls continuously",
+            "Responds to an interrupt when service is needed",
+            "Cannot execute other tasks",
+            "Transfers data only via DMA"
+        ],
+        1,
+        "The CPU executes its regular program tasks uninterrupted until an external device raises an interrupt request line requiring service.",
+        4
+    ],
+    [
+        "A vectored interrupt provides:",
+        [
+            "An interrupt handler address or vector",
+            "A faster CPU clock",
+            "A cache tag",
+            "A DMA byte count"
+        ],
+        0,
+        "In vectored interrupts, the interrupting hardware supplies an interrupt vector pointing to the entry address of its Interrupt Service Routine (ISR).",
+        4
+    ],
+    [
+        "In a daisy-chain priority interrupt arrangement, highest priority usually belongs to:",
+        [
+            "Last device in chain",
+            "First device in chain",
+            "Device with most memory",
+            "Device with slowest clock"
+        ],
+        1,
+        "The first device closest to the CPU on the serial daisy chain intercepts the interrupt acknowledge signal first, giving it highest priority.",
+        4
+    ],
+    [
+        "Which is an example of a standard peripheral interface?",
+        [
+            "USB",
+            "Booth encoding",
+            "LRU",
+            "RISC"
+        ],
+        0,
+        "Universal Serial Bus (USB) is an industry-standard serial peripheral interface specification.",
+        4
+    ],
+    [
+        "An ideal k-stage pipeline completing n instructions requires how many clock cycles?",
+        [
+            "nk",
+            "n+k−1",
+            "n−k",
+            "k/n"
+        ],
+        1,
+        "Under ideal conditions without stalls, completing n instructions in a k-stage pipeline requires k + n - 1 clock cycles.",
+        5
+    ],
+    [
+        "A 5-stage pipeline executes 20 instructions with no stalls. Number of cycles:",
+        [
+            "20",
+            "24",
+            "25",
+            "100"
+        ],
+        1,
+        "Cycles = k + n - 1 = 5 + 20 - 1 = 24 clock cycles.",
+        5
+    ],
+    [
+        "A non-pipelined design needs 5 cycles per instruction. Ideal 5-stage pipeline completes 100 instructions in 104 cycles. Speedup approximately:",
+        [
+            "2.5",
+            "4.81",
+            "5.20",
+            "10"
+        ],
+        1,
+        "Unpipelined = 100 × 5 = 500 cycles. Pipelined = 104 cycles. Speedup = 500 / 104 ≈ 4.807 ≈ 4.81.",
+        5
+    ],
+    [
+        "A 4-stage pipeline has stage delays 100, 150, 120 and 130 ns and 10 ns latch overhead. Minimum clock period:",
+        [
+            "100 ns",
+            "150 ns",
+            "160 ns",
+            "500 ns"
+        ],
+        2,
+        "Clock period is governed by the longest stage delay plus latch setup time: max(100, 150, 120, 130) + 10 ns = 150 + 10 = 160 ns.",
+        5
+    ],
+    [
+        "Which hazard occurs when two pipeline stages need the same hardware resource simultaneously?",
+        [
+            "Data hazard",
+            "Control hazard",
+            "Structural hazard",
+            "Arithmetic overflow"
+        ],
+        2,
+        "A structural hazard occurs when conflicting resource demands (such as a single memory bus port) prevent concurrent execution.",
+        5
+    ],
+    [
+        "Which technique helps reduce branch-related control hazards?",
+        [
+            "Branch prediction",
+            "Increasing memory address bits",
+            "Changing ASCII encoding",
+            "Write-through cache"
+        ],
+        0,
+        "Branch prediction guesses conditional branch directions early, minimizing pipeline stall penalties.",
+        5
+    ],
+    [
+        "Which dependency is called a true data dependency?",
+        [
+            "WAR",
+            "WAW",
+            "RAW",
+            "RAR"
+        ],
+        2,
+        "Read-After-Write (RAW) represents a true data dependency where an instruction must wait for an operand produced by an earlier instruction.",
+        5
+    ],
+    [
+        "Which Flynn classification has one instruction stream operating on multiple data elements?",
+        [
+            "SISD",
+            "SIMD",
+            "MISD",
+            "MIMD"
+        ],
+        1,
+        "Single Instruction, Multiple Data (SIMD) processes multiple data points simultaneously using a single instruction stream.",
+        5
+    ],
+    [
+        "Amdahl's law: 80% of a program is parallelizable, using 4 processors. Ideal speedup:",
+        [
+            "2.0",
+            "2.5",
+            "4.0",
+            "5.0"
+        ],
+        1,
+        "Speedup = 1 / ((1 - 0.8) + 0.8 / 4) = 1 / (0.2 + 0.2) = 1 / 0.4 = 2.5.",
+        5
+    ],
+    [
+        "Which replacement algorithm evicts the least recently used cache line?",
+        [
+            "FIFO",
+            "LRU",
+            "Random",
+            "Optimal"
+        ],
+        1,
+        "The Least Recently Used (LRU) algorithm discards the cache line that has remained unaccessed for the greatest duration.",
+        6
+    ],
+    [
+        "A 2-way set associative cache has 16 sets. Total cache lines:",
+        [
+            "8",
+            "16",
+            "32",
+            "64"
+        ],
+        2,
+        "Total cache lines = Sets × Lines per set = 16 × 2 = 32 lines.",
+        6
+    ],
+    [
+        "A cache records 900 hits and 100 misses. Hit ratio:",
+        [
+            "80%",
+            "85%",
+            "90%",
+            "95%"
+        ],
+        2,
+        "Hit ratio = 900 / (900 + 100) = 900 / 1000 = 0.90 = 90%.",
+        6
+    ],
+    [
+        "Which Flynn classification uses multiple instruction streams and multiple data streams?",
+        [
+            "SISD",
+            "SIMD",
+            "MISD",
+            "MIMD"
+        ],
+        3,
+        "Multiple Instruction, Multiple Data (MIMD) systems execute independent instruction streams on different data sets concurrently.",
+        6
+    ],
+    [
+        "Cache coherence primarily addresses:",
+        [
+            "Consistency of shared cached data",
+            "Binary subtraction",
+            "Instruction decoding",
+            "Character encoding"
+        ],
+        0,
+        "Cache coherence protocols guarantee that all processors in a multiprocessor system observe a consistent, up-to-date view of shared memory.",
+        6
+    ],
+    [
+        "Which memory is generally volatile and commonly used as main system RAM?",
+        [
+            "ROM",
+            "DRAM",
+            "Flash",
+            "Optical disc"
+        ],
+        1,
+        "Dynamic Random Access Memory (DRAM) requires periodic refreshing and is volatile, serving as primary main system memory.",
+        6
+    ],
+    [
+        "Memory interleaving improves performance mainly by:",
+        [
+            "Removing the CPU",
+            "Allowing overlapping access across memory banks",
+            "Eliminating addressing",
+            "Converting RAM into ROM"
+        ],
+        1,
+        "Memory interleaving distributes successive words across independent memory banks, allowing overlapping memory accesses and higher throughput.",
+        6
     ]
-  ],
+],
   "flat": [
     [
       "The transition function δ of a Deterministic Finite Automaton (DFA) is formally defined as:",
@@ -4283,3 +4911,342 @@ export function pyqs(subject){
 }
 
 export const allTopics=subjects.flatMap(s=>s.units.flatMap(u=>u.topics));
+
+export const unitWeightage = {
+  "cn": [
+    {
+      "unit": 1,
+      "title": "Networking Fundamentals",
+      "marks": 14,
+      "mcqs": 5,
+      "pyqs": 16,
+      "priority": "VERY HIGH",
+      "flow": "OSI Reference Model → TCP/IP Architecture → Mesh/Star Topologies → Layer 2 Switching"
+    },
+    {
+      "unit": 2,
+      "title": "Physical Layer",
+      "marks": 16,
+      "mcqs": 8,
+      "pyqs": 18,
+      "priority": "CRITICAL",
+      "flow": "Data Rate Limits (Nyquist & Shannon) → Transmission Media → Multiplexing (FDM/TDM/WDM) → Packet Switching"
+    },
+    {
+      "unit": 3,
+      "title": "Data Link Layer & MAC",
+      "marks": 21,
+      "mcqs": 11,
+      "pyqs": 22,
+      "priority": "CRITICAL",
+      "flow": "Framing & Bit Stuffing → CRC Polynomial Division → Hamming Codes → ARQ Protocols → ALOHA & CSMA/CD"
+    },
+    {
+      "unit": 4,
+      "title": "Network Layer",
+      "marks": 19,
+      "mcqs": 10,
+      "pyqs": 20,
+      "priority": "CRITICAL",
+      "flow": "IPv4 Addressing & CIDR Subnetting → IPv6 → Routing Algorithms (Dijkstra / Bellman-Ford) → ARP & ICMP"
+    },
+    {
+      "unit": 5,
+      "title": "Transport Layer",
+      "marks": 16,
+      "mcqs": 8,
+      "pyqs": 17,
+      "priority": "VERY HIGH",
+      "flow": "TCP 3-Way Handshake → Flow Control (Sliding Window) → Congestion Control (Leaky/Token Bucket) → UDP"
+    },
+    {
+      "unit": 6,
+      "title": "Application Layer",
+      "marks": 14,
+      "mcqs": 6,
+      "pyqs": 14,
+      "priority": "HIGH",
+      "flow": "DNS Hierarchy & Records → HTTP/HTTPS Architecture → SMTP & POP3 Relaying → FTP Dual Connections"
+    }
+  ],
+  "coa": [
+    {
+      "unit": 1,
+      "title": "CPU, ISA & Addressing",
+      "marks": 16,
+      "mcqs": 8,
+      "pyqs": 18,
+      "priority": "CRITICAL",
+      "flow": "Processor Registers (PC/IR/MAR/MDR) → Instruction Execution Cycle → Addressing Modes (Indexed/Immediate) → CISC vs RISC"
+    },
+    {
+      "unit": 2,
+      "title": "Computer Arithmetic",
+      "marks": 18,
+      "mcqs": 9,
+      "pyqs": 20,
+      "priority": "CRITICAL",
+      "flow": "Two’s Complement Range & Overflow → Booth’s Signed Multiplication → Carry Look-Ahead Adders → IEEE 754 Floating Point"
+    },
+    {
+      "unit": 3,
+      "title": "Control Unit & Memory Hierarchy",
+      "marks": 18,
+      "mcqs": 9,
+      "pyqs": 19,
+      "priority": "CRITICAL",
+      "flow": "Hardwired vs Microprogrammed Control ROM → RAM Chip Organization (32K×1) → Direct & Set-Associative Cache → AMAT"
+    },
+    {
+      "unit": 4,
+      "title": "I/O Organization & DMA",
+      "marks": 16,
+      "mcqs": 8,
+      "pyqs": 17,
+      "priority": "VERY HIGH",
+      "flow": "Programmed vs Interrupt-Driven I/O → Vectored Interrupts & Priority Daisy Chaining → DMA Controllers & Cycle Stealing"
+    },
+    {
+      "unit": 5,
+      "title": "Instruction Pipelining",
+      "marks": 18,
+      "mcqs": 9,
+      "pyqs": 20,
+      "priority": "CRITICAL",
+      "flow": "Pipeline Clock Cycles (k+n-1) → Speedup Calculations → Hazards (RAW Data, Control, Structural) → Branch Prediction"
+    },
+    {
+      "unit": 6,
+      "title": "Memory System & Parallelism",
+      "marks": 14,
+      "mcqs": 7,
+      "pyqs": 13,
+      "priority": "HIGH",
+      "flow": "Cache Replacement (LRU/FIFO) → Flynn’s Taxonomy (SISD/SIMD/MIMD) → Cache Coherence Protocols → Memory Interleaving"
+    }
+  ],
+  "flat": [
+    {
+      "unit": 1,
+      "title": "Finite Automata",
+      "marks": 16,
+      "mcqs": 6,
+      "pyqs": 17,
+      "priority": "VERY HIGH",
+      "flow": "Alphabet & Languages → DFA State Minimization → NFA Subset Construction → Mealy & Moore Machines"
+    },
+    {
+      "unit": 2,
+      "title": "Regular Languages",
+      "marks": 18,
+      "mcqs": 6,
+      "pyqs": 19,
+      "priority": "CRITICAL",
+      "flow": "Regular Expressions & Arden’s Theorem → Pumping Lemma for Regular Languages → Closure Properties → Myhill-Nerode"
+    },
+    {
+      "unit": 3,
+      "title": "Context-Free Grammars",
+      "marks": 17,
+      "mcqs": 6,
+      "pyqs": 18,
+      "priority": "CRITICAL",
+      "flow": "CFG Derivation Trees → Grammar Ambiguity → Chomsky Normal Form (CNF) → Greibach Normal Form (GNF)"
+    },
+    {
+      "unit": 4,
+      "title": "Pushdown Automata",
+      "marks": 17,
+      "mcqs": 6,
+      "pyqs": 18,
+      "priority": "CRITICAL",
+      "flow": "PDA Formal Definition → Acceptance by Final State vs Empty Stack → DPDA vs NPDA → Pumping Lemma for CFL"
+    },
+    {
+      "unit": 5,
+      "title": "Turing Machines",
+      "marks": 18,
+      "mcqs": 6,
+      "pyqs": 19,
+      "priority": "CRITICAL",
+      "flow": "Turing Machine 7-Tuple → Multi-Tape Simulation → Halting Problem Proof → Recursive vs Recursively Enumerable"
+    },
+    {
+      "unit": 6,
+      "title": "Chomsky Hierarchy & Decidability",
+      "marks": 14,
+      "mcqs": 6,
+      "pyqs": 16,
+      "priority": "HIGH",
+      "flow": "Chomsky 4-Level Hierarchy → Linear Bounded Automata (CSL) → Post Correspondence Problem (PCP) → Rice’s Theorem"
+    }
+  ],
+  "dbms": [
+    {
+      "unit": 1,
+      "title": "Database Concepts & ER Modeling",
+      "marks": 15,
+      "mcqs": 6,
+      "pyqs": 16,
+      "priority": "HIGH",
+      "flow": "Three-Schema Architecture & Data Independence → ER Diagrams (Weak Entities & Participation) → Relational Mapping"
+    },
+    {
+      "unit": 2,
+      "title": "Relational Model & SQL",
+      "marks": 18,
+      "mcqs": 6,
+      "pyqs": 20,
+      "priority": "CRITICAL",
+      "flow": "Relational Algebra (σ, π, ⨝, ÷) → Complex SQL (GROUP BY / HAVING / Subqueries) → Outer Joins & Integrity Constraints"
+    },
+    {
+      "unit": 3,
+      "title": "Relational Database Design",
+      "marks": 20,
+      "mcqs": 6,
+      "pyqs": 22,
+      "priority": "CRITICAL",
+      "flow": "Functional Dependencies & Armstrong’s Axioms → Normal Forms (1NF, 2NF, 3NF, BCNF) → Lossless-Join & Dependency Preservation"
+    },
+    {
+      "unit": 4,
+      "title": "Transaction Processing",
+      "marks": 17,
+      "mcqs": 6,
+      "pyqs": 18,
+      "priority": "CRITICAL",
+      "flow": "ACID Properties → Conflict & View Serializability Precedence Graphs → SQL Transaction Isolation Levels"
+    },
+    {
+      "unit": 5,
+      "title": "Concurrency Control & Recovery",
+      "marks": 17,
+      "mcqs": 6,
+      "pyqs": 18,
+      "priority": "CRITICAL",
+      "flow": "Two-Phase Locking (Strict 2PL) → Deadlock Prevention (Wait-Die) → Timestamp Ordering → Write-Ahead Logging & ARIES"
+    },
+    {
+      "unit": 6,
+      "title": "Storage & Indexing",
+      "marks": 13,
+      "mcqs": 6,
+      "pyqs": 13,
+      "priority": "HIGH",
+      "flow": "Dense vs Sparse Indexing → B+ Tree Order & Fanout Calculations → Dynamic Extendible Hashing → Predicate Pushdown"
+    }
+  ],
+  "daa": [
+    {
+      "unit": 1,
+      "title": "Algorithm Analysis",
+      "marks": 16,
+      "mcqs": 6,
+      "pyqs": 17,
+      "priority": "VERY HIGH",
+      "flow": "Asymptotic Notations (O, Ω, Θ) → Master Theorem Analysis → Recursion Tree Method → Amortized Analysis"
+    },
+    {
+      "unit": 2,
+      "title": "Divide and Conquer",
+      "marks": 17,
+      "mcqs": 6,
+      "pyqs": 19,
+      "priority": "CRITICAL",
+      "flow": "Merge Sort Recurrence → QuickSort Partitioning & Worst-Case → Strassen’s Matrix Multiplication → Median of Medians"
+    },
+    {
+      "unit": 3,
+      "title": "Greedy Method",
+      "marks": 18,
+      "mcqs": 6,
+      "pyqs": 20,
+      "priority": "CRITICAL",
+      "flow": "Greedy-Choice Property & Optimal Substructure → Fractional Knapsack → Huffman Prefix Coding → Job Sequencing"
+    },
+    {
+      "unit": 4,
+      "title": "Dynamic Programming",
+      "marks": 20,
+      "mcqs": 6,
+      "pyqs": 22,
+      "priority": "CRITICAL",
+      "flow": "Memoization vs Tabulation → 0/1 Knapsack DP Table → Matrix Chain Multiplication → Longest Common Subsequence (LCS)"
+    },
+    {
+      "unit": 5,
+      "title": "Graph Algorithms",
+      "marks": 17,
+      "mcqs": 6,
+      "pyqs": 19,
+      "priority": "CRITICAL",
+      "flow": "BFS & DFS Traversal → MST (Prim’s & Kruskal’s with Union-Find) → Dijkstra Shortest Paths → Bellman-Ford Cycles"
+    },
+    {
+      "unit": 6,
+      "title": "NP-Completeness",
+      "marks": 12,
+      "mcqs": 6,
+      "pyqs": 10,
+      "priority": "HIGH",
+      "flow": "Class P and Class NP Definitions → Polynomial-Time Reductions → Cook-Levin SAT Proof → Vertex Cover Approximation"
+    }
+  ],
+  "etc": [
+    {
+      "unit": 1,
+      "title": "Communication Theory",
+      "marks": 15,
+      "mcqs": 6,
+      "pyqs": 16,
+      "priority": "HIGH",
+      "flow": "Shannon-Weaver Transmission Model → Downward, Upward & Diagonal Flow → Grapevine Networks → Communication Barriers"
+    },
+    {
+      "unit": 2,
+      "title": "Technical Writing & Grammar",
+      "marks": 16,
+      "mcqs": 6,
+      "pyqs": 17,
+      "priority": "VERY HIGH",
+      "flow": "Conciseness & Active vs Passive Voice → Subject-Verb Agreement → Dangling Modifiers → Clear Engineering Style"
+    },
+    {
+      "unit": 3,
+      "title": "Professional Documents",
+      "marks": 18,
+      "mcqs": 6,
+      "pyqs": 20,
+      "priority": "CRITICAL",
+      "flow": "Formal Engineering Reports & Front Matter → Project Proposals & Deliverables → Executive Summaries → Memos & MoM"
+    },
+    {
+      "unit": 4,
+      "title": "Reading & Note-Taking",
+      "marks": 15,
+      "mcqs": 6,
+      "pyqs": 16,
+      "priority": "HIGH",
+      "flow": "SQ3R Reading Strategy → Skimming vs Scanning → Cornell Note-Taking System → Critical Evaluation of Literature"
+    },
+    {
+      "unit": 5,
+      "title": "Oral Presentation & GD",
+      "marks": 18,
+      "mcqs": 6,
+      "pyqs": 19,
+      "priority": "CRITICAL",
+      "flow": "Extempore Delivery Strategies → Group Discussion Leadership & Consensus → Body Language (Kinesics) → STAR Interviews"
+    },
+    {
+      "unit": 6,
+      "title": "Ethics & Intellectual Property",
+      "marks": 18,
+      "mcqs": 6,
+      "pyqs": 19,
+      "priority": "CRITICAL",
+      "flow": "IEEE Code of Ethics Public Safety Mandate → Plagiarism Prevention (Patchwriting) → Copyright & Patents → NDAs"
+    }
+  ]
+};
