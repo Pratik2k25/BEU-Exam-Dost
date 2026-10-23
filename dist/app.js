@@ -1,8 +1,10 @@
+import {injectSpeedInsights} from '@vercel/speed-insights';
 import {installUpdates} from './updates.js';
 import {appVersion,buildId,socialLinks} from './app-meta.js';
 import {examSchedule,examDates,examSession} from './schedule.js';
 import {subjects,branches,colleges,colors,allTopics,quizQuestions,pyqs} from './data.js';
 import {scoreQuiz,recordTime,validateBackup,yearCounts,buildPlan,dateKey,uid} from './core.js';
+injectSpeedInsights();
 const KEY='exam-dost-v1';const blank=()=>({profile:null,topics:{},saved:[],marked:[],attempts:[],tasks:[],exams:{},settings:{theme:'light',goal:'Complete important topics',availability:[60,90,90,90,90,90,120],slot:'Evening',autoPlan:false}});
 let state=blank();let storageOK=true;try{const raw=localStorage.getItem(KEY);if(raw)state={...state,...validateBackup(JSON.parse(raw))};}catch(e){storageOK=false;}
 state.settings={...blank().settings,...state.settings};
