@@ -1,4 +1,4 @@
-import {cpSync,mkdirSync,readFileSync,writeFileSync,readdirSync,rmSync} from 'node:fs';
+import {cpSync,mkdirSync,readFileSync,writeFileSync,readdirSync,rmSync,existsSync} from 'node:fs';
 import {resolve,join,relative,dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {createHash} from 'node:crypto';
@@ -16,6 +16,8 @@ export function buildSite({sourceDir=join(root,'dist'),outputDir=join(root,'buil
  writeFileSync(join(outputDir,'release.json'),JSON.stringify({version,buildId,commit})+'\n');
  const shell=['./',...files(outputDir).map(file=>'./'+relative(outputDir,file).replaceAll('\\','/')).filter(p=>p!=='./sw.js').map(p=>['./app.js','./style.css'].includes(p)?p+'?v='+buildId:p)];
  const worker=join(outputDir,'sw.js');writeFileSync(worker,readFileSync(worker,'utf8').replace(/const CACHE='[^']*';/,`const CACHE='exam-dost-shell-${buildId}';`).replace(/const SHELL=\[.*?\];/s,`const SHELL=${JSON.stringify(shell)};`));
+ const landingDir=join(root,'landing');
+ if(outputDir===join(root,'build')&&existsSync(landingDir)){cpSync(landingDir,join(outputDir,'landing'),{recursive:true});}
  return {buildId,version,fileCount:files(outputDir).length};
 }
 if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url))console.log(JSON.stringify(buildSite()));
