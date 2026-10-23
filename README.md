@@ -1,6 +1,10 @@
-# Exam Dost
+# BEU Exam Dost
 
-Account-free, offline-capable exam companion. This is the complete interactive review build of the approved mobile designs; all study content is explicitly demo content pending the owner's verified data.
+Account-free, offline-first study companion for Bihar Engineering University (BEU) B.Tech CSE students.
+
+- **Web App (PWA):** [https://app.beudeveloper.in/](https://app.beudeveloper.in/)
+- **Developer & Project Portal:** [https://beudeveloper.in/](https://beudeveloper.in/)
+- **GitHub Repository:** [https://github.com/Pratik2k25/BEU-Exam-Dost](https://github.com/Pratik2k25/BEU-Exam-Dost)
 
 ## Run
 Serve `dist/` using any static HTTPS host or localhost server. No dependencies or compilation are required. Run `npm test` and `npm run check` for core verification. The application routes use URL hashes; no server rewrites are required.

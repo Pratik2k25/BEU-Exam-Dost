@@ -4,103 +4,103 @@
         xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
         http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
   <url>
-    <loc>https://beu-exam-dost.vercel.app/</loc>
+    <loc>https://app.beudeveloper.in/</loc>
     <lastmod>2026-10-23</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://beu-exam-dost.vercel.app/#/subjects</loc>
+    <loc>https://app.beudeveloper.in/#/subjects</loc>
     <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://beu-exam-dost.vercel.app/#/pyqs</loc>
+    <loc>https://app.beudeveloper.in/#/pyqs</loc>
     <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://beu-exam-dost.vercel.app/#/quiz</loc>
+    <loc>https://app.beudeveloper.in/#/quiz</loc>
     <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://beu-exam-dost.vercel.app/#/planner</loc>
+    <loc>https://app.beudeveloper.in/#/planner</loc>
     <lastmod>2026-10-23</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://beu-exam-dost.vercel.app/#/subjects/cn</loc>
+    <loc>https://app.beudeveloper.in/#/subjects/cn</loc>
     <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://beu-exam-dost.vercel.app/#/subjects/coa</loc>
+    <loc>https://app.beudeveloper.in/#/subjects/coa</loc>
     <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://beu-exam-dost.vercel.app/#/subjects/flat</loc>
+    <loc>https://app.beudeveloper.in/#/subjects/flat</loc>
     <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://beu-exam-dost.vercel.app/#/subjects/dbms</loc>
+    <loc>https://app.beudeveloper.in/#/subjects/dbms</loc>
     <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://beu-exam-dost.vercel.app/#/subjects/daa</loc>
+    <loc>https://app.beudeveloper.in/#/subjects/daa</loc>
     <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://beu-exam-dost.vercel.app/#/subjects/etc</loc>
+    <loc>https://app.beudeveloper.in/#/subjects/etc</loc>
     <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://beu-exam-dost.vercel.app/#/pyqs/cn</loc>
+    <loc>https://app.beudeveloper.in/#/pyqs/cn</loc>
     <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://beu-exam-dost.vercel.app/#/pyqs/coa</loc>
+    <loc>https://app.beudeveloper.in/#/pyqs/coa</loc>
     <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://beu-exam-dost.vercel.app/#/pyqs/flat</loc>
+    <loc>https://app.beudeveloper.in/#/pyqs/flat</loc>
     <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://beu-exam-dost.vercel.app/#/pyqs/dbms</loc>
+    <loc>https://app.beudeveloper.in/#/pyqs/dbms</loc>
     <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://beu-exam-dost.vercel.app/#/pyqs/daa</loc>
+    <loc>https://app.beudeveloper.in/#/pyqs/daa</loc>
     <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://beu-exam-dost.vercel.app/#/pyqs/etc</loc>
+    <loc>https://app.beudeveloper.in/#/pyqs/etc</loc>
     <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>

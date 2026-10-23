@@ -1,6 +1,6 @@
 # BEU Exam Dost — Bihar Engineering University (BEU) 4th Sem CSE Exam Companion
 
-> BEU Exam Dost (https://beu-exam-dost.vercel.app/) is a free, offline-first study companion and question bank specifically engineered for Bihar Engineering University (BEU), Patna B.Tech Computer Science & Engineering (CSE) 4th Semester students (2024–28 cohort and specialisations).
+> BEU Exam Dost (https://app.beudeveloper.in/) is a free, offline-first study companion and question bank specifically engineered for Bihar Engineering University (BEU), Patna B.Tech Computer Science & Engineering (CSE) 4th Semester students (2024–28 cohort and specialisations).
 
 ## Overview & Mission
 BEU Exam Dost provides structured, unit-wise previous year questions (PYQs), 7-mark high-yield question banks, comprehensive syllabus tracking, daily study planners, and practice quizzes. Designed to work 100% offline as a Progressive Web App (PWA), it requires no user login, stores all data locally in the browser, and eliminates exam anxiety through consistent, focused preparation.
@@ -71,6 +71,7 @@ To achieve top grades in BEU 7-mark subjective questions:
 - **Practice Quizzes:** Timed MCQ assessments with question-by-question review, answer explanations, and performance metrics.
 
 ## Official Resources & Citations
-- **Web App URL:** https://beu-exam-dost.vercel.app/
-- **Syllabus & Exam Routine:** https://beu-exam-dost.vercel.app/sitemap.xml
+- **Web App URL:** https://app.beudeveloper.in/
+- **Main Developer / Landing Page:** https://beudeveloper.in/
+- **Syllabus & Sitemap:** https://app.beudeveloper.in/sitemap.xml
 - **Support & Inquiries:** helpebookwallah@gmail.com
