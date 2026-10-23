@@ -86,17 +86,22 @@
 .brand-signature .brand-byline{font-size:8.4cqw;font-weight:650;letter-spacing:-.04em;line-height:1.2;margin-top:6px}
 
 /* Official Logo image styles */
-.wordmark img{width:auto;height:44px;max-width:240px;object-fit:contain}
-.wordmark .brand-logo-light,.wordmark .brand-logo-dark{height:44px;width:auto;max-width:240px;object-fit:contain;display:block}
-.brand-logo-light{height:44px;width:auto;max-width:240px;object-fit:contain;display:block}
-.brand-logo-dark{height:44px;width:auto;max-width:240px;object-fit:contain;display:none}
-[data-theme=dark] .wordmark .brand-logo-light,[data-theme=dark] .brand-logo-light{display:none!important}
-[data-theme=dark] .wordmark .brand-logo-dark,[data-theme=dark] .brand-logo-dark{display:block!important}
+.wordmark img,
+.brand-logo-light,
+.brand-logo-dark{width:auto;height:44px;max-width:240px;object-fit:contain}
+.brand-logo-light,
+.wordmark .brand-logo-light{display:block!important}
+.brand-logo-dark,
+.wordmark .brand-logo-dark{display:none!important}
+[data-theme=dark] .brand-logo-light,
+[data-theme=dark] .wordmark .brand-logo-light{display:none!important}
+[data-theme=dark] .brand-logo-dark,
+[data-theme=dark] .wordmark .brand-logo-dark{display:block!important}
 .setup-brand img,.setup-brand .brand-logo-light,.setup-brand .brand-logo-dark{height:58px;width:auto;max-width:300px}
 @media(max-width:520px){
-  .wordmark img{width:auto;height:36px;max-width:195px}
-  .wordmark .brand-logo-light,.wordmark .brand-logo-dark{height:36px;width:auto;max-width:195px}
-  .brand-logo-light,.brand-logo-dark{height:36px;width:auto;max-width:195px}
+  .wordmark img,
+  .brand-logo-light,
+  .brand-logo-dark{height:36px;max-width:195px}
   .setup-brand img,.setup-brand .brand-logo-light,.setup-brand .brand-logo-dark{height:48px;max-width:240px}
 }
 /* Interactive Weightage & Topic Flow Components */
@@ -131,4 +136,76 @@
 [data-theme=dark] .flow-text{color:#f1f5f9}
 [data-theme=dark] .flow-meta,[data-theme=dark] .unit-mastery-row{border-color:#334155}
 [data-theme=dark] .revision-tip{background:rgba(239,68,68,0.15);color:#fca5a5}
+
+/* Header Notification Pip & Round Actions */
+.round{position:relative;transition:transform 0.15s ease,background 0.15s ease,border-color 0.15s ease}
+.round:hover{transform:scale(1.04)}
+.round:active{transform:scale(0.96)}
+.notif-pip{position:absolute;top:7px;right:7px;width:8px;height:8px;border-radius:50%;background:#ef4444;box-shadow:0 0 0 2px var(--surface,#fff);animation:pulse-pip 2.5s infinite}
+@keyframes pulse-pip{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.25);opacity:0.8}}
+[data-theme=dark] .notif-pip{box-shadow:0 0 0 2px #18222b}
+
+/* Desktop / Laptop Experience Barrier Notice */
+.desktop-gate-overlay{position:fixed;inset:0;background:rgba(15,23,42,0.88);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px}
+.desktop-gate-card{background:var(--surface,#ffffff);color:var(--ink,#1e293b);border-radius:28px;max-width:540px;width:100%;padding:36px;box-shadow:0 25px 80px rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.12);text-align:center;position:relative;animation:gate-appear 0.3s cubic-bezier(0.16,1,0.3,1)}
+@keyframes gate-appear{from{opacity:0;transform:scale(0.94) translateY(12px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.desktop-gate-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:30px;background:#e0f2fe;color:#0284c7;font-size:12px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:16px}
+[data-theme=dark] .desktop-gate-badge{background:#0c4a6e;color:#7dd3fc}
+.desktop-gate-card h2{font-size:26px;font-weight:750;letter-spacing:-0.03em;margin-bottom:12px;color:var(--ink,#0f172a)}
+.desktop-gate-card p{font-size:15px;line-height:1.6;color:var(--muted,#64748b);margin-bottom:20px}
+.desktop-gate-card .gate-highlight{color:#15864c;font-weight:600}
+.desktop-gate-qr-box{background:var(--pale,#f8fafc);border:1px dashed #cbd5e1;border-radius:18px;padding:16px;margin:20px 0;display:flex;align-items:center;gap:16px;text-align:left}
+[data-theme=dark] .desktop-gate-qr-box{background:#18222c;border-color:#334155}
+.desktop-gate-qr-box .icon{width:36px;height:36px;color:#15864c;flex-shrink:0}
+.desktop-gate-qr-box b{display:block;font-size:14px;margin-bottom:2px}
+.desktop-gate-qr-box small{font-size:12px;color:var(--muted,#64748b)}
+.desktop-gate-actions{display:flex;flex-direction:column;gap:10px;margin-top:24px}
+
+/* Desktop Frame Simulator */
+@media(min-width:861px){
+  body{background:radial-gradient(circle at 50% 0%,#e2f1ea,#d8e2ea)}
+  [data-theme=dark] body{background:radial-gradient(circle at 50% 0%,#0f172a,#0a0f18)}
+  .app-shell{max-width:480px;box-shadow:0 18px 60px rgba(15,23,42,0.18);border-left:1px solid rgba(0,0,0,0.06);border-right:1px solid rgba(0,0,0,0.06);border-radius:32px;margin:24px auto;background:var(--bg)}
+  [data-theme=dark] .app-shell{box-shadow:0 18px 60px rgba(0,0,0,0.6);border-color:rgba(255,255,255,0.06)}
+  .bottom-nav{max-width:448px}
+  .quiz-dock{max-width:480px}
+}
+
+/* Instant Install Bottom Sheet Popup */
+.install-sheet-backdrop{position:fixed;inset:0;background:rgba(15,23,42,0.6);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:9000;opacity:0;pointer-events:none;transition:opacity 0.25s ease}
+.install-sheet-backdrop.active{opacity:1;pointer-events:auto}
+.install-bottom-sheet{position:fixed;left:50%;bottom:0;transform:translate(-50%,100%);width:100%;max-width:540px;background:var(--surface,#ffffff);border-radius:28px 28px 0 0;padding:24px 24px 34px;z-index:9001;box-shadow:0 -12px 50px rgba(0,0,0,0.28);border-top:1px solid rgba(255,255,255,0.2);transition:transform 0.32s cubic-bezier(0.16,1,0.3,1);will-change:transform}
+.install-sheet-backdrop.active .install-bottom-sheet{transform:translate(-50%,0)}
+.sheet-drag-handle{width:40px;height:5px;border-radius:999px;background:#cbd5e1;margin:0 auto 16px}
+[data-theme=dark] .sheet-drag-handle{background:#475569}
+.sheet-header{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+.sheet-header img{width:56px;height:56px;border-radius:14px;box-shadow:0 4px 12px rgba(0,0,0,0.1)}
+.sheet-header h3{font-size:20px;font-weight:700;margin:0}
+.sheet-header p{font-size:13px;color:var(--muted,#64748b);margin:2px 0 0}
+.sheet-steps{background:var(--pale,#f8fafc);border-radius:18px;padding:16px;margin:16px 0;display:flex;flex-direction:column;gap:12px}
+[data-theme=dark] .sheet-steps{background:#18222c}
+.sheet-step{display:flex;align-items:flex-start;gap:12px;font-size:13.5px;line-height:1.45}
+.sheet-step-badge{background:#15864c;color:#ffffff;border-radius:50%;width:22px;height:22px;display:grid;place-items:center;font-size:11px;font-weight:700;flex-shrink:0}
+.sheet-actions{display:flex;flex-direction:column;gap:10px;margin-top:18px}
+
+/* Legal Documents Styling (Privacy, Terms, About) */
+.legal-document{padding:32px 26px;border-radius:24px;line-height:1.7}
+.legal-header{border-bottom:1px solid var(--line,#e2e8f0);padding-bottom:18px;margin-bottom:22px}
+.legal-header h1{font-size:28px;font-weight:750;margin:10px 0 6px;letter-spacing:-0.03em}
+.legal-meta{font-size:13px;color:var(--muted,#64748b)}
+.legal-tagline{font-size:16px;font-weight:600;color:#15864c}
+.legal-document h2{font-size:19px;font-weight:700;margin:24px 0 8px;color:var(--ink,#0f172a)}
+.legal-document h3{font-size:16px;font-weight:650;margin:18px 0 6px}
+.legal-document p{font-size:14.5px;line-height:1.7;margin-bottom:14px;color:var(--ink,#334155)}
+.legal-document ul{padding-left:22px;margin:10px 0 16px}
+.legal-document li{font-size:14px;line-height:1.65;margin-bottom:6px;color:var(--ink,#334155)}
+.legal-alert{background:rgba(239,68,68,0.06);border-left:4px solid #ef4444;border-radius:0 14px 14px 0;padding:14px 16px;margin:18px 0}
+.legal-alert strong{color:#b91c1c}
+.legal-alert p{margin:0;color:#991b1b;font-size:13.5px}
+[data-theme=dark] .legal-alert{background:rgba(239,68,68,0.12)}
+[data-theme=dark] .legal-alert strong{color:#fca5a5}
+[data-theme=dark] .legal-alert p{color:#fecaca}
+[data-theme=dark] .legal-document p,[data-theme=dark] .legal-document li{color:#cbd5e1}
+.legal-footer{margin-top:28px;padding-top:18px;border-top:1px solid var(--line,#e2e8f0);font-size:12px;color:var(--muted,#64748b);text-align:center}
+
 
