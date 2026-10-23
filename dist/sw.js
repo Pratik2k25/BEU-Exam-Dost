@@ -1,0 +1,6 @@
+const CACHE='exam-dost-shell-v8';
+const SHELL=['./','./index.html','./style.css?v=9','./app.js?v=9','./core.js','./data.js','./schedule.js','./app-meta.js','./assets/exam-routine-2026.pdf','./manifest.webmanifest','./assets/logo.svg','./assets/icon-192.png','./assets/icon-512.png','./assets/study.png','./assets/outfit.ttf','./assets/paper.png','./assets/quiz.png','./assets/nav-home.webp','./assets/nav-subjects.webp','./assets/nav-pyqs.webp','./assets/nav-quiz.webp'];
+self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL))));
+self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('exam-dost-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
+self.addEventListener('fetch',event=>{if(event.request.method!=='GET'||new URL(event.request.url).origin!==self.location.origin)return;event.respondWith(fetch(event.request).then(response=>{if(response.ok&&response.type==='basic'){const copy=response.clone();caches.open(CACHE).then(c=>c.put(event.request,copy));}return response;}).catch(async()=>await caches.match(event.request)||(event.request.mode==='navigate'?await caches.match('./index.html'):Response.error())));});
+self.addEventListener('message',event=>{if(event.data==='SKIP_WAITING')self.skipWaiting();});

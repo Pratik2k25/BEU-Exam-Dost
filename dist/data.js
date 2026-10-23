@@ -1,0 +1,76 @@
+// REVIEW CONTENT ONLY. Replace these records with the user's verified syllabus/PYQs.
+export const branches=["Computer Science & Engineering", "Computer Science & Engineering (AI)", "Computer Science & Engineering (Cyber Security)", "Computer Science & Engineering (IoT)", "Computer Science & Engineering(AI & ML)", "Computer Science & Engineering(Data Science)", "Computer Science & Engineering (Networks)", "Computer Science & Engg (IOT & Cyber Security including Block Chain Technology)"];
+// College suggestions supplied by the project owner.
+export const colleges=[
+  "Shri Phanishwar Nath Renu Engineering College, Araria",
+  "Government Engineering College, Arwal",
+  "Government Engineering College, Aurangabad",
+  "Government Engineering College, Banka",
+  "Rashtrakavi Ramdhari Singh Dinkar College of Engineering, Begusarai",
+  "Bhagalpur College of Engineering, Bhagalpur",
+  "Government Engineering College, Bhojpur",
+  "Government Engineering College, Buxar",
+  "Darbhanga College of Engineering, Darbhanga",
+  "Motihari College of Engineering, Motihari, East Champaran",
+  "Gaya College of Engineering, Gaya",
+  "Government Engineering College, Gopalganj",
+  "Government Engineering College, Jamui",
+  "Government Engineering College, Jehanabad",
+  "Government Engineering College, Kaimur",
+  "Katihar Engineering College, Katihar",
+  "Government Engineering College, Khagaria",
+  "Government Engineering College, Kishanganj",
+  "Government Engineering College, Lakhisarai",
+  "B. P. Mandal College of Engineering, Madhepura",
+  "Government Engineering College, Madhubani",
+  "Government Engineering College, Munger",
+  "Muzaffarpur Institute of Technology, Muzaffarpur",
+  "Nalanda College of Engineering, Chandi, Nalanda",
+  "Government Engineering College, Nawada",
+  "Bakhtiyarpur College of Engineering, Patna",
+  "Purnea College of Engineering, Purnea",
+  "Sershah College of Engineering, Sasaram",
+  "Saharsa College of Engineering, Saharsa",
+  "Government Engineering College, Samastipur",
+  "Lok Nayak Jai Prakash Institute of Technology, Chapra, Saran",
+  "Government Engineering College, Sheikhpura",
+  "Government Engineering College, Sheohar",
+  "Sitamarhi Institute of Technology, Sitamarhi",
+  "Government Engineering College, Siwan",
+  "Supaul College of Engineering, Supaul",
+  "Government Engineering College, Vaishali",
+  "Government Engineering College, West Champaran",
+  "Central Institute of Petrochemicals Engineering & Technology (cipet), Bihta, Patna",
+  "Rungta Institute of Technology and Management, Araria",
+  "Prabhu Kailash Engineering College, Aurangabad",
+  "Sityog Institute of Technology, Aurngabad",
+  "Adwaita Mission Institute of Technology, Banka",
+  "Buddha Institute of Technology, Gaya",
+  "Millia Kishanganj College of Engineering & Technology, Kishanganj",
+  "J. P College of Engineering,biharsharif, Nalanda",
+  "Dr. Ashok Gagan College, Bihta, Patna",
+  "Institute of Management and Planning & Advanced Computer Training, Patna",
+  "Maulana Azad College of Engineering and Technology, Neora, Patna",
+  "Mother’s Institute of Technology, Bihta, Patna",
+  "Netaji Subhas Institute of Technology, Bihta, Patna",
+  "R.p. Sharma Institute of Technology, Patna",
+  "Millia Institute of Technology, Purnia",
+  "Vidya Vihar Institute of Technology, Purnea",
+  "Rajeev College of Professional Education, Sitamarhi",
+  "Siwan College of Engineering and Management, Siwan",
+  "Exalt College of Engineering & Technology, Vaishali",
+  "Hi-tech Polytechnic College, Bettiah, West Champaran"
+];
+export const colors=['green','blue','purple','orange','teal','yellow'];
+const specifications=[
+['cn','CN','Computer Networks','network',[['Network Fundamentals','OSI model','TCP/IP model','Network topologies'],['Physical Layer','Transmission media','Switching','Multiplexing'],['Data Link Layer','Framing & flow control','CRC numericals','Hamming Code','ARQ protocols','Medium access control'],['Network Layer','IPv4 addressing','Subnetting','Routing algorithms'],['Transport Layer','TCP and UDP','Congestion control','Flow control'],['Application Layer','DNS','HTTP','Email protocols']]],
+['coa','COA','Computer Organization & Architecture','chip',[['Computer Fundamentals','Functional units','Instruction cycle','Performance metrics'],['Data Representation','Number systems','Signed numbers','Floating point'],['Computer Arithmetic','Booth multiplication','Carry look-ahead','Division'],['Processor Organization','Addressing modes','Control unit','Instruction formats'],['Memory & I/O','Cache mapping','RAM organization','DMA'],['Parallel Processing','Pipelining','Speedup','Flynn classification']]],
+['flat','FLAT','Formal Languages & Automata Theory','nodes',[['Finite Automata','DFA','NFA','Equivalence'],['Regular Languages','Regular expressions','Closure properties','Pumping lemma'],['Context-Free Grammars','Derivations','Ambiguity','Grammar simplification'],['Pushdown Automata','PDA construction','CFG equivalence','Acceptance'],['Normal Forms','CNF','GNF','Parsing'],['Computability','Turing machines','Undecidability','Rice’s theorem']]],
+['dbms','DBMS','Database Management Systems','database',[['Database Models','ER models','Keys','Architecture'],['Relational Model','Relational algebra','Constraints','SQL'],['Database Design','Dependencies','Candidate keys','Normalization'],['Storage & Indexing','B+ trees','Hashing','File organization'],['Transactions','ACID','Serializability','Locking'],['Recovery & Security','Recovery logs','Access control','Advanced databases']]],
+['daa','DAA','Design & Analysis of Algorithms','tree',[['Algorithm Analysis','Asymptotic notation','Recurrences','Complexity'],['Divide & Conquer','Merge sort','Quick sort','Binary search'],['Greedy Algorithms','Activity selection','Huffman coding','MST'],['Dynamic Programming','Knapsack','LCS','Matrix chain'],['Graph Algorithms','BFS and DFS','Shortest paths','Topological sort'],['Complexity Classes','Backtracking','NP completeness','Reductions']]],
+['etc','ETC','Effective Technical Communication','document',[['Technical Writing','Audience','Clarity','Writing process'],['Grammar & Style','Agreement','Sentence structure','Editing'],['Business Communication','Letters','Emails','Reports'],['Collaborative Writing','Team documents','Review','Professional ethics'],['Speaking Skills','Presentations','Group discussions','Interpersonal skills'],['Career Communication','Resume','Interviews','Career planning']]]];
+export const subjects=specifications.map(([id,short,name,icon,units],si)=>({id,short,name,icon,color:colors[si],units:units.map(([title,...ts],i)=>({id:i+1,title,color:colors[i],important:[2,3].includes(i),topics:ts.map((title,j)=>({id:`${id}-${i+1}-${j}`,title,important:j<2,subject:id,unit:i+1}))}))}));
+const qs={cn:[['Which OSI layer routes packets between networks?',['Data Link Layer','Network Layer','Transport Layer','Application Layer'],1,'The network layer handles logical addressing and routing.'],['For 192.168.10.70/26, what is the subnet broadcast address?',['192.168.10.63','192.168.10.127','192.168.10.191','192.168.10.255'],1,'/26 gives blocks of 64 addresses. This subnet spans .64–.127.'],['Which routing protocol uses a link-state approach?',['RIP','OSPF','HTTP','SMTP'],1,'OSPF uses link-state routing; RIP uses distance-vector routing.'],['Which protocol resolves domain names to IP addresses?',['FTP','TCP','DNS','ARP'],2,'DNS maps domain names to IP addresses.'],['How many usable hosts are in a traditional IPv4 /27 subnet?',['16','32','30','62'],2,'32 addresses minus the network and broadcast addresses gives 30.'],['Which protocol provides reliable, ordered delivery?',['UDP','IP','ICMP','TCP'],3,'TCP uses sequence numbers, acknowledgements and retransmission.']],coa:[['A cache hit means the requested data is found in…',['Main memory only','Cache','Secondary storage','An I/O register'],1,'A hit occurs when the cache contains the requested block.'],['Which unit performs arithmetic and logic?',['CU','MAR','ALU','PC'],2,'The arithmetic logic unit executes arithmetic and logic operations.'],['Booth’s algorithm is used for…',['Sorting','Signed multiplication','Routing','Memory allocation'],1,'Booth recoding supports multiplication of signed binary numbers.'],['Which memory is volatile?',['ROM','Flash','RAM','Optical disc'],2,'RAM normally loses its contents when power is removed.'],['DMA primarily reduces…',['CPU involvement in data transfers','RAM capacity','Bus width','Address space'],0,'DMA transfers blocks between memory and devices without per-item CPU handling.'],['A five-stage ideal pipeline processes 10 instructions in how many cycles?',['10','14','50','5'],1,'Ideal cycles = k + n − 1 = 5 + 10 − 1 = 14.']],flat:[['A DFA has how many transitions per state for each input symbol?',['Zero','Exactly one','At least two','Infinitely many'],1,'The DFA transition function returns exactly one next state.'],['Which model recognizes context-free languages?',['Finite automaton','Pushdown automaton','Only a DFA','A combinational circuit'],1,'A PDA uses a stack to recognize context-free languages.'],['The pumping lemma for regular languages can prove a language…',['Nonregular','Always regular','Finite','Decidable only'],0,'Violating the pumping property proves nonregularity.'],['Which expression denotes zero or more a symbols?',['a+','a*','ab','a?b'],1,'Kleene star includes all finite repetitions, including zero.'],['A Turing machine has…',['Only a finite input register','An unbounded tape model','No state','No transition function'],1,'The abstract model provides unbounded tape storage.'],['Which problem is undecidable?',['DFA membership','DFA emptiness','General Turing machine halting','Sorting finite integers'],2,'No algorithm decides halting for all machine/input pairs.']],dbms:[['Which SQL clause filters groups after aggregation?',['WHERE','ORDER BY','HAVING','SELECT'],2,'HAVING filters grouped results; WHERE filters input rows.'],['A candidate key must be…',['A minimal superkey','Always numeric','A foreign key','Nonunique'],0,'Candidate keys uniquely identify rows and are minimal.'],['Which ACID property is all-or-nothing execution?',['Consistency','Isolation','Durability','Atomicity'],3,'Atomicity prevents partial transaction effects.'],['A foreign key expresses…',['A relationship between referenced keys','A sorting algorithm','A disk address','A view only'],0,'Foreign keys enforce referential integrity.'],['Which normal form removes partial dependency on a candidate key?',['1NF','2NF','Only 4NF','None'],1,'2NF removes partial dependency of nonprime attributes.'],['B+ tree data entries are normally stored at…',['Leaf level','Only root','Every internal node only','No nodes'],0,'B+ tree leaf nodes contain data entries and are linked.']],daa:[['Binary search on sorted data has worst-case time…',['O(n)','O(log n)','O(n²)','O(n log n)'],1,'The search interval halves at each step.'],['Merge sort worst-case running time is…',['O(n²)','O(log n)','O(n log n)','O(1)'],2,'There are log n levels with linear merging work each.'],['Which traversal finds unweighted shortest paths?',['DFS','BFS','Inorder','Postorder'],1,'BFS explores vertices by distance layers.'],['Dijkstra’s algorithm requires edge weights to be…',['Negative','Nonnegative','Identical','Prime'],1,'Negative edges can invalidate the settled-distance property.'],['Dynamic programming is useful with…',['Overlapping subproblems and optimal substructure','No subproblems','Only trees','Only sorted input'],0,'It reuses solutions to overlapping subproblems.'],['A problem in NP has solutions verifiable in…',['Polynomial time','Constant space only','Infinite time','No time'],0,'A proposed certificate can be verified in polynomial time.']],etc:[['Effective technical writing prioritises…',['Ambiguity','Clarity and accuracy','Jargon alone','Long sentences'],1,'Clear, accurate communication serves the reader.'],['A professional email subject should be…',['Blank','Specific and concise','Unrelated','Always humorous'],1,'A specific subject helps the reader understand the purpose.'],['A report’s executive summary presents…',['Only references','Key findings and recommendations','Unrelated history','All raw data'],1,'The summary allows a quick understanding of the report.'],['Active listening includes…',['Interrupting','Paraphrasing to confirm understanding','Ignoring feedback','Planning a reply only'],1,'Paraphrasing checks shared understanding.'],['A resume should primarily contain…',['Fabricated achievements','Relevant skills and evidence','Only hobbies','Unverified claims'],1,'Relevant factual evidence supports the application.'],['Ethical writing requires…',['Plagiarism','Accurate attribution','Hidden sources','Invented figures'],1,'Attribution respects intellectual contributions.']]};
+export function quizQuestions(subject){return qs[subject].map(([text,options,answer,explanation],i)=>({id:`${subject}-demo-${i}`,text,options,answer,explanation,unit:i+1,demo:true}));}
+export function pyqs(subject){return subjects.find(s=>s.id===subject).units.map((u,i)=>({id:`${subject}-written-${i}`,unit:u.id,question:`Explain ${u.topics[0].title.toLowerCase()} with a suitable example and a labelled diagram where applicable.`,years:i===2?[2022,2023,2025]:i%2?[2023]:[2022,2024],marks:7,demo:true}));}
+export const allTopics=subjects.flatMap(s=>s.units.flatMap(u=>u.topics));
