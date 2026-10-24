@@ -1,4 +1,5 @@
 // BEU Exam Dost — Official B.Tech CSE 4th Semester Syllabus & Verified PYQ Data Bank
+import { allCnPyqs, cnSolutions } from './cn-solutions.js';
 export const branches=[
   "Computer Science & Engineering",
   "Computer Science & Engineering (AI)",
@@ -177,134 +178,10 @@ export const subjects=specifications.map(([id,short,name,icon,units],si)=>({
 
 // Verified High-Yield 7-Mark Written Previous Year Question Bank (BEU 2022-2026)
 const pyqData = {
-  cn: [
-    {
-      id: 'cn-q1',
-      unit: 1,
-      question: 'Explain the OSI 7-layer reference model with a neat architecture diagram and state the core function and protocol of each layer.',
-      years: [2024, 2025, 2026],
-      marks: 7
-    },
-    {
-      id: 'cn-q2',
-      unit: 1,
-      question: 'Compare the OSI reference model with the TCP/IP protocol suite. Discuss the advantages, layer mappings, and practical limitations of each model.',
-      years: [2023, 2025],
-      marks: 7
-    },
-    {
-      id: 'cn-q3',
-      unit: 2,
-      question: 'Explain Circuit Switching, Packet Switching (Datagram vs Virtual Circuit). Compare their transmission delay, routing overhead, and bandwidth utilization.',
-      years: [2022, 2024, 2025],
-      marks: 7
-    },
-    {
-      id: 'cn-q4',
-      unit: 2,
-      question: 'State Nyquist’s bit rate theorem and Shannon’s channel capacity theorem. For a channel with 4 kHz bandwidth and SNR of 30 dB, calculate the maximum theoretical data rate.',
-      years: [2023, 2025],
-      marks: 7
-    },
-    {
-      id: 'cn-q5',
-      unit: 3,
-      question: 'Explain Cyclic Redundancy Check (CRC) error detection. For data word 1010001101 and generator polynomial G(x) = x^5 + x^4 + x^2 + 1, find the transmitted codeword.',
-      years: [2024, 2025, 2026],
-      marks: 7
-    },
-    {
-      id: 'cn-q6',
-      unit: 3,
-      question: 'Differentiate between Stop-and-Wait, Go-Back-N, and Selective Repeat sliding window ARQ protocols with window size equations and channel utilization formulas.',
-      years: [2023, 2025, 2026],
-      marks: 7
-    },
-    {
-      id: 'cn-q7',
-      unit: 3,
-      question: 'Explain Pure ALOHA and Slotted ALOHA multiple access protocols. Derive the mathematical expressions for their maximum channel throughput and efficiency.',
-      years: [2024, 2025],
-      marks: 7
-    },
-    {
-      id: 'cn-q8',
-      unit: 3,
-      question: 'Explain the working principle of CSMA/CD used in Ethernet and CSMA/CA used in wireless networks with backoff algorithms and collision handling.',
-      years: [2024, 2026],
-      marks: 7
-    },
-    {
-      id: 'cn-q9',
-      unit: 4,
-      question: 'Explain the IPv4 datagram header format with a labelled diagram. Discuss the significance of TTL, Header Checksum, and Fragmentation fields (Flags and Offset).',
-      years: [2023, 2025],
-      marks: 7
-    },
-    {
-      id: 'cn-q10',
-      unit: 4,
-      question: 'An organization is allocated the block 192.168.10.0/24. Design 4 subnets with equal host capacity. Find the subnet mask, first host, last host, and broadcast address for each subnet.',
-      years: [2024, 2025, 2026],
-      marks: 7
-    },
-    {
-      id: 'cn-q11',
-      unit: 4,
-      question: 'Explain Distance Vector Routing and the Count-to-Infinity problem with an example network. How does Link-State Routing (OSPF) prevent this issue?',
-      years: [2024, 2025, 2026],
-      marks: 7
-    },
-    {
-      id: 'cn-q12',
-      unit: 4,
-      question: 'Explain the working of Address Resolution Protocol (ARP) and Dynamic Host Configuration Protocol (DHCP) with message packet sequence diagrams.',
-      years: [2023, 2025],
-      marks: 7
-    },
-    {
-      id: 'cn-q13',
-      unit: 5,
-      question: 'Explain the TCP Three-Way Handshake mechanism for connection establishment and connection termination with sequence numbers and timing diagrams.',
-      years: [2024, 2025, 2026],
-      marks: 7
-    },
-    {
-      id: 'cn-q14',
-      unit: 5,
-      question: 'Explain TCP Congestion Control mechanisms: Slow Start, Congestion Avoidance, Fast Retransmit, and Fast Recovery with cwnd graphs against transmission rounds.',
-      years: [2023, 2025, 2026],
-      marks: 7
-    },
-    {
-      id: 'cn-q15',
-      unit: 5,
-      question: 'Compare TCP and UDP protocols based on connection state, packet header overhead, reliability, flow control, and practical application scenarios.',
-      years: [2022, 2024, 2025],
-      marks: 7
-    },
-    {
-      id: 'cn-q16',
-      unit: 6,
-      question: 'Explain the Domain Name System (DNS) architecture and hierarchical namespace. Differentiate between Recursive Resolution and Iterative Resolution with message flows.',
-      years: [2024, 2025, 2026],
-      marks: 7
-    },
-    {
-      id: 'cn-q17',
-      unit: 6,
-      question: 'Explain the working of File Transfer Protocol (FTP). Why does FTP use two separate connections (Control Connection on port 21 and Data Connection on port 20)?',
-      years: [2023, 2025],
-      marks: 7
-    },
-    {
-      id: 'cn-q18',
-      unit: 6,
-      question: 'Explain the architecture and protocols used in Electronic Mail. Differentiate between SMTP (push protocol) and POP3/IMAP (retrieval protocols).',
-      years: [2022, 2024],
-      marks: 7
-    }
-  ],
+  cn: allCnPyqs.map(q => ({
+    ...q,
+    solution: cnSolutions[q.id]
+  })),
 
   coa: [
     {
@@ -6200,6 +6077,8 @@ export function quizQuestions(subject, type = 'master', year = null) {
 export function pyqs(subject){
   return pyqData[subject] || [];
 }
+
+export { cnSolutions };
 
 export const allTopics=subjects.flatMap(s=>s.units.flatMap(u=>u.topics));
 

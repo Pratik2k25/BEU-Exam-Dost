@@ -12,6 +12,10 @@
   <meta name="author" content="BEU Developer" />
   <link rel="canonical" href="https://beudeveloper.in/" />
 
+  <!-- Google Search Console Verification -->
+  <meta name="google-site-verification" content="googlea5f620a123e00637" />
+  <meta name="google-site-verification" content="google41e9e0618eac94ed" />
+
   <!-- Open Graph / Social Media -->
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://beudeveloper.in/" />
@@ -1002,6 +1006,16 @@
   <script src="assets/js/swiper-bundle.min.js"></script>
   <script src="assets/js/ytdefer.min.js"></script>
   <script src="assets/js/script.js"></script>
+  <!-- Ensure landing domain (beudeveloper.in) does not hold onto app Service Worker -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function (registrations) {
+        for (var reg of registrations) {
+          reg.unregister();
+        }
+      });
+    }
+  </script>
 </body>
 
 </html>
