@@ -1,4 +1,4 @@
-export const unit4Solutions = [
+const unit4Entries = [
   {
     id: 'cn-q34',
     num: 34,
@@ -716,3 +716,18 @@ Example: 02 : 1A : 2B : 3C : 4D : 5E`
   }
 
 ];
+
+const toSolution = ({id, solution}) => ({id, ...solution});
+const solutionFor = (id, sourceId) => toSolution({
+  id,
+  solution: unit4Entries.find((entry) => entry.id === sourceId).solution,
+});
+
+export const unit4Solutions = [
+  ...unit4Entries.filter(({marks}) => marks === 7).map(toSolution),
+  solutionFor('cn-q10', 'cn-q34'),
+  solutionFor('cn-q11', 'cn-q36'),
+];
+export const unit4SupplementalSolutions = unit4Entries
+  .filter(({marks}) => marks !== 7)
+  .map(toSolution);

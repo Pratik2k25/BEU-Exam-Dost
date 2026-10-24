@@ -1,4 +1,4 @@
-export const unit6Solutions = [
+const unit6Entries = [
   {
     id: 'cn-q16',
     num: 16,
@@ -352,3 +352,15 @@ Client (Port N, N+1)                                     Server (Port 21, P)
     }
   }
 ];
+
+const toSolution = ({id, solution}) => ({id, ...solution});
+const solutionFor = (id, sourceId) => toSolution({
+  id,
+  solution: unit6Entries.find((entry) => entry.id === sourceId).solution,
+});
+
+export const unit6Solutions = [
+  ...unit6Entries.map(toSolution),
+  solutionFor('cn-q18', 'cn-q40'),
+];
+export const unit6SupplementalSolutions = [];

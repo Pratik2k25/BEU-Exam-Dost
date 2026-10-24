@@ -1,4 +1,4 @@
-export const unit1Solutions = [
+const unit1Entries = [
   {
     id: 'cn-q1',
     num: 1,
@@ -319,3 +319,8 @@ L1   |       PHYSICAL LAYER        |----+     |  Physical Cables, Optical)  |
     }
   }
 ];
+
+const toSolution = ({id, solution}) => ({id, ...solution});
+
+export const unit1Solutions = unit1Entries.map(toSolution);
+export const unit1SupplementalSolutions = [];

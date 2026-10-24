@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {allCnPyqs, cnSolutions as legacyCnSolutions} from '../dist/cn-solutions.js';
 import {compileSubjectModule} from '../scripts/content/compiler.mjs';
 import {
   sumMarkingScheme,
@@ -7,6 +8,18 @@ import {
   validateSolution,
   validateSubjectContent,
 } from '../scripts/content/schema.mjs';
+import {
+  cnImportantQuestions,
+  cnSupplementalQuestions,
+} from '../scripts/questions/cn/important.mjs';
+import {cnOriginalQuestions} from '../scripts/questions/cn/original.mjs';
+import {unit1Solutions} from '../scripts/solutions/cn/unit1.mjs';
+import {unit2Solutions} from '../scripts/solutions/cn/unit2.mjs';
+import {unit3Solutions} from '../scripts/solutions/cn/unit3.mjs';
+import {unit4Solutions} from '../scripts/solutions/cn/unit4.mjs';
+import {unit5Solutions} from '../scripts/solutions/cn/unit5.mjs';
+import {unit6Solutions} from '../scripts/solutions/cn/unit6.mjs';
+import {cnSupplementalSolutions} from '../scripts/solutions/cn/supplemental.mjs';
 
 const importantQuestion = {
   id: 'coa-important-01',
@@ -282,4 +295,91 @@ test('compiler preserves __proto__ as an own solution key in generated modules',
   assert.deepEqual(Object.keys(compiled.coaSolutions), ['__proto__']);
   assert.deepEqual(compiled.coaSolutions.__proto__, protoSolution);
   assert.deepEqual(compiled.coaQuestions, [protoQuestion]);
+});
+
+test('CN migration preserves every legacy question and solution while separating marks', () => {
+  const importantSolutions = [
+    ...unit1Solutions,
+    ...unit2Solutions,
+    ...unit3Solutions,
+    ...unit4Solutions,
+    ...unit5Solutions,
+    ...unit6Solutions,
+  ];
+  const migratedQuestions = [...cnImportantQuestions, ...cnSupplementalQuestions];
+  const migratedSolutions = [...importantSolutions, ...cnSupplementalSolutions];
+  const questionById = new Map(migratedQuestions.map((question) => [question.id, question]));
+  const solutionById = new Map(migratedSolutions.map((solution) => [solution.id, solution]));
+  const legacyIds = allCnPyqs.map((question) => question.id).sort();
+
+  assert.equal(migratedQuestions.length, 50);
+  assert.equal(migratedSolutions.length, 50);
+  assert.equal(questionById.size, 50, 'question IDs must be unique');
+  assert.equal(solutionById.size, 50, 'solution IDs must be unique');
+  assert.deepEqual([...questionById.keys()].sort(), legacyIds);
+  assert.deepEqual([...solutionById.keys()].sort(), legacyIds);
+
+  for (const legacyQuestion of allCnPyqs) {
+    const migratedQuestion = questionById.get(legacyQuestion.id);
+    assert.deepEqual(
+      {
+        id: migratedQuestion.id,
+        unit: migratedQuestion.unit,
+        question: migratedQuestion.question,
+        marks: migratedQuestion.marks,
+      },
+      {
+        id: legacyQuestion.id,
+        unit: legacyQuestion.unit,
+        question: legacyQuestion.question,
+        marks: legacyQuestion.marks,
+      },
+      legacyQuestion.id,
+    );
+    assert.equal(migratedQuestion.solutionRef, legacyQuestion.id, legacyQuestion.id);
+
+    const migratedSolution = solutionById.get(migratedQuestion.solutionRef);
+    assert.equal(migratedSolution.id, legacyQuestion.id, legacyQuestion.id);
+    for (const [key, value] of Object.entries(legacyCnSolutions[legacyQuestion.id])) {
+      assert.deepEqual(migratedSolution[key], value, `${legacyQuestion.id}.${key}`);
+    }
+  }
+
+  assert.equal(cnImportantQuestions.length, 44);
+  for (const question of cnImportantQuestions) {
+    assert.equal(question.kind, 'important');
+    assert.equal(question.subject, 'cn');
+    assert.equal(question.marks, 7);
+    assert.equal(Object.hasOwn(question, 'years'), false);
+    assert.equal(Object.hasOwn(question, 'source'), false);
+    assert.equal(question.canonicalId, question.id);
+    assert.ok(question.topics.length > 0);
+  }
+
+  assert.deepEqual(cnOriginalQuestions, []);
+  assert.equal(
+    solutionById.get('cn-q13').examTip,
+    legacyCnSolutions['cn-q13'].conclusion,
+    'the sole legacy solution without an examTip reuses its existing conclusion',
+  );
+  assert.deepEqual(
+    cnSupplementalQuestions.map(({marks}) => marks).sort((left, right) => left - right),
+    [3, 4, 14, 14, 14, 14],
+  );
+  assert.deepEqual(
+    cnSupplementalQuestions.map(({id}) => id).sort(),
+    allCnPyqs.filter(({marks}) => marks !== 7).map(({id}) => id).sort(),
+  );
+
+  assert.deepEqual(
+    validateSubjectContent('cn', cnImportantQuestions, importantSolutions),
+    {subject: 'cn', questions: cnImportantQuestions, solutions: importantSolutions},
+  );
+  for (const question of cnSupplementalQuestions) {
+    assert.equal(question.kind, 'supplemental');
+    assert.equal(question.subject, 'cn');
+    assert.equal(Object.hasOwn(question, 'years'), false);
+    assert.equal(Object.hasOwn(question, 'source'), false);
+    validateSolution(solutionById.get(question.solutionRef), question.marks);
+  }
 });

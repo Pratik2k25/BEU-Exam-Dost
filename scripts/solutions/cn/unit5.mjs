@@ -1,4 +1,4 @@
-export const unit5Solutions = [
+const unit5Entries = [
   {
     id: 'cn-q37',
     num: 37,
@@ -655,3 +655,21 @@ Unreliable, unsequenced, no flow control, minimal latency overhead.`
   }
 
 ];
+
+const toSolution = ({id, solution}) => ({
+  id,
+  ...solution,
+  examTip: solution.examTip ?? solution.conclusion,
+});
+const solutionFor = (id, sourceId) => toSolution({
+  id,
+  solution: unit5Entries.find((entry) => entry.id === sourceId).solution,
+});
+
+export const unit5Solutions = [
+  ...unit5Entries.filter(({marks}) => marks === 7).map(toSolution),
+  solutionFor('cn-q14', 'cn-q39'),
+];
+export const unit5SupplementalSolutions = unit5Entries
+  .filter(({marks}) => marks !== 7)
+  .map(toSolution);
