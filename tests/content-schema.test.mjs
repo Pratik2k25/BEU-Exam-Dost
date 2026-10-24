@@ -379,3 +379,68 @@ test('CN migration preserves every legacy question and solution while separating
     validateSolution(solutionById.get(question.solutionRef), question.marks);
   }
 });
+
+test('important migration extracts the 88 questions truthfully', async () => {
+  const {coaImportantQuestions} = await import('../scripts/questions/coa/important.mjs');
+  const {flatImportantQuestions} = await import('../scripts/questions/flat/important.mjs');
+  const {dbmsImportantQuestions} = await import('../scripts/questions/dbms/important.mjs');
+  const {daaImportantQuestions} = await import('../scripts/questions/daa/important.mjs');
+  const {etcImportantQuestions} = await import('../scripts/questions/etc/important.mjs');
+
+  const expectedCounts = {
+    coa: 15,
+    flat: 18,
+    dbms: 16,
+    daa: 21,
+    etc: 18,
+  };
+
+  const subjectMaps = {
+    coa: coaImportantQuestions,
+    flat: flatImportantQuestions,
+    dbms: dbmsImportantQuestions,
+    daa: daaImportantQuestions,
+    etc: etcImportantQuestions,
+  };
+
+  for (const [subj, questions] of Object.entries(subjectMaps)) {
+    assert.equal(questions.length, expectedCounts[subj], `${subj} count mismatch`);
+    for (const q of questions) {
+      assert.equal(q.kind, 'important', `${q.id} must be kind: important`);
+      assert.equal(q.subject, subj, `${q.id} subject mismatch`);
+      assert.equal(q.marks, 7, `${q.id} must be 7 marks`);
+      assert.equal(Object.hasOwn(q, 'years'), false, `${q.id} must not have years`);
+      assert.equal(Object.hasOwn(q, 'source'), false, `${q.id} must not have source`);
+      assert.ok(Array.isArray(q.topics) && q.topics.length > 0, `${q.id} must have topics`);
+      assert.ok(q.solutionRef, `${q.id} must have solutionRef`);
+    }
+  }
+});
+
+test('all 88 important questions across 5 non-CN subjects validate against schema and match solutions', async () => {
+  const subjects = ['coa', 'flat', 'dbms', 'daa', 'etc'];
+  const expectedCounts = {
+    coa: 15,
+    flat: 18,
+    dbms: 16,
+    daa: 21,
+    etc: 18,
+  };
+
+  for (const subj of subjects) {
+    const qMod = await import(`../scripts/questions/${subj}/important.mjs`);
+    const questions = qMod[`${subj}ImportantQuestions`];
+    const solutions = [];
+
+    for (let u = 1; u <= 6; u++) {
+      const uMod = await import(`../scripts/solutions/${subj}/unit${u}.mjs`);
+      solutions.push(...uMod[`unit${u}Solutions`]);
+    }
+
+    assert.equal(questions.length, expectedCounts[subj], `${subj} questions count mismatch`);
+    assert.equal(solutions.length, expectedCounts[subj], `${subj} solutions count mismatch`);
+
+    // Validates every question, every solution, 7-mark totals, and 1:1 references
+    validateSubjectContent(subj, questions, solutions);
+  }
+});
