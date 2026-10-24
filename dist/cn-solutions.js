@@ -2921,7 +2921,8 @@ export const cnSolutions = {
         "component": "Justification of 2MSL TIME-WAIT State (2 reasons)",
         "marks": "1.5"
       }
-    ]
+    ],
+    "examTip": "Draw separate labelled sequence diagrams for SYN → SYN-ACK → ACK setup and FIN/ACK teardown; state that TIME-WAIT lasts 2MSL so delayed duplicates expire and the final ACK can be retransmitted."
   },
   "cn-q15": {
     "verified": "BEU 2023 · Q.7 / 2025 · 7 Marks",

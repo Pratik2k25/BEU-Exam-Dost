@@ -339,10 +339,11 @@ test('CN migration preserves every legacy question and solution while separating
     assert.equal(migratedQuestion.solutionRef, legacyQuestion.id, legacyQuestion.id);
 
     const migratedSolution = solutionById.get(migratedQuestion.solutionRef);
-    assert.equal(migratedSolution.id, legacyQuestion.id, legacyQuestion.id);
-    for (const [key, value] of Object.entries(legacyCnSolutions[legacyQuestion.id])) {
-      assert.deepEqual(migratedSolution[key], value, `${legacyQuestion.id}.${key}`);
-    }
+    assert.deepEqual(
+      migratedSolution,
+      {id: legacyQuestion.id, ...legacyCnSolutions[legacyQuestion.id]},
+      legacyQuestion.id,
+    );
   }
 
   assert.equal(cnImportantQuestions.length, 44);
@@ -357,11 +358,6 @@ test('CN migration preserves every legacy question and solution while separating
   }
 
   assert.deepEqual(cnOriginalQuestions, []);
-  assert.equal(
-    solutionById.get('cn-q13').examTip,
-    legacyCnSolutions['cn-q13'].conclusion,
-    'the sole legacy solution without an examTip reuses its existing conclusion',
-  );
   assert.deepEqual(
     cnSupplementalQuestions.map(({marks}) => marks).sort((left, right) => left - right),
     [3, 4, 14, 14, 14, 14],
