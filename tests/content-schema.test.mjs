@@ -1,5 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {readFileSync, writeFileSync, rmSync} from 'node:fs';
+import {join} from 'node:path';
+import {tmpdir} from 'node:os';
 import {allCnPyqs, cnSolutions as legacyCnSolutions} from '../dist/cn-solutions.js';
 import {compileSubjectModule} from '../scripts/content/compiler.mjs';
 import {
@@ -442,5 +445,34 @@ test('all 88 important questions across 5 non-CN subjects validate against schem
 
     // Validates every question, every solution, 7-mark totals, and 1:1 references
     validateSubjectContent(subj, questions, solutions);
+  }
+});
+
+test('build-solutions generates browser modules and rejects stale output in check mode', async () => {
+  const {buildSolutions} = await import('../scripts/build-solutions.mjs');
+  const tempDir = join(tmpdir(), `exam-dost-solutions-${Date.now()}`);
+
+  try {
+    // 1. Build into temp directory
+    const buildRes = await buildSolutions({outputDir: tempDir, check: false});
+    assert.equal(buildRes.written, true);
+    assert.equal(buildRes.fileCount, 7); // 6 subjects + index.js
+
+    // 2. Check mode passes when unchanged
+    const checkRes = await buildSolutions({outputDir: tempDir, check: true});
+    assert.equal(checkRes.checked, true);
+    assert.equal(checkRes.fileCount, 7);
+
+    // 3. Mutating one byte triggers 'Generated content is stale' error
+    const testFile = join(tempDir, 'cn-solutions.js');
+    const originalContent = readFileSync(testFile, 'utf8');
+    writeFileSync(testFile, originalContent + '\n// mutation\n');
+
+    await assert.rejects(
+      async () => buildSolutions({outputDir: tempDir, check: true}),
+      /Generated content is stale/,
+    );
+  } finally {
+    rmSync(tempDir, {recursive: true, force: true});
   }
 });
