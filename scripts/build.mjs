@@ -17,9 +17,17 @@ export function buildSite({sourceDir=join(root,'dist'),outputDir=join(root,'buil
  const shell=['./',...files(outputDir).map(file=>'./'+relative(outputDir,file).replaceAll('\\','/')).filter(p=>p!=='./sw.js').map(p=>['./app.js','./style.css'].includes(p)?p+'?v='+buildId:p)];
  const worker=join(outputDir,'sw.js');writeFileSync(worker,readFileSync(worker,'utf8').replace(/const CACHE='[^']*';/,`const CACHE='exam-dost-shell-${buildId}';`).replace(/const SHELL=\[.*?\];/s,`const SHELL=${JSON.stringify(shell)};`));
  const landingDir=join(root,'landing');
- if(outputDir===join(root,'build')&&existsSync(landingDir)){cpSync(landingDir,join(outputDir,'landing'),{recursive:true});}
+ if(resolve(outputDir)===resolve(join(root,'build'))&&existsSync(landingDir)){cpSync(landingDir,join(outputDir,'landing'),{recursive:true});}
  const apkPath=join(root,'beuexamdost.apk');
- if(outputDir===join(root,'build')&&existsSync(apkPath)){cpSync(apkPath,join(outputDir,'beuexamdost.apk'));}
+ if(resolve(outputDir)===resolve(join(root,'build'))&&existsSync(apkPath)){cpSync(apkPath,join(outputDir,'beuexamdost.apk'));}
  return {buildId,version,fileCount:files(outputDir).length};
 }
-if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url))console.log(JSON.stringify(buildSite()));
+const isCLI = Boolean(process.argv[1] && (/(?:^|[\\/])build\.mjs$/.test(process.argv[1]) || resolve(process.argv[1]) === fileURLToPath(import.meta.url)));
+if(isCLI){
+ try {
+  console.log(JSON.stringify(buildSite()));
+ } catch(err) {
+  console.error('buildSite execution failed:', err);
+  process.exit(1);
+ }
+}
