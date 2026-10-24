@@ -3,7 +3,6 @@
   "framework": null,
   "buildCommand": "npm run check && npm test && npm run build",
   "outputDirectory": "build",
-  "cleanUrls": true,
   "rewrites": [
     {
       "source": "/",

@@ -6,9 +6,22 @@ self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=
 self.addEventListener('fetch',event=>{
  if(event.request.method!=='GET'||new URL(event.request.url).origin!==self.location.origin)return;
  event.respondWith((async()=>{
-  const cache=await caches.open(CACHE);
-  if(event.request.mode==='navigate')return await cache.match('./index.html')||fetch(event.request);
-  return await cache.match(event.request)||fetch(event.request);
+  try{
+   const cache=await caches.open(CACHE);
+   if(event.request.mode==='navigate'){
+    const cached=await cache.match('./index.html')||await cache.match('./')||await cache.match(event.request);
+    if(cached){
+     if(cached.redirected&&typeof Response!=='undefined'){
+      return new Response(cached.body,{status:200,statusText:'OK',headers:cached.headers});
+     }
+     return cached;
+    }
+    return await fetch(event.request);
+   }
+   return await cache.match(event.request)||await fetch(event.request);
+  }catch(_e){
+   return fetch(event.request);
+  }
  })());
 });
 
