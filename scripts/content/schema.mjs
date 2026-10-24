@@ -22,6 +22,40 @@ function requireAllowed(value, allowed, label) {
   }
 }
 
+function requireSourceReference(value) {
+  if (value.includes('\\')) {
+    throw new TypeError('question.source.url must be an HTTPS URL or a safe bundled source path');
+  }
+
+  let decoded;
+  try {
+    decoded = decodeURIComponent(value);
+  } catch {
+    throw new TypeError('question.source.url must be an HTTPS URL or a safe bundled source path');
+  }
+  if (decoded.split(/[/?#]/).some((segment) => segment === '.' || segment === '..')) {
+    throw new TypeError('question.source.url must not contain traversal segments');
+  }
+
+  try {
+    const url = new URL(value);
+    if (url.protocol === 'https:' && url.hostname !== '') return;
+  } catch {
+    // A bundled source path is not an absolute URL.
+  }
+
+  const segments = value.split('/');
+  const isBundledPath = segments.length >= 3
+    && segments[0] === 'docs'
+    && segments[1] === 'content-sources'
+    && segments.every((segment) => segment !== '' && segment !== '.' && segment !== '..')
+    && !value.includes('?')
+    && !value.includes('#');
+  if (!isBundledPath) {
+    throw new TypeError('question.source.url must be an HTTPS URL or a safe bundled source path');
+  }
+}
+
 export function sumMarkingScheme(items) {
   if (!Array.isArray(items)) throw new TypeError('markingScheme must be an array');
   return items.reduce((total, item) => total + Number(item.marks), 0);
@@ -66,6 +100,7 @@ export function validateQuestion(question) {
     SOURCE_VERIFICATIONS,
     'question.source.verification',
   );
+  requireSourceReference(question.source.url);
   return question;
 }
 
@@ -81,6 +116,9 @@ function validateTable(table) {
     if (!Array.isArray(row) || row.length !== table.headers.length) {
       throw new TypeError(`solution.table.rows[${index}] must match the header width`);
     }
+    row.forEach((cell, cellIndex) => (
+      requireString(cell, `solution.table.rows[${index}][${cellIndex}]`)
+    ));
   });
 }
 

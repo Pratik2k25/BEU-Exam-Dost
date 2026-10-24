@@ -43,6 +43,11 @@ const validSolution = {
   verified: 'faculty-reviewed',
   intro: 'Signed representations encode positive and negative binary integers.',
   diagrams: [{title: 'Sign-magnitude layout', ascii: '[sign][magnitude]'}],
+  table: {
+    title: 'Representation comparison',
+    headers: ['Representation', 'Key property'],
+    rows: [['Two\'s complement', 'Single representation for zero']],
+  },
   sections: [
     {
       heading: 'Common representations',
@@ -82,6 +87,26 @@ test('original question accepts a bundled source-file reference', () => {
   assert.equal(validateQuestion(bundledSourceQuestion), bundledSourceQuestion);
 });
 
+test('original question rejects unsafe source references', () => {
+  const unsafeReferences = [
+    'javascript:alert(1)',
+    'http://example.edu/coa-2024.pdf',
+    '../secret.pdf',
+    'docs/content-sources/../secret.pdf',
+    'C:\\secret.pdf',
+    '/absolute.pdf',
+    'not a source reference',
+  ];
+
+  for (const url of unsafeReferences) {
+    assert.throws(
+      () => validateQuestion({...originalQuestion, source: {...originalQuestion.source, url}}),
+      /source\.url/,
+      url,
+    );
+  }
+});
+
 test('solution marking scheme must total the question marks exactly', () => {
   assert.equal(sumMarkingScheme(validSolution.markingScheme), 7);
   assert.equal(validateSolution(validSolution, 7), validSolution);
@@ -93,6 +118,19 @@ test('solution marking scheme must total the question marks exactly', () => {
     () => validateSolution({...validSolution, markingScheme: shortScheme}, 7),
     /marking scheme/,
   );
+});
+
+test('solution table requires every cell to be a non-empty string', () => {
+  assert.equal(validateSolution(validSolution, 7), validSolution);
+
+  for (const cell of [null, {}, 1n, '']) {
+    const table = {...validSolution.table, rows: [['Two\'s complement', cell]]};
+    assert.throws(
+      () => validateSolution({...validSolution, table}, 7),
+      /table\.rows\[0\]\[1\]/,
+      String(cell),
+    );
+  }
 });
 
 test('subject content rejects duplicate question IDs and missing solution references', () => {
@@ -107,4 +145,18 @@ test('subject content rejects duplicate question IDs and missing solution refere
     [{...importantQuestion, solutionRef: 'missing-solution'}],
     [validSolution],
   ), /missing solution reference/);
+});
+
+test('subject content accepts valid questions with distinct IDs and solution references', () => {
+  const secondSolution = {...validSolution, id: 'coa-solution-02'};
+  const questions = [
+    importantQuestion,
+    {...originalQuestion, solutionRef: secondSolution.id},
+  ];
+  const solutions = [validSolution, secondSolution];
+
+  assert.deepEqual(
+    validateSubjectContent('coa', questions, solutions),
+    {subject: 'coa', questions, solutions},
+  );
 });
