@@ -59,8 +59,11 @@ const validSolution = {
 };
 
 test('important question rejects years and source', () => {
-  assert.throws(() => validateQuestion({...importantQuestion, years: [2024]}));
-  assert.throws(() => validateQuestion({...importantQuestion, source: originalQuestion.source}));
+  assert.throws(() => validateQuestion({...importantQuestion, years: [2024]}), /years/);
+  assert.throws(
+    () => validateQuestion({...importantQuestion, source: originalQuestion.source}),
+    /source/,
+  );
 });
 
 test('original question accepts complete source but rejects empty paperCode', () => {
@@ -68,7 +71,15 @@ test('original question accepts complete source but rejects empty paperCode', ()
   assert.throws(() => validateQuestion({
     ...originalQuestion,
     source: {...originalQuestion.source, paperCode: ''},
-  }));
+  }), /paperCode/);
+});
+
+test('original question accepts a bundled source-file reference', () => {
+  const bundledSourceQuestion = {
+    ...originalQuestion,
+    source: {...originalQuestion.source, url: 'docs/content-sources/coa-2024.pdf'},
+  };
+  assert.equal(validateQuestion(bundledSourceQuestion), bundledSourceQuestion);
 });
 
 test('solution marking scheme must total the question marks exactly', () => {
@@ -78,7 +89,10 @@ test('solution marking scheme must total the question marks exactly', () => {
   const shortScheme = validSolution.markingScheme.map((item, index) => (
     index === 2 ? {...item, marks: '1.5'} : item
   ));
-  assert.throws(() => validateSolution({...validSolution, markingScheme: shortScheme}, 7));
+  assert.throws(
+    () => validateSolution({...validSolution, markingScheme: shortScheme}, 7),
+    /marking scheme/,
+  );
 });
 
 test('subject content rejects duplicate question IDs and missing solution references', () => {
@@ -86,11 +100,11 @@ test('subject content rejects duplicate question IDs and missing solution refere
     'coa',
     [importantQuestion, {...originalQuestion, id: importantQuestion.id}],
     [validSolution],
-  ));
+  ), /duplicate question id/);
 
   assert.throws(() => validateSubjectContent(
     'coa',
     [{...importantQuestion, solutionRef: 'missing-solution'}],
     [validSolution],
-  ));
+  ), /missing solution reference/);
 });

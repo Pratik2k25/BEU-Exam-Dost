@@ -66,15 +66,6 @@ export function validateQuestion(question) {
     SOURCE_VERIFICATIONS,
     'question.source.verification',
   );
-  let sourceUrl;
-  try {
-    sourceUrl = new URL(question.source.url);
-  } catch {
-    throw new TypeError('question.source.url must be a valid HTTPS URL');
-  }
-  if (sourceUrl.protocol !== 'https:') {
-    throw new TypeError('question.source.url must be a valid HTTPS URL');
-  }
   return question;
 }
 
