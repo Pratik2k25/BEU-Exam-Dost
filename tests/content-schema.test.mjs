@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {compileSubjectModule} from '../scripts/content/compiler.mjs';
 import {
   sumMarkingScheme,
   validateQuestion,
@@ -217,4 +218,30 @@ test('subject content rejects ambiguous solutions, orphan solutions, and subject
       name,
     );
   }
+});
+
+test('compiler output is deterministic without mutating caller arrays', () => {
+  const secondSolution = {...validSolution, id: 'coa-solution-02'};
+  const questions = [
+    {...originalQuestion, solutionRef: secondSolution.id},
+    importantQuestion,
+  ];
+  const solutions = [secondSolution, validSolution];
+  const questionsBefore = structuredClone(questions);
+  const solutionsBefore = structuredClone(solutions);
+
+  const firstOutput = compileSubjectModule({subject: 'coa', questions, solutions});
+  const repeatedOutput = compileSubjectModule({subject: 'coa', questions, solutions});
+  const reorderedOutput = compileSubjectModule({
+    subject: 'coa',
+    questions: [...questions].reverse(),
+    solutions: [...solutions].reverse(),
+  });
+
+  assert.equal(firstOutput, repeatedOutput);
+  assert.equal(firstOutput, reorderedOutput);
+  assert.match(firstOutput, /export const coaQuestions/);
+  assert.match(firstOutput, /export const coaSolutions/);
+  assert.deepEqual(questions, questionsBefore);
+  assert.deepEqual(solutions, solutionsBefore);
 });
