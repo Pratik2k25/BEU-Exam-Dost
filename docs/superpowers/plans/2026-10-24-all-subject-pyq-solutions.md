@@ -12,6 +12,21 @@
 
 **Execution workspace:** Continue in the isolated `feat/pyq-solutions-v0.3.0` worktree created for the foundation plan; do not merge partial content to `main`.
 
+## Professor-Invigilator Mentor Gate
+
+Use a fresh mentor subagent after each subject solution task and once more after the cross-subject review. The mentor acts as both a university professor and an exam invigilator grading what a student would actually write. It must inspect every changed solution against its exact question and independently check:
+
+- factual, mathematical, algorithmic, and terminology accuracy;
+- whether the answer directly addresses every command word and subpart;
+- whether derivations, examples, diagrams, tables, proofs, and calculations are internally consistent;
+- whether the depth is realistic for a correct seven-mark university answer;
+- whether the marking scheme totals seven and rewards content present in the answer;
+- whether Original PYQ wording and provenance match the recorded source;
+- whether unsupported claims, invented years, fake verification labels, copied boilerplate, and misleading shortcuts are absent;
+- whether a student reproducing the answer could receive full marks from a strict evaluator.
+
+The mentor records per-solution `PASS`, `REVISE`, or `BLOCK` findings with concrete reasons in `docs/content-sources/mentor-review-report.md`. Any `REVISE` or `BLOCK` finding returns to the subject implementer for correction and then to the same mentor for re-review. Release is forbidden until every published solution has a final `PASS` and automated content validation agrees with the report.
+
 ---
 
 ## File Structure
@@ -484,4 +499,5 @@ Do not report completion or merge the feature branch until:
 - all generated content is current;
 - all six subjects pass mobile/tablet/desktop and offline checks;
 - strict SemVer reports `0.3.0` consistently;
+- the Professor-Invigilator mentor report gives every published solution a final `PASS`, with no unresolved `REVISE` or `BLOCK` findings;
 - the mandatory release build passes at the committed SHA.
