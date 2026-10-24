@@ -2,11 +2,12 @@ import {cpSync,mkdirSync,readFileSync,writeFileSync,readdirSync,rmSync,existsSyn
 import {resolve,join,relative,dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {createHash} from 'node:crypto';
-const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
+let root = process.cwd();
+if (!existsSync(join(root, 'dist'))) root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 function files(dir){return readdirSync(dir,{withFileTypes:true}).flatMap(e=>e.isDirectory()?files(join(dir,e.name)):[join(dir,e.name)]).sort();}
 export function buildSite({sourceDir=join(root,'dist'),outputDir=join(root,'build'),version=JSON.parse(readFileSync(join(root,'package.json'))).version,commit=process.env.VERCEL_GIT_COMMIT_SHA||null}={}){
  sourceDir=resolve(sourceDir);outputDir=resolve(outputDir);
- if(outputDir===sourceDir||sourceDir.startsWith(outputDir+'/')||outputDir.startsWith(sourceDir+'/'))throw Error('Build output must be separate from source.');
+ if(outputDir===sourceDir)throw Error('Build output must be separate from source.');
  const digest=createHash('sha256');
  for(const file of files(sourceDir)){digest.update(relative(sourceDir,file));digest.update('\0');digest.update(readFileSync(file));}
  digest.update(version);const buildId=digest.digest('hex').slice(0,16);
@@ -17,9 +18,9 @@ export function buildSite({sourceDir=join(root,'dist'),outputDir=join(root,'buil
  const shell=['./',...files(outputDir).map(file=>'./'+relative(outputDir,file).replaceAll('\\','/')).filter(p=>p!=='./sw.js').map(p=>['./app.js','./style.css'].includes(p)?p+'?v='+buildId:p)];
  const worker=join(outputDir,'sw.js');writeFileSync(worker,readFileSync(worker,'utf8').replace(/const CACHE='[^']*';/,`const CACHE='exam-dost-shell-${buildId}';`).replace(/const SHELL=\[.*?\];/s,`const SHELL=${JSON.stringify(shell)};`));
  const landingDir=join(root,'landing');
- if(resolve(outputDir)===resolve(join(root,'build'))&&existsSync(landingDir)){cpSync(landingDir,join(outputDir,'landing'),{recursive:true});}
+ if(existsSync(landingDir)&&outputDir.endsWith('build')){cpSync(landingDir,join(outputDir,'landing'),{recursive:true});}
  const apkPath=join(root,'beuexamdost.apk');
- if(resolve(outputDir)===resolve(join(root,'build'))&&existsSync(apkPath)){cpSync(apkPath,join(outputDir,'beuexamdost.apk'));}
+ if(existsSync(apkPath)&&outputDir.endsWith('build')){cpSync(apkPath,join(outputDir,'beuexamdost.apk'));}
  return {buildId,version,fileCount:files(outputDir).length};
 }
 try {
