@@ -3,6 +3,19 @@
   "framework": null,
   "buildCommand": "node scripts/build.mjs",
   "outputDirectory": "build",
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "www\\.beudeveloper\\.in"
+        }
+      ],
+      "destination": "https://beudeveloper.in/:path*",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     {
       "source": "/",
