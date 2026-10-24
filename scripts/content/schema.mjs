@@ -1,3 +1,5 @@
+import {posix as posixPath} from 'node:path';
+
 export const SUBJECT_IDS = Object.freeze(['cn', 'coa', 'flat', 'dbms', 'daa', 'etc']);
 export const QUESTION_KINDS = Object.freeze(['original', 'important']);
 export const SOURCE_VERIFICATIONS = Object.freeze(['official', 'cross-checked-scan']);
@@ -22,38 +24,87 @@ function requireAllowed(value, allowed, label) {
   }
 }
 
-function requireSourceReference(value) {
-  if (value.includes('\\')) {
-    throw new TypeError('question.source.url must be an HTTPS URL or a safe bundled source path');
-  }
+const SOURCE_PATH_PREFIX = 'docs/content-sources/';
+const SOURCE_PATH_ROOT = 'docs/content-sources';
+const CONTROL_CHARACTER = /[\u0000-\u001f\u007f]/;
+const SAFE_PATH_SEGMENT = /^[A-Za-z0-9 _().-]+$/;
 
-  let decoded;
-  try {
-    decoded = decodeURIComponent(value);
-  } catch {
-    throw new TypeError('question.source.url must be an HTTPS URL or a safe bundled source path');
-  }
-  if (decoded.split(/[/?#]/).some((segment) => segment === '.' || segment === '..')) {
-    throw new TypeError('question.source.url must not contain traversal segments');
-  }
+function invalidSourceReference() {
+  throw new TypeError('question.source.url must be a safe HTTPS URL or bundled source path');
+}
 
-  try {
-    const url = new URL(value);
-    if (url.protocol === 'https:' && url.hostname !== '') return;
-  } catch {
-    // A bundled source path is not an absolute URL.
+function requireBundledSourcePath(value) {
+  if (!value.startsWith(SOURCE_PATH_PREFIX)
+      || value.includes('\\')
+      || value.includes('%')
+      || value.includes('?')
+      || value.includes('#')
+      || value.includes(':')
+      || CONTROL_CHARACTER.test(value)
+      || posixPath.isAbsolute(value)) {
+    invalidSourceReference();
   }
 
   const segments = value.split('/');
-  const isBundledPath = segments.length >= 3
-    && segments[0] === 'docs'
-    && segments[1] === 'content-sources'
-    && segments.every((segment) => segment !== '' && segment !== '.' && segment !== '..')
-    && !value.includes('?')
-    && !value.includes('#');
-  if (!isBundledPath) {
-    throw new TypeError('question.source.url must be an HTTPS URL or a safe bundled source path');
+  const fileSegments = segments.slice(2);
+  if (fileSegments.length === 0
+      || fileSegments.some((segment) => (
+        segment === ''
+        || segment === '.'
+        || segment === '..'
+        || !SAFE_PATH_SEGMENT.test(segment)
+      ))) {
+    invalidSourceReference();
   }
+
+  const normalized = posixPath.normalize(value);
+  const relative = posixPath.relative(SOURCE_PATH_ROOT, normalized);
+  if (normalized !== value
+      || relative === ''
+      || relative === '.'
+      || relative === '..'
+      || relative.startsWith('../')
+      || posixPath.isAbsolute(relative)) {
+    invalidSourceReference();
+  }
+}
+
+function requireHttpsSourceUrl(value) {
+  if (value.includes('\\') || CONTROL_CHARACTER.test(value) || /%25/i.test(value)) {
+    invalidSourceReference();
+  }
+
+  let url;
+  let decodedPathname;
+  let decodedSearch;
+  let decodedHash;
+  try {
+    url = new URL(value);
+    decodedPathname = decodeURIComponent(url.pathname);
+    decodedSearch = decodeURIComponent(url.search);
+    decodedHash = decodeURIComponent(url.hash);
+  } catch {
+    invalidSourceReference();
+  }
+
+  if (url.protocol !== 'https:'
+      || url.hostname === ''
+      || url.username !== ''
+      || url.password !== ''
+      || [decodedPathname, decodedSearch, decodedHash].some((part) => (
+        part.includes('\\') || CONTROL_CHARACTER.test(part)
+      ))
+      || decodedPathname.split('/').some((segment) => segment === '.' || segment === '..')) {
+    invalidSourceReference();
+  }
+}
+
+function requireSourceReference(value) {
+  if (value.startsWith(SOURCE_PATH_PREFIX)) {
+    requireBundledSourcePath(value);
+    return;
+  }
+  requireHttpsSourceUrl(value);
 }
 
 export function sumMarkingScheme(items) {

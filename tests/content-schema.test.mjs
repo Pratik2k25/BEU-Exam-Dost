@@ -80,11 +80,16 @@ test('original question accepts complete source but rejects empty paperCode', ()
 });
 
 test('original question accepts a bundled source-file reference', () => {
-  const bundledSourceQuestion = {
-    ...originalQuestion,
-    source: {...originalQuestion.source, url: 'docs/content-sources/coa-2024.pdf'},
-  };
-  assert.equal(validateQuestion(bundledSourceQuestion), bundledSourceQuestion);
+  const safeReferences = [
+    'docs/content-sources/coa-2024.pdf',
+    'docs/content-sources/COA 2024 (official).pdf',
+    'https://example.edu/papers/COA%202024.pdf',
+  ];
+
+  for (const url of safeReferences) {
+    const question = {...originalQuestion, source: {...originalQuestion.source, url}};
+    assert.equal(validateQuestion(question), question, url);
+  }
 });
 
 test('original question rejects unsafe source references', () => {
@@ -96,6 +101,18 @@ test('original question rejects unsafe source references', () => {
     'C:\\secret.pdf',
     '/absolute.pdf',
     'not a source reference',
+    'docs/content-sources/%2e%2e%5csecret.pdf',
+    'docs/content-sources/%5c..%5csecret.pdf',
+    'docs/content-sources/%252e%252e/secret.pdf',
+    'docs/content-sources/%2E%2E%5Csecret.pdf',
+    'docs/content-sources/coa%00.pdf',
+    'docs/content-sources/coa\u0000.pdf',
+    'https://example.edu/%5c..%5csecret.pdf',
+    'https://example.edu/%5C..%5Csecret.pdf',
+    'https://example.edu/%252e%252e/secret.pdf',
+    'https://example.edu/%255c..%255csecret.pdf',
+    'https://user:pass@example.edu/coa-2024.pdf',
+    'https://example.edu/coa-\u0001-2024.pdf',
   ];
 
   for (const url of unsafeReferences) {
@@ -159,4 +176,42 @@ test('subject content accepts valid questions with distinct IDs and solution ref
     validateSubjectContent('coa', questions, solutions),
     {subject: 'coa', questions, solutions},
   );
+});
+
+test('subject content rejects ambiguous solutions, orphan solutions, and subject mismatches', () => {
+  const secondSolution = {...validSolution, id: 'coa-solution-02'};
+  const cases = [
+    {
+      name: 'duplicate solution IDs',
+      questions: [importantQuestion],
+      solutions: [validSolution, {...validSolution}],
+      match: /duplicate solution id/,
+    },
+    {
+      name: 'orphan solution',
+      questions: [importantQuestion],
+      solutions: [validSolution, secondSolution],
+      match: /must serve exactly one mark value/,
+    },
+    {
+      name: 'one solution serving 7- and 14-mark questions',
+      questions: [importantQuestion, {...originalQuestion, marks: 14}],
+      solutions: [validSolution],
+      match: /must serve exactly one mark value/,
+    },
+    {
+      name: 'question subject mismatch',
+      questions: [{...importantQuestion, subject: 'cn'}],
+      solutions: [validSolution],
+      match: /question subject does not match content subject/,
+    },
+  ];
+
+  for (const {name, questions, solutions, match} of cases) {
+    assert.throws(
+      () => validateSubjectContent('coa', questions, solutions),
+      match,
+      name,
+    );
+  }
 });
