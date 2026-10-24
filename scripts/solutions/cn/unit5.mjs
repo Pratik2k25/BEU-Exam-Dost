@@ -1,4 +1,4 @@
-export const unit5Solutions = [
+const unit5Entries = [
   {
     id: 'cn-q37',
     num: 37,
@@ -301,6 +301,7 @@ Strictly Constant Output Stream                  | Output Gate  | ===> Burst Out
         { component: 'Four-Way Teardown Half-Close Explanation', marks: '1.5' },
         { component: 'Justification of 2MSL TIME-WAIT State (2 reasons)', marks: '1.5' }
       ],
+      examTip: 'Draw separate labelled sequence diagrams for SYN → SYN-ACK → ACK setup and FIN/ACK teardown; state that TIME-WAIT lasts 2MSL so delayed duplicates expire and the final ACK can be retransmitted.'
     }
   },
   {
@@ -655,3 +656,17 @@ Unreliable, unsequenced, no flow control, minimal latency overhead.`
   }
 
 ];
+
+const toSolution = ({id, solution}) => ({id, ...solution});
+const solutionFor = (id, sourceId) => toSolution({
+  id,
+  solution: unit5Entries.find((entry) => entry.id === sourceId).solution,
+});
+
+export const unit5Solutions = [
+  ...unit5Entries.filter(({marks}) => marks === 7).map(toSolution),
+  solutionFor('cn-q14', 'cn-q39'),
+];
+export const unit5SupplementalSolutions = unit5Entries
+  .filter(({marks}) => marks !== 7)
+  .map(toSolution);

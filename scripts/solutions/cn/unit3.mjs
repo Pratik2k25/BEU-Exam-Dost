@@ -1,4 +1,4 @@
-export const unit3Solutions = [
+const unit3Entries = [
   {
     id: 'cn-q30',
     num: 30,
@@ -1038,3 +1038,19 @@ Each port has dedicated bandwidth; collision domains isolated; simultaneous Tx/R
   }
 
 ];
+
+const toSolution = ({id, solution}) => ({id, ...solution});
+const solutionFor = (id, sourceId) => toSolution({
+  id,
+  solution: unit3Entries.find((entry) => entry.id === sourceId).solution,
+});
+
+export const unit3Solutions = [
+  ...unit3Entries.filter(({marks}) => marks === 7).map(toSolution),
+  solutionFor('cn-q5', 'cn-q31'),
+  solutionFor('cn-q6', 'cn-q30'),
+  solutionFor('cn-q7', 'cn-q51'),
+];
+export const unit3SupplementalSolutions = unit3Entries
+  .filter(({marks}) => marks !== 7)
+  .map(toSolution);

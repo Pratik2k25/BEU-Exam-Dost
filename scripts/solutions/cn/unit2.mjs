@@ -1,4 +1,4 @@
-export const unit2Solutions = [
+const unit2Entries = [
   {
     id: 'cn-q4',
     num: 4,
@@ -322,3 +322,15 @@ Wire B: -----/ \\-----/ \\-----/ \\-----   interference and mutual crosstalk)
     }
   }
 ];
+
+const toSolution = ({id, solution}) => ({id, ...solution});
+const solutionFor = (id, sourceId) => toSolution({
+  id,
+  solution: unit2Entries.find((entry) => entry.id === sourceId).solution,
+});
+
+export const unit2Solutions = [
+  ...unit2Entries.map(toSolution),
+  solutionFor('cn-q3', 'cn-q41'),
+];
+export const unit2SupplementalSolutions = [];

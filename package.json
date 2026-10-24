@@ -1,11 +1,14 @@
 {
   "name": "exam-dost",
-  "version": "0.2.3",
+  "version": "0.3.0",
   "type": "module",
   "private": true,
   "scripts": {
     "test": "node --test tests/*.test.mjs",
-    "check": "node --check dist/app.js && node --check dist/core.js && node --check dist/data.js && node --check dist/cn-solutions.js && node --check dist/schedule.js && node --check dist/app-meta.js && node --check dist/sw.js && node --check dist/updates.js && node --check dist/speed-insights.js && node --check scripts/build.mjs",
+    "check": "node --check dist/app.js && node --check dist/core.js && node --check dist/data.js && node --check dist/question-view.js && node --check dist/solutions/index.js && node --check dist/schedule.js && node --check dist/app-meta.js && node --check dist/sw.js && node --check dist/updates.js && node --check dist/speed-insights.js && node --check dist/changelog.js && node --check dist/telemetry.js && node --check scripts/build.mjs",
+    "check:version": "node scripts/check-version.mjs",
+    "check:content": "node scripts/build-solutions.mjs --check",
+    "build:content": "node scripts/build-solutions.mjs",
     "build": "node scripts/build.mjs"
   },
   "dependencies": {

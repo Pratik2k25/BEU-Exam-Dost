@@ -306,6 +306,8 @@ export const cnOriginalQuestions=[];
 
 Convert the remaining CN entries to Important Questions only when they are 7 marks. Preserve 3-, 4-, and 14-mark entries in separate `cnSupplementalQuestions` and `cnSupplementalSolutions` exports so they remain available to the later source audit but do not enter the compiled question registry or Important 7-Mark UI.
 
+**Baseline repair:** Migration exposed that the legacy `cn-q13` solution was the only seven-mark record missing the schema-required `examTip`. To keep authored and generated data in exact parity, both records use the approved text: `Draw separate labelled sequence diagrams for SYN → SYN-ACK → ACK setup and FIN/ACK teardown; state that TIME-WAIT lasts 2MSL so delayed duplicates expire and the final ACK can be retransmitted.`
+
 - [ ] **Step 5: Run CN parity and contract tests**
 
 Run: `node --test tests/content-schema.test.mjs`
