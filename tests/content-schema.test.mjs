@@ -84,6 +84,8 @@ test('original question accepts a bundled source-file reference', () => {
     'docs/content-sources/coa-2024.pdf',
     'docs/content-sources/COA 2024 (official).pdf',
     'https://example.edu/papers/COA%202024.pdf',
+    'https://example.edu/paper?download=100%25',
+    'https://example.edu/paper?sig=a%252Fb',
   ];
 
   for (const url of safeReferences) {
@@ -110,6 +112,7 @@ test('original question rejects unsafe source references', () => {
     'https://example.edu/%5c..%5csecret.pdf',
     'https://example.edu/%5C..%5Csecret.pdf',
     'https://example.edu/%252e%252e/secret.pdf',
+    'https://example.edu/%25252e%25252e/secret.pdf',
     'https://example.edu/%255c..%255csecret.pdf',
     'https://user:pass@example.edu/coa-2024.pdf',
     'https://example.edu/coa-\u0001-2024.pdf',

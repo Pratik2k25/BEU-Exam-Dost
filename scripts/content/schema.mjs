@@ -70,19 +70,13 @@ function requireBundledSourcePath(value) {
 }
 
 function requireHttpsSourceUrl(value) {
-  if (value.includes('\\') || CONTROL_CHARACTER.test(value) || /%25/i.test(value)) {
+  if (value.includes('\\') || CONTROL_CHARACTER.test(value)) {
     invalidSourceReference();
   }
 
   let url;
-  let decodedPathname;
-  let decodedSearch;
-  let decodedHash;
   try {
     url = new URL(value);
-    decodedPathname = decodeURIComponent(url.pathname);
-    decodedSearch = decodeURIComponent(url.search);
-    decodedHash = decodeURIComponent(url.hash);
   } catch {
     invalidSourceReference();
   }
@@ -90,13 +84,29 @@ function requireHttpsSourceUrl(value) {
   if (url.protocol !== 'https:'
       || url.hostname === ''
       || url.username !== ''
-      || url.password !== ''
-      || [decodedPathname, decodedSearch, decodedHash].some((part) => (
-        part.includes('\\') || CONTROL_CHARACTER.test(part)
-      ))
-      || decodedPathname.split('/').some((segment) => segment === '.' || segment === '..')) {
+      || url.password !== '') {
     invalidSourceReference();
   }
+
+  let pathname = url.pathname;
+  for (let depth = 0; depth < 8; depth += 1) {
+    if (pathname.includes('\\')
+        || CONTROL_CHARACTER.test(pathname)
+        || pathname.split('/').some((segment) => segment === '.' || segment === '..')) {
+      invalidSourceReference();
+    }
+
+    let decoded;
+    try {
+      decoded = decodeURIComponent(pathname);
+    } catch {
+      return;
+    }
+    if (decoded === pathname) return;
+    pathname = decoded;
+  }
+
+  invalidSourceReference();
 }
 
 function requireSourceReference(value) {
