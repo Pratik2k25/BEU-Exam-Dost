@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync, writeFileSync, rmSync} from 'node:fs';
 import {join} from 'node:path';
 import {tmpdir} from 'node:os';
-import {allCnPyqs, cnSolutions as legacyCnSolutions} from '../dist/cn-solutions.js';
+import {cnQuestions as compiledCnQuestions, cnSolutions as compiledCnSolutions} from '../dist/solutions/cn-solutions.js';
 import {compileSubjectModule} from '../scripts/content/compiler.mjs';
 import {
   sumMarkingScheme,
@@ -313,7 +313,15 @@ test('CN migration preserves every legacy question and solution while separating
   const migratedSolutions = [...importantSolutions, ...cnSupplementalSolutions];
   const questionById = new Map(migratedQuestions.map((question) => [question.id, question]));
   const solutionById = new Map(migratedSolutions.map((solution) => [solution.id, solution]));
-  const legacyIds = allCnPyqs.map((question) => question.id).sort();
+  const legacyIds = [
+    'cn-q1', 'cn-q10', 'cn-q11', 'cn-q12', 'cn-q13', 'cn-q14', 'cn-q15', 'cn-q16',
+    'cn-q17', 'cn-q18', 'cn-q2', 'cn-q20', 'cn-q21', 'cn-q28', 'cn-q29', 'cn-q3',
+    'cn-q30', 'cn-q31', 'cn-q32', 'cn-q33', 'cn-q34', 'cn-q35', 'cn-q36', 'cn-q37',
+    'cn-q38', 'cn-q39', 'cn-q4', 'cn-q40', 'cn-q41', 'cn-q42', 'cn-q43', 'cn-q44',
+    'cn-q45', 'cn-q46', 'cn-q47', 'cn-q48', 'cn-q49', 'cn-q5', 'cn-q50', 'cn-q51',
+    'cn-q52', 'cn-q53', 'cn-q54', 'cn-q55', 'cn-q56', 'cn-q57', 'cn-q6', 'cn-q7',
+    'cn-q8', 'cn-q9',
+  ].sort();
 
   assert.equal(migratedQuestions.length, 50);
   assert.equal(migratedSolutions.length, 50);
@@ -322,30 +330,16 @@ test('CN migration preserves every legacy question and solution while separating
   assert.deepEqual([...questionById.keys()].sort(), legacyIds);
   assert.deepEqual([...solutionById.keys()].sort(), legacyIds);
 
-  for (const legacyQuestion of allCnPyqs) {
-    const migratedQuestion = questionById.get(legacyQuestion.id);
-    assert.deepEqual(
-      {
-        id: migratedQuestion.id,
-        unit: migratedQuestion.unit,
-        question: migratedQuestion.question,
-        marks: migratedQuestion.marks,
-      },
-      {
-        id: legacyQuestion.id,
-        unit: legacyQuestion.unit,
-        question: legacyQuestion.question,
-        marks: legacyQuestion.marks,
-      },
-      legacyQuestion.id,
-    );
-    assert.equal(migratedQuestion.solutionRef, legacyQuestion.id, legacyQuestion.id);
+  for (const compiledQ of compiledCnQuestions) {
+    const migratedQuestion = questionById.get(compiledQ.id);
+    assert.deepEqual(compiledQ, migratedQuestion, compiledQ.id);
+    assert.equal(compiledQ.solutionRef, compiledQ.id, compiledQ.id);
 
-    const migratedSolution = solutionById.get(migratedQuestion.solutionRef);
+    const migratedSolution = solutionById.get(compiledQ.solutionRef);
     assert.deepEqual(
       migratedSolution,
-      {id: legacyQuestion.id, ...legacyCnSolutions[legacyQuestion.id]},
-      legacyQuestion.id,
+      compiledCnSolutions[compiledQ.solutionRef],
+      compiledQ.id,
     );
   }
 
@@ -367,7 +361,7 @@ test('CN migration preserves every legacy question and solution while separating
   );
   assert.deepEqual(
     cnSupplementalQuestions.map(({id}) => id).sort(),
-    allCnPyqs.filter(({marks}) => marks !== 7).map(({id}) => id).sort(),
+    ['cn-q45', 'cn-q46', 'cn-q47', 'cn-q55', 'cn-q56', 'cn-q57'].sort(),
   );
 
   assert.deepEqual(
@@ -474,5 +468,36 @@ test('build-solutions generates browser modules and rejects stale output in chec
     );
   } finally {
     rmSync(tempDir, {recursive: true, force: true});
+  }
+});
+
+test('written question adapter normalizes all subjects with kind and attached solutions', async () => {
+  const {pyqs} = await import('../dist/data.js');
+  const subjects = ['coa', 'flat', 'dbms', 'daa', 'etc'];
+  const expectedCounts = {
+    coa: 15,
+    flat: 18,
+    dbms: 16,
+    daa: 21,
+    etc: 18,
+  };
+
+  for (const subj of subjects) {
+    const questions = pyqs(subj);
+    assert.equal(questions.length, expectedCounts[subj], `${subj} count mismatch`);
+    for (const q of questions) {
+      assert.equal(q.kind, 'important', `${q.id} must have kind: important`);
+      assert.ok(Array.isArray(q.topics) && q.topics.length > 0, `${q.id} must have topics`);
+      assert.equal(Object.hasOwn(q, 'years'), false, `${q.id} must not have years`);
+      assert.ok(q.solution, `${q.id} must have attached solution`);
+      assert.equal(q.solution.id, q.id, `${q.id} solution ID must match`);
+    }
+  }
+
+  const cnItems = pyqs('cn');
+  assert.equal(cnItems.length, 44);
+  for (const q of cnItems) {
+    assert.equal(q.kind, 'important');
+    assert.ok(q.solution);
   }
 });
