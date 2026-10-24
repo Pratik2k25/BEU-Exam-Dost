@@ -245,3 +245,41 @@ test('compiler output is deterministic without mutating caller arrays', () => {
   assert.deepEqual(questions, questionsBefore);
   assert.deepEqual(solutions, solutionsBefore);
 });
+
+test('compiler deterministically orders canonically equivalent IDs by UTF-16 code units', () => {
+  const decomposedSolution = {...validSolution, id: 'coa-solution-e\u0301'};
+  const composedSolution = {...validSolution, id: 'coa-solution-é'};
+  const questions = [
+    {...importantQuestion, id: 'coa-question-e\u0301', solutionRef: decomposedSolution.id},
+    {...originalQuestion, id: 'coa-question-é', solutionRef: composedSolution.id},
+  ];
+  const solutions = [decomposedSolution, composedSolution];
+
+  const originalOutput = compileSubjectModule({subject: 'coa', questions, solutions});
+  const reversedOutput = compileSubjectModule({
+    subject: 'coa',
+    questions: [...questions].reverse(),
+    solutions: [...solutions].reverse(),
+  });
+
+  assert.equal(originalOutput, reversedOutput);
+});
+
+test('compiler preserves __proto__ as an own solution key in generated modules', async () => {
+  const protoSolution = {...validSolution, id: '__proto__'};
+  const protoQuestion = {...importantQuestion, solutionRef: protoSolution.id};
+  const output = compileSubjectModule({
+    subject: 'coa',
+    questions: [protoQuestion],
+    solutions: [protoSolution],
+  });
+  const moduleUrl = new URL(`data:text/javascript;charset=utf-8,${encodeURIComponent(output)}`);
+  moduleUrl.hash = `test-${crypto.randomUUID()}`;
+
+  const compiled = await import(moduleUrl.href);
+
+  assert.equal(Object.hasOwn(compiled.coaSolutions, '__proto__'), true);
+  assert.deepEqual(Object.keys(compiled.coaSolutions), ['__proto__']);
+  assert.deepEqual(compiled.coaSolutions.__proto__, protoSolution);
+  assert.deepEqual(compiled.coaQuestions, [protoQuestion]);
+});
