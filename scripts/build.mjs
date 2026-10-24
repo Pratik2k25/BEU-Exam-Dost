@@ -19,8 +19,18 @@ export function buildSite({sourceDir=join(root,'dist'),outputDir=join(root,'buil
  const worker=join(outputDir,'sw.js');writeFileSync(worker,readFileSync(worker,'utf8').replace(/const CACHE='[^']*';/,`const CACHE='exam-dost-shell-${buildId}';`).replace(/const SHELL=\[.*?\];/s,`const SHELL=${JSON.stringify(shell)};`));
  const landingDir=join(root,'landing');
  if(existsSync(landingDir)&&outputDir.endsWith('build')){cpSync(landingDir,join(outputDir,'landing'),{recursive:true});}
- const apkPath=join(root,'beuexamdost.apk');
- if(existsSync(apkPath)&&outputDir.endsWith('build')){cpSync(apkPath,join(outputDir,'beuexamdost.apk'));}
+ const newApk=join(root,'new-exam-dost.apk');
+ const oldApk=join(root,'beuexamdost.apk');
+ const srcApk=existsSync(newApk)?newApk:(existsSync(oldApk)?oldApk:null);
+ if(srcApk&&outputDir.endsWith('build')){
+  cpSync(srcApk,join(outputDir,'new-exam-dost.apk'));
+  cpSync(srcApk,join(outputDir,'beuexamdost.apk'));
+  const landingOut=join(outputDir,'landing');
+  if(existsSync(landingOut)){
+   cpSync(srcApk,join(landingOut,'new-exam-dost.apk'));
+   cpSync(srcApk,join(landingOut,'beuexamdost.apk'));
+  }
+ }
  return {buildId,version,fileCount:files(outputDir).length};
 }
 try {
