@@ -22,12 +22,9 @@ export function buildSite({sourceDir=join(root,'dist'),outputDir=join(root,'buil
  if(resolve(outputDir)===resolve(join(root,'build'))&&existsSync(apkPath)){cpSync(apkPath,join(outputDir,'beuexamdost.apk'));}
  return {buildId,version,fileCount:files(outputDir).length};
 }
-const isCLI = Boolean(process.argv[1] && !process.argv[1].includes('test'));
-if(isCLI){
- try {
-  console.log(JSON.stringify(buildSite()));
- } catch(err) {
-  console.error('buildSite execution failed:', err);
-  process.exit(1);
- }
+try {
+ console.log(JSON.stringify(buildSite()));
+} catch(err) {
+ console.error('buildSite execution failed:', err);
+ process.exit(1);
 }
