@@ -20,6 +20,20 @@ test('year analysis counts source occurrences once using primary unit',()=>{
  const r=yearCounts([{unit:1,units:[1,2],years:[2022,2023]},{unit:2,years:[2023]}],[2022,2023],2);
  assert.deepEqual(r,[[1,1],[0,1]]);
 });
+
+test('year analysis supports source-backed PYQs and missing legacy years',()=>{
+ const questions=[{unit:1,source:{year:2025},years:[2025]},{unit:1,source:{year:2024}},{unit:2,years:[2024,2025]},{unit:2}];
+ assert.deepEqual(yearCounts(questions,[2025,2024],2),[[1,1],[1,1]]);
+});
+
+test('published CN original questions can render their year analysis',async()=>{
+ const {pyqs}=await import('../dist/data.js');
+ const originals=pyqs('cn').filter(q=>q.kind==='original');
+ const years=[...new Set(originals.map(q=>q.source.year))];
+ const counts=yearCounts(originals,years);
+ assert.equal(originals.length,48);
+ assert.equal(counts.flat().reduce((total,count)=>total+count,0),originals.length);
+});
 test('planner respects daily minutes and skips completed topics',()=>{
  const p=buildPlan([{id:'a',title:'A',subject:'cn'},{id:'b',title:'B',subject:'coa'},{id:'c',title:'C',subject:'cn'}],{a:true},'2026-10-23',[30,30,30,30,30,30,30],{});
  assert.equal(p.length,2);assert.equal(p[0].topic,'b');assert.equal(p[0].date,'2026-10-23');assert.equal(p[1].date,'2026-10-24');
