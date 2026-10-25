@@ -9,8 +9,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
-import { resolve, dirname } from 'node:path';
+import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { join, resolve, dirname } from 'node:path';
+import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -28,6 +29,27 @@ function runChecker(...args) {
 
 function pkgVersion() {
   return JSON.parse(readFileSync(resolve(ROOT, 'package.json'), 'utf8')).version;
+}
+
+function createVersionSandbox() {
+  const sandbox = mkdtempSync(join(tmpdir(), 'exam-dost-version-test-'));
+  mkdirSync(join(sandbox, 'scripts'), {recursive: true});
+  mkdirSync(join(sandbox, 'dist'), {recursive: true});
+  for (const relPath of ['package.json', 'scripts/check-version.mjs', 'dist/app-meta.js', 'dist/index.html']) {
+    copyFileSync(resolve(ROOT, relPath), join(sandbox, relPath));
+  }
+  return sandbox;
+}
+
+function runSandboxChecker(sandbox, ...args) {
+  return spawnSync(process.execPath, [join(sandbox, 'scripts/check-version.mjs'), ...args], {
+    cwd: sandbox,
+    encoding: 'utf8',
+  });
+}
+
+function sandboxVersion(sandbox) {
+  return JSON.parse(readFileSync(join(sandbox, 'package.json'), 'utf8')).version;
 }
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
@@ -99,63 +121,56 @@ test('validation rejects a version with text suffix', () => {
 });
 
 test('check-version --set synchronises package.json to the new version', () => {
-  const originalVer = pkgVersion();
-
-  // Bump to a test version, then restore
-  const testVer = '99.88.77';
-  const setResult = runChecker('--set', testVer);
-  assert.equal(
-    setResult.status,
-    0,
-    `--set ${testVer} should succeed\n${setResult.stderr}`
-  );
-  assert.equal(pkgVersion(), testVer, `package.json version should be updated to ${testVer}`);
-
-  // Restore original
-  const restoreResult = runChecker('--set', originalVer);
-  assert.equal(
-    restoreResult.status,
-    0,
-    `Restoring to ${originalVer} should succeed\n${restoreResult.stderr}`
-  );
-  assert.equal(pkgVersion(), originalVer, `package.json version should be restored to ${originalVer}`);
+  const sandbox = createVersionSandbox();
+  try {
+    const testVer = '99.88.77';
+    const result = runSandboxChecker(sandbox, '--set', testVer);
+    assert.equal(result.status, 0, `--set ${testVer} should succeed\n${result.stderr}`);
+    assert.equal(sandboxVersion(sandbox), testVer);
+    assert.match(readFileSync(join(sandbox, 'dist/app-meta.js'), 'utf8'), /appVersion='99\.88\.77'/);
+  } finally {
+    rmSync(sandbox, {recursive: true, force: true});
+  }
 });
 
 test('check-version --bump patch increments patch component', () => {
-  const before = pkgVersion();
-  const parsed = before.split('.').map(Number);
-  const expectedPatch = `${parsed[0]}.${parsed[1]}.${parsed[2] + 1}`;
-
-  const result = runChecker('--bump', 'patch');
-  assert.equal(result.status, 0, `--bump patch should succeed\n${result.stderr}`);
-  assert.equal(pkgVersion(), expectedPatch);
-
-  // Restore
-  runChecker('--set', before);
+  const sandbox = createVersionSandbox();
+  try {
+    const before = sandboxVersion(sandbox);
+    const parsed = before.split('.').map(Number);
+    const expected = `${parsed[0]}.${parsed[1]}.${parsed[2] + 1}`;
+    const result = runSandboxChecker(sandbox, '--bump', 'patch');
+    assert.equal(result.status, 0, `--bump patch should succeed\n${result.stderr}`);
+    assert.equal(sandboxVersion(sandbox), expected);
+  } finally {
+    rmSync(sandbox, {recursive: true, force: true});
+  }
 });
 
 test('check-version --bump minor increments minor and resets patch', () => {
-  const before = pkgVersion();
-  const parsed = before.split('.').map(Number);
-  const expectedMinor = `${parsed[0]}.${parsed[1] + 1}.0`;
-
-  const result = runChecker('--bump', 'minor');
-  assert.equal(result.status, 0, `--bump minor should succeed\n${result.stderr}`);
-  assert.equal(pkgVersion(), expectedMinor);
-
-  // Restore
-  runChecker('--set', before);
+  const sandbox = createVersionSandbox();
+  try {
+    const before = sandboxVersion(sandbox);
+    const parsed = before.split('.').map(Number);
+    const expected = `${parsed[0]}.${parsed[1] + 1}.0`;
+    const result = runSandboxChecker(sandbox, '--bump', 'minor');
+    assert.equal(result.status, 0, `--bump minor should succeed\n${result.stderr}`);
+    assert.equal(sandboxVersion(sandbox), expected);
+  } finally {
+    rmSync(sandbox, {recursive: true, force: true});
+  }
 });
 
 test('check-version --bump major increments major and resets minor+patch', () => {
-  const before = pkgVersion();
-  const parsed = before.split('.').map(Number);
-  const expectedMajor = `${parsed[0] + 1}.0.0`;
-
-  const result = runChecker('--bump', 'major');
-  assert.equal(result.status, 0, `--bump major should succeed\n${result.stderr}`);
-  assert.equal(pkgVersion(), expectedMajor);
-
-  // Restore
-  runChecker('--set', before);
+  const sandbox = createVersionSandbox();
+  try {
+    const before = sandboxVersion(sandbox);
+    const parsed = before.split('.').map(Number);
+    const expected = `${parsed[0] + 1}.0.0`;
+    const result = runSandboxChecker(sandbox, '--bump', 'major');
+    assert.equal(result.status, 0, `--bump major should succeed\n${result.stderr}`);
+    assert.equal(sandboxVersion(sandbox), expected);
+  } finally {
+    rmSync(sandbox, {recursive: true, force: true});
+  }
 });

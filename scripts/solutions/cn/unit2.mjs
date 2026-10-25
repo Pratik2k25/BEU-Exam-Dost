@@ -332,5 +332,73 @@ const solutionFor = (id, sourceId) => toSolution({
 export const unit2Solutions = [
   ...unit2Entries.map(toSolution),
   solutionFor('cn-q3', 'cn-q41'),
+  {
+    id: 'cn-original-2025-100602-q2a',
+    verified: 'BEU 2025 · Q.2(a) · 7 Marks · Cross-checked scan',
+    intro: 'A network topology describes how devices and links are arranged. Mesh, star, and ring topologies differ in link count, fault tolerance, and installation cost.',
+    diagrams: [
+      {title: 'Full Mesh', ascii: '      A\n     / \\\n    B---C'},
+      {title: 'Star', ascii: '      A\n      |\n  B---S---C\n      |\n      D'},
+      {title: 'Ring', ascii: '  A-----B\n  |     |\n  D-----C'},
+    ],
+    table: {
+      title: 'Mesh, Star, and Ring Topology Comparison',
+      headers: ['Topology', 'Advantages', 'Disadvantages'],
+      rows: [
+        ['Mesh', 'Many alternate paths; a single link failure usually leaves other paths available; supports direct node-to-node communication.', 'Requires many links and ports; high installation cost and complex cabling.'],
+        ['Star', 'Easy to install, manage, and expand; a link failure affects only its attached node; faults are easy to isolate.', 'The central hub or switch is a single point of failure; all traffic depends on it.'],
+        ['Ring', 'Orderly access can reduce collisions; each node has a predictable neighboring connection.', 'A single break can disrupt a simple unidirectional ring; adding or removing nodes may interrupt service.'],
+      ],
+    },
+    sections: [{
+      heading: '1. Structure and link count',
+      points: [
+        'In a full mesh of <code>n</code> devices, each pair has a direct link, requiring <code>n(n−1)/2</code> links. A partial mesh provides only selected redundant links.',
+        'In a star, every device connects to one central hub or switch. In a ring, each device connects to its two neighbors to form a closed loop.',
+      ],
+    }],
+    conclusion: 'Mesh offers the greatest path redundancy but costs the most; star is simple to manage but depends on its central device; ring provides orderly access but is vulnerable to a break unless redundancy is added.',
+    markingScheme: [
+      {component: 'Define topology and describe mesh structure', marks: '1'},
+      {component: 'Mesh advantages and disadvantages', marks: '1.5'},
+      {component: 'Star structure, advantages and disadvantages', marks: '1.5'},
+      {component: 'Ring structure, advantages and disadvantages', marks: '1.5'},
+      {component: 'Accurate comparison and conclusion', marks: '1.5'},
+    ],
+    examTip: 'For a full mesh, show the link formula <code>n(n−1)/2</code>. Distinguish a link failure from a central-device failure in a star.',
+  },
+  {
+    id: 'cn-original-2025-100602-q8a',
+    verified: 'BEU 2025 · Q.8(a) · 7 Marks · Cross-checked scan',
+    intro: 'Transmission media carry signals between network devices. Guided media confine the signal to a physical path; unguided media transmit it through free space.',
+    table: {
+      title: 'Guided and Unguided Media',
+      headers: ['Feature', 'Guided media', 'Unguided media'],
+      rows: [
+        ['Path', 'Signal follows a cable or optical fiber.', 'Signal travels through air or space using antennas.'],
+        ['Examples', 'Twisted-pair, coaxial cable, optical fiber.', 'Radio, microwave, infrared, satellite links.'],
+        ['Typical properties', 'More controlled path; installation requires cabling.', 'Supports mobility and broad coverage; affected by interference and propagation conditions.'],
+      ],
+    },
+    sections: [{
+      heading: '1. Direction of communication',
+      points: [
+        '<b>Simplex:</b> Communication flows in one direction only, such as a keyboard sending input to a computer.',
+        '<b>Half-duplex:</b> Both ends can transmit, but not at the same time; a walkie-talkie is an example.',
+        '<b>Full-duplex:</b> Both ends transmit simultaneously; a telephone call is a familiar example.',
+      ],
+    }],
+    conclusion: 'Guided and unguided media describe the physical transmission path, while simplex, half-duplex, and full-duplex describe the direction and timing of communication.',
+    markingScheme: [
+      {component: 'Meaning and transmission path of guided media', marks: '1'},
+      {component: 'Meaning and transmission path of unguided media', marks: '1'},
+      {component: 'Relevant examples and comparison', marks: '1'},
+      {component: 'Simplex definition and example', marks: '1'},
+      {component: 'Half-duplex definition and example', marks: '1'},
+      {component: 'Full-duplex definition and example', marks: '1'},
+      {component: 'Clear distinction and conclusion', marks: '1'},
+    ],
+    examTip: 'Do not confuse media type with communication direction: a medium may support different direction modes depending on the system.',
+  },
 ];
 export const unit2SupplementalSolutions = [];

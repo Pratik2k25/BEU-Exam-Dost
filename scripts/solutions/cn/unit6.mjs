@@ -362,5 +362,28 @@ const solutionFor = (id, sourceId) => toSolution({
 export const unit6Solutions = [
   ...unit6Entries.map(toSolution),
   solutionFor('cn-q18', 'cn-q40'),
+  {
+    id: 'cn-original-2025-100602-q9a',
+    verified: 'BEU 2025 · Q.9(a) · 7 Marks · Cross-checked scan',
+    intro: 'Public-key (asymmetric) cryptography uses a mathematically related key pair: a public key that can be shared and a private key kept secret by its owner.',
+    table: {title: 'Public-key Operations', headers: ['Purpose', 'Operation', 'Result'], rows: [
+      ['Confidentiality', 'Sender encrypts with recipient’s public key; recipient decrypts with the matching private key.', 'Only the holder of the private key can recover the plaintext, assuming the key is valid and protected.'],
+      ['Digital signature', 'Owner signs a message digest with the private key; others verify using the corresponding public key.', 'Supports origin authentication and integrity; non-repudiation depends on identity, key custody, and applicable legal controls.'],
+    ]},
+    sections: [{heading: '1. Uses and examples', points: [
+      'Public-key techniques support key establishment, encryption of small data or session keys, and digital signatures. Hybrid protocols such as TLS typically use public-key methods to authenticate or establish keys and symmetric cryptography to protect bulk data efficiently.',
+      'RSA and elliptic-curve cryptography are common families. A certificate and trusted validation process bind a public key to an identity; without this check, an attacker could substitute a different key.',
+      'The private key must remain protected. Public-key cryptography does not automatically ensure confidentiality, integrity, or identity unless the correct operation and trust checks are used.',
+    ]}],
+    conclusion: 'The public/private key pair supports confidentiality when encrypting for the recipient and supports signature verification when the owner signs with the private key.',
+    markingScheme: [
+      {component: 'Define asymmetric cryptography and key pair', marks: '1.5'},
+      {component: 'Confidentiality operation and key roles', marks: '2'},
+      {component: 'Digital signature and verification roles', marks: '2'},
+      {component: 'Uses/examples and certificate trust', marks: '1'},
+      {component: 'Key-protection qualification and conclusion', marks: '0.5'},
+    ],
+    examTip: 'Keep the two key uses distinct: encrypt to the recipient’s public key; verify the owner’s signature with the owner’s public key.',
+  },
 ];
 export const unit6SupplementalSolutions = [];

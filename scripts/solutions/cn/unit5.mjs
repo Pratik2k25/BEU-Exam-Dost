@@ -666,6 +666,63 @@ const solutionFor = (id, sourceId) => toSolution({
 export const unit5Solutions = [
   ...unit5Entries.filter(({marks}) => marks === 7).map(toSolution),
   solutionFor('cn-q14', 'cn-q39'),
+  {
+    id: 'cn-original-2025-100602-q4a',
+    verified: 'BEU 2025 · Q.4(a) · 7 Marks · Cross-checked scan',
+    intro: 'TCP establishes a reliable, full-duplex connection using a three-way handshake that synchronizes initial sequence numbers and confirms both endpoints can send and receive.',
+    sections: [
+      {heading: '1. Three-way handshake', points: [
+        '<b>Step 1 — SYN:</b> The client sends a SYN segment with initial sequence number <code>x</code> and enters SYN-SENT.',
+        '<b>Step 2 — SYN + ACK:</b> The server replies with SYN and ACK, its initial sequence number <code>y</code>, and acknowledgement <code>x+1</code>. It enters SYN-RECEIVED.',
+        '<b>Step 3 — ACK:</b> The client sends acknowledgement <code>y+1</code>. Both sides have now acknowledged the peer’s SYN; the connection can carry data.',
+      ]},
+      {heading: '2. Why three messages are needed', points: [
+        'Each SYN consumes one sequence number. The final ACK confirms that the client received the server’s sequence number and response, while the server has already confirmed receipt of the client’s SYN.',
+        'The handshake establishes connection state and initial sequence-number synchronization; it does not itself guarantee that the application has accepted or processed data.',
+      ]},
+    ],
+    diagrams: [{
+      title: 'TCP Three-way Connection Establishment',
+      ascii: 'Client                                      Server\n  | ---- SYN, seq=x --------------------------> |\n  | <--- SYN+ACK, seq=y, ack=x+1 ------------- |\n  | ---- ACK, ack=y+1 ------------------------> |\n  |         Connection established             |',
+    }],
+    conclusion: 'TCP establishes a connection through SYN, SYN+ACK, and ACK, synchronizing the initial sequence numbers in both directions.',
+    markingScheme: [
+      {component: 'Purpose of connection establishment', marks: '1'},
+      {component: 'Client SYN and sequence number', marks: '1'},
+      {component: 'Server SYN+ACK and acknowledgement', marks: '2'},
+      {component: 'Final ACK and connection states', marks: '1.5'},
+      {component: 'Sequence-number synchronization and conclusion', marks: '1.5'},
+    ],
+    examTip: 'Write the acknowledgement values explicitly: the server acknowledges <code>x+1</code> and the client acknowledges <code>y+1</code>.',
+  },
+  {
+    id: 'cn-original-2025-100602-q5b',
+    verified: 'BEU 2025 · Q.5(b) · 7 Marks · Cross-checked scan',
+    intro: 'The Leaky Bucket algorithm shapes or rate-limits traffic by releasing queued packets at a controlled, approximately constant rate.',
+    diagrams: [{
+      title: 'Leaky Bucket Traffic Shaping',
+      ascii: 'Bursty input packets\n        ↓\n  +-------------+       fixed-rate output\n  | finite queue| -----------------------> network\n  +-------------+\n        ↓\n packets arriving when the queue is full are discarded',
+    }],
+    sections: [
+      {heading: '1. Operation', points: [
+        'Incoming packets enter a finite buffer (the bucket). The scheduler transmits queued packets at a configured rate, smoothing bursts into a steadier output stream.',
+        'If packets arrive faster than the service rate for long enough to fill the buffer, additional packets are dropped or marked according to the implementation. A packet-based bucket drains by transmitting packets; a byte-based bucket can enforce a bit rate.',
+      ]},
+      {heading: '2. Traffic shaping and rate limiting', points: [
+        'For shaping, the queue delays excess packets until capacity is available, subject to buffer size and delay limits. For policing, an implementation may discard or remark traffic that exceeds the configured rate instead of buffering it.',
+        'The algorithm bounds output burstiness and protects downstream links, but it may increase delay and lose packets when the queue is full. Unlike a token bucket, a strict leaky-bucket shaper does not preserve idle capacity as a large future burst allowance.',
+      ]},
+    ],
+    conclusion: 'A finite queue and fixed drain rate smooth traffic and enforce a rate; excess traffic waits when shaping is possible and is discarded or marked when the bucket is full.',
+    markingScheme: [
+      {component: 'Definition and purpose', marks: '1'},
+      {component: 'Finite bucket/queue and fixed output rate', marks: '2'},
+      {component: 'Traffic-shaping behavior', marks: '1.5'},
+      {component: 'Rate-limiting/policing and overflow behavior', marks: '1.5'},
+      {component: 'Benefits, delay/loss limitation, conclusion', marks: '1'},
+    ],
+    examTip: 'State both the fixed drain rate and what happens when the finite bucket is full.',
+  },
 ];
 export const unit5SupplementalSolutions = unit5Entries
   .filter(({marks}) => marks !== 7)

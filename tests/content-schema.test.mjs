@@ -314,7 +314,7 @@ test('CN migration preserves original, legacy, and supplemental questions while 
   const questionById = new Map(migratedQuestions.map((question) => [question.id, question]));
   const solutionById = new Map(migratedSolutions.map((solution) => [solution.id, solution]));
   const expectedIds = [
-    'cn-original-2025-100602-q3a',
+    ...cnOriginalQuestions.map(({id}) => id),
     'cn-q1', 'cn-q10', 'cn-q11', 'cn-q12', 'cn-q13', 'cn-q14', 'cn-q15', 'cn-q16',
     'cn-q17', 'cn-q18', 'cn-q2', 'cn-q20', 'cn-q21', 'cn-q28', 'cn-q29', 'cn-q3',
     'cn-q30', 'cn-q31', 'cn-q32', 'cn-q33', 'cn-q34', 'cn-q35', 'cn-q36', 'cn-q37',
@@ -324,19 +324,20 @@ test('CN migration preserves original, legacy, and supplemental questions while 
     'cn-q8', 'cn-q9',
   ].sort();
 
-  assert.equal(migratedQuestions.length, 51);
-  assert.equal(migratedSolutions.length, 51);
-  assert.equal(questionById.size, 51, 'question IDs must be unique');
-  assert.equal(solutionById.size, 51, 'solution IDs must be unique');
+  assert.equal(migratedQuestions.length, 98);
+  assert.equal(cnOriginalQuestions.length, 48, 'all source-backed CN seven-mark occurrences must be present');
+  assert.equal(migratedSolutions.length, solutionById.size, 'solution IDs must be unique');
+  assert.equal(questionById.size, 98, 'question IDs must be unique');
   assert.deepEqual([...questionById.keys()].sort(), expectedIds);
-  assert.deepEqual([...solutionById.keys()].sort(), expectedIds);
+  for (const question of migratedQuestions) {
+    assert.ok(solutionById.has(question.solutionRef), `missing solution for ${question.id}`);
+  }
 
   for (const compiledQ of compiledCnQuestions) {
     const migratedQuestion = questionById.get(compiledQ.id);
     assert.deepEqual(compiledQ, migratedQuestion, compiledQ.id);
-    assert.equal(compiledQ.solutionRef, compiledQ.id, compiledQ.id);
-
     const migratedSolution = solutionById.get(compiledQ.solutionRef);
+    assert.ok(migratedSolution, `missing solution reference ${compiledQ.solutionRef}`);
     assert.deepEqual(
       migratedSolution,
       compiledCnSolutions[compiledQ.solutionRef],
@@ -355,7 +356,10 @@ test('CN migration preserves original, legacy, and supplemental questions while 
     assert.ok(question.topics.length > 0);
   }
 
-  assert.deepEqual(cnOriginalQuestions.map(({id}) => id), ['cn-original-2025-100602-q3a']);
+  assert.equal(cnOriginalQuestions.length, 48);
+  assert.ok(cnOriginalQuestions.every(({kind, marks, source}) => (
+    kind === 'original' && marks === 7 && source.verification === 'cross-checked-scan'
+  )));
   assert.deepEqual(
     cnSupplementalQuestions.map(({marks}) => marks).sort((left, right) => left - right),
     [3, 4, 14, 14, 14, 14],
@@ -410,6 +414,30 @@ test('CN 2025 Q3(a) original CRC answer has scan provenance and correct division
   ]);
   assert.match(solution.conclusion, /011.*11001001011/);
   assert.match(solution.sections[4].points[0], /remainder <code>000<\/code>/);
+  assert.equal(sumMarkingScheme(solution.markingScheme), 7);
+});
+
+test('CN 2025 Q3(b) original ALOHA answer has scan provenance and correct maxima', () => {
+  const question = cnOriginalQuestions.find(({id}) => id === 'cn-original-2025-100602-q3b');
+  const solution = unit3Solutions.find(({id}) => id === 'cn-original-2025-100602-q3b');
+
+  assert.ok(question);
+  assert.equal(question.kind, 'original');
+  assert.equal(question.question, 'Differentiate between Pure ALOHA and Slotted ALOHA. How does Slotted ALOHA improve the efficiency of Pure ALOHA?');
+  assert.equal(question.marks, 7);
+  assert.deepEqual(question.source, {
+    year: 2025,
+    paperCode: '100602',
+    questionNumber: 'Q3(b)',
+    url: 'docs/content-sources/CN-2025-Q3b-scan.png',
+    verification: 'cross-checked-scan',
+  });
+  assert.ok(solution);
+  assert.equal(solution.table.rows[3][1], 'S = G e^(−2G)');
+  assert.equal(solution.table.rows[3][2], 'S = G e^(−G)');
+  assert.match(solution.sections[1].points[0], /1\/\(2e\) ≈ 0\.184/);
+  assert.match(solution.sections[1].points[1], /1\/e ≈ 0\.368/);
+  assert.match(solution.sections[1].points[2], /does not mean Slotted ALOHA is exactly twice as efficient at every offered load/);
   assert.equal(sumMarkingScheme(solution.markingScheme), 7);
 });
 
@@ -531,12 +559,15 @@ test('written question adapter normalizes all subjects with kind and attached so
   }
 
   const cnItems = pyqs('cn');
-  assert.equal(cnItems.length, 45);
+  assert.equal(cnItems.length, 92);
+  const cnOriginals = cnItems.filter(({kind}) => kind === 'original');
+  assert.equal(cnOriginals.length, 48);
   for (const q of cnItems) {
     assert.ok(q.solution);
+    assert.equal(q.solution.id, q.solutionRef);
     if (q.kind === 'original') {
       assert.equal(q.source.verification, 'cross-checked-scan');
-      assert.equal(q.source.questionNumber, 'Q3(a)');
+      assert.ok(q.source.questionNumber);
     } else {
       assert.equal(q.kind, 'important');
     }

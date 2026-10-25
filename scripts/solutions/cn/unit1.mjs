@@ -322,5 +322,32 @@ L1   |       PHYSICAL LAYER        |----+     |  Physical Cables, Optical)  |
 
 const toSolution = ({id, solution}) => ({id, ...solution});
 
-export const unit1Solutions = unit1Entries.map(toSolution);
+export const unit1Solutions = [
+  ...unit1Entries.map(toSolution),
+  {
+    id: 'cn-original-2023-100602-q3a',
+    verified: 'BEU 2023 · Q.3(a) · 7 Marks · Cross-checked scan',
+    intro: 'OSI and TCP/IP are layered frameworks that organize network communication. OSI is a seven-layer reference model; TCP/IP is the practical protocol suite used for Internet communication.',
+    table: {title: 'OSI and TCP/IP Comparison', headers: ['Aspect', 'OSI model', 'TCP/IP suite'], rows: [
+      ['Layers', 'Application, Presentation, Session, Transport, Network, Data Link, Physical.', 'Application, Transport, Internet, and Link/Network Access (often split into Data Link and Physical in a five-layer teaching model).'],
+      ['Purpose', 'Conceptual reference model developed to standardize how systems describe networking functions.', 'Protocol suite and architecture built around operational Internet protocols.'],
+      ['Upper-layer functions', 'Application, Presentation, and Session functions are separate layers.', 'Application layer combines these functions as required by protocols and applications.'],
+      ['Network service', 'Network layer can describe connection-oriented and connectionless services.', 'Internet Protocol provides connectionless, best-effort datagram delivery.'],
+      ['Examples', 'Model can describe protocols at each layer; it is not itself a protocol suite.', 'HTTP/DNS, TCP/UDP, IP, Ethernet and Wi-Fi are common examples.'],
+    ]},
+    sections: [{heading: '1. Similarities', points: [
+      'Both use a layered organization, separate functions into manageable parts, support encapsulation, and define interfaces or services between adjacent layers.',
+      'Both include application, transport, and network/internetwork functions and help explain interoperability across heterogeneous networks.',
+    ]}],
+    conclusion: 'OSI is a detailed seven-layer reference model; TCP/IP is a deployed protocol architecture with fewer combined layers. Their shared layered concepts make them useful for describing network communication.',
+    markingScheme: [
+      {component: 'Introduce both frameworks and identify layer counts', marks: '1'},
+      {component: 'Correct similarities', marks: '1.5'},
+      {component: 'Layer mapping and upper-layer differences', marks: '2'},
+      {component: 'Purpose and network-service differences', marks: '1.5'},
+      {component: 'Examples and conclusion', marks: '1'},
+    ],
+    examTip: 'Mention that OSI is a reference model while TCP/IP is both an architecture and a working protocol suite.',
+  },
+];
 export const unit1SupplementalSolutions = [];

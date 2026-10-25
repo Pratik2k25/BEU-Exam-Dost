@@ -673,7 +673,7 @@ Remainder:  0 0 0 0 0 0 0 0 0 0 0 0 1  ==> Remainder R = 001`
             '• XOR at index 7: <code>1100 ⊕ 1011 = 0111</code>',
             '• XOR at index 8: <code>1110 ⊕ 1011 = 0101</code>',
             '• XOR at index 9: <code>1011 ⊕ 1011 = 0000</code>',
-            '<b>Final Verification Remainder:</b> <code>000</code> (Zero). Since remainder is zero, the received codeword is completely valid and free of detectable errors!'
+            '<b>Final Verification Remainder:</b> <code>000</code>. This is consistent with a valid codeword and means this CRC check detected no error; some error patterns can still be undetected, so a zero remainder is not proof that no corruption occurred.'
           ]
         }
       ],
@@ -880,7 +880,6 @@ Sequence Space: {0, 1, 2, 3}                             Expects Frame 0
           ['m = 3 bits', '8  (0, 1, 2 ... 7)', '7 frames', '4 frames'],
           ['m = 4 bits', '16 (0, 1, 2 ... 15)', '15 frames', '8 frames'],
           ['m = 7 bits', '128 (HDLC / SDLC)', '127 frames', '64 frames'],
-          ['m = 16 bits', '65,536 (TCP)', '65,535 bytes', '32,768 bytes']
         ]
       },
       sections: [
@@ -1045,6 +1044,49 @@ const solutionFor = (id, sourceId) => toSolution({
   solution: unit3Entries.find((entry) => entry.id === sourceId).solution,
 });
 
+const cnAlohaOriginalSolution = {
+  id: 'cn-original-2025-100602-q3b',
+  verified: 'BEU 2025 · Q.3(b) · 7 Marks · Cross-checked scan',
+  intro: 'Pure ALOHA lets a station transmit whenever it has a frame. Slotted ALOHA divides time into equal slots of one frame-transmission time and allows transmission only at slot boundaries. This synchronization reduces collisions and raises the maximum channel throughput.',
+  table: {
+    title: 'Pure ALOHA and Slotted ALOHA comparison',
+    headers: ['Feature', 'Pure ALOHA', 'Slotted ALOHA'],
+    rows: [
+      ['Transmission time', 'A station transmits at any time.', 'A station transmits only at the start of a time slot.'],
+      ['Synchronization', 'No slot synchronization is required.', 'Stations must share synchronized slot boundaries.'],
+      ['Vulnerable period', '2T; a frame can collide with another that starts within one frame time before or after it.', 'T; a frame can collide only with another transmission in the same slot.'],
+      ['Throughput', 'S = G e^(−2G)', 'S = G e^(−G)'],
+      ['Maximum throughput', '1/(2e) ≈ 0.184, or 18.4%, at G = 0.5.', '1/e ≈ 0.368, or 36.8%, at G = 1.'],
+    ],
+  },
+  sections: [
+    {
+      heading: '1. Why the vulnerable period is shorter',
+      points: [
+        'Let <code>T</code> be the time to transmit one frame. In Pure ALOHA, a frame beginning at time <code>t</code> can be corrupted by another frame that starts during <code>(t − T, t + T)</code>. Its vulnerable period is therefore <code>2T</code>.',
+        'In Slotted ALOHA, a frame begins only on a slot boundary. A collision occurs only when two or more stations transmit in the same slot, so the vulnerable period is one slot, or <code>T</code>. Halving this period reduces the chance of collision.',
+      ],
+    },
+    {
+      heading: '2. Throughput and maximum efficiency',
+      points: [
+        'Let <code>G</code> be the average number of transmission attempts per frame time. With Poisson attempts, a Pure ALOHA frame succeeds when no competing attempt occurs during its <code>2T</code> vulnerable period: <code>S<sub>Pure</sub> = G e<sup>−2G</sup></code>. Differentiating gives <code>dS/dG = e<sup>−2G</sup>(1 − 2G)</code>; the maximum occurs at <code>G = 0.5</code>, giving <code>S<sub>max</sub> = 1/(2e) ≈ 0.184</code>.',
+        'For Slotted ALOHA, the vulnerable period is <code>T</code>, so the success probability is <code>e<sup>−G</sup></code> and throughput is <code>S<sub>Slotted</sub> = G e<sup>−G</sup></code>. Here <code>dS/dG = e<sup>−G</sup>(1 − G)</code>; the maximum occurs at <code>G = 1</code>, giving <code>S<sub>max</sub> = 1/e ≈ 0.368</code>.',
+        'Thus Slotted ALOHA doubles the maximum throughput: <code>(1/e) ÷ (1/(2e)) = 2</code>. This factor compares the two protocols at their respective maximum-throughput loads; it does not mean Slotted ALOHA is exactly twice as efficient at every offered load.',
+      ],
+    },
+  ],
+  conclusion: 'Slotted ALOHA requires time synchronization, but it halves the vulnerable period from 2T to T and raises maximum throughput from about 18.4% to 36.8%.',
+  markingScheme: [
+    {component: 'Operating principle and synchronization comparison', marks: '1.5'},
+    {component: 'Vulnerable-period explanation (2T versus T)', marks: '1.5'},
+    {component: 'Correct throughput equations', marks: '1.5'},
+    {component: 'Maximum-throughput derivation and values', marks: '1.5'},
+    {component: 'Explain the twofold maximum-efficiency improvement and conclude', marks: '1'},
+  ],
+  examTip: 'Define <code>T</code> and <code>G</code> before writing the equations. Say that the maximum throughput doubles; avoid claiming a twofold gain at every offered load.',
+};
+
 const cnCrcOriginalSolution = {
   id: 'cn-original-2025-100602-q3a',
   verified: 'BEU 2025 · Q.3(a) · 7 Marks · Cross-checked scan',
@@ -1105,7 +1147,219 @@ const cnCrcOriginalSolution = {
 
 export const unit3Solutions = [
   ...unit3Entries.filter(({marks}) => marks === 7).map(toSolution),
+  cnAlohaOriginalSolution,
   cnCrcOriginalSolution,
+  {
+    id: 'cn-original-2023-100602-q4b',
+    verified: 'BEU 2023 · Q.4(b) · 7 Marks · Cross-checked scan',
+    intro: 'A shared channel needs a medium access control (MAC) method so stations coordinate access and reduce destructive collisions.',
+    sections: [
+      {heading: '1. Why MAC techniques are needed', points: [
+        'Without coordination, two stations may transmit at once and corrupt both frames. MAC rules decide when a station may use the shared medium, how it detects or avoids collisions, and what it does after contention.',
+        'A useful MAC method balances throughput, delay, fairness, control overhead, and the needs of wired or wireless links.',
+      ]},
+      {heading: '2. Three popular techniques', points: [
+        '<b>ALOHA (random access):</b> A station transmits when ready; after a collision it waits a random backoff and retries. Slotted ALOHA restricts attempts to synchronized slot boundaries, reducing the vulnerable period from <code>2T</code> to <code>T</code>.',
+        '<b>CSMA (carrier sensing):</b> A station listens before transmitting. If the channel is busy it defers; persistence rules determine whether it waits or retries. CSMA/CD detects collisions during wired Ethernet transmission, while CSMA/CA uses contention and acknowledgements to reduce collisions in wireless LANs.',
+        '<b>Token passing (controlled access):</b> A short control frame called a token circulates among stations. Only the station holding the token may transmit, giving orderly access and bounded waiting under normal operation.',
+      ]},
+    ],
+    table: {title: 'MAC Access Methods', headers: ['Method', 'Access rule', 'Main characteristic'], rows: [
+      ['ALOHA', 'Transmit and retry after random backoff.', 'Simple contention; collisions are possible.'],
+      ['CSMA', 'Sense the channel before transmitting.', 'Reduces collisions; exact behavior depends on persistence and medium.'],
+      ['Token passing', 'Transmit only while holding the token.', 'Controlled, predictable access; token management adds overhead.'],
+    ]},
+    conclusion: 'MAC protocols prevent uncontrolled use of a shared channel. ALOHA and CSMA use contention, while token passing grants access in turn.',
+    markingScheme: [
+      {component: 'Need for shared-medium coordination', marks: '1.5'},
+      {component: 'ALOHA operation and collision handling', marks: '1.5'},
+      {component: 'CSMA operation and wired/wireless variants', marks: '2'},
+      {component: 'Token passing operation', marks: '1.5'},
+      {component: 'Comparison and conclusion', marks: '0.5'},
+    ],
+    examTip: 'State the channel access rule and one strength or limitation for each method.',
+  },
+  {
+    id: 'cn-original-2023-100602-q9c',
+    verified: 'BEU 2023 · Q.9(c) · 7 Marks · Cross-checked scan',
+    intro: 'A Virtual LAN (VLAN) is a logical Layer 2 broadcast domain configured on a switched network. It groups ports or users independently of their physical location.',
+    sections: [
+      {heading: '1. VLAN operation', points: [
+        'An administrator assigns switch ports to VLAN IDs. Frames within one VLAN share a broadcast domain; a Layer 2 switch does not forward a broadcast from one VLAN into another.',
+        'An access port normally carries one VLAN for an end device. A trunk carries traffic for multiple VLANs between switches or to a router, commonly using IEEE 802.1Q tags to identify the VLAN.',
+        'Communication between different VLANs requires Layer 3 routing, such as a router or a multilayer switch.',
+      ]},
+      {heading: '2. Benefits and considerations', points: [
+        'VLANs limit broadcast scope, improve logical segmentation, simplify moves and changes, and support policy separation for groups such as students, staff, and servers.',
+        'A VLAN is not encryption: security still depends on correct switch configuration, access controls, and routing policy. Misconfigured trunks or VLAN assignments can expose traffic.',
+      ]},
+    ],
+    diagram: null,
+    conclusion: 'VLANs use switch configuration and 802.1Q tagging to create separate logical broadcast domains on shared physical infrastructure; routing is required between them.',
+    markingScheme: [
+      {component: 'Definition and Layer 2 broadcast-domain concept', marks: '1.5'},
+      {component: 'Port assignment and access-port behavior', marks: '1.5'},
+      {component: '802.1Q trunk operation', marks: '1.5'},
+      {component: 'Inter-VLAN routing', marks: '1'},
+      {component: 'Benefits and security limitation', marks: '1.5'},
+    ],
+    examTip: 'Include the distinction between an access port and a trunk, and state that VLANs need Layer 3 routing to communicate with each other.',
+  },
+  {
+    id: 'cn-original-2024-100602-q3b',
+    verified: 'BEU 2024 · Q.3(b) · 7 Marks · Cross-checked scan',
+    intro: 'Cyclic Redundancy Check (CRC) treats a bit string as a polynomial over modulo-2 arithmetic. For generator <code>G(x)=x⁴+x+1</code>, the binary divisor is <code>10011</code>.',
+    sections: [
+      {heading: '1. Append zeroes', points: ['The generator has degree 4, so append four zeroes to data <code>1101011011</code>: <code>11010110110000</code>.']},
+      {heading: '2. Modulo-2 division', points: [
+        'Divide <code>11010110110000</code> by <code>10011</code>. In modulo-2 subtraction, use XOR without carries or borrows. The successive non-zero windows and results are <code>11010⊕10011=01001</code>, <code>10011⊕10011=00000</code>, <code>10110⊕10011=00101</code>, and <code>10100⊕10011=00111</code>; skip zero-leading windows and bring down the next dividend bit at each shift.',
+        'The final four-bit remainder is <code>R = 1110</code>.',
+      ]},
+      {heading: '3. Form and check the codeword', points: [
+        'Append the remainder to the original data: <code>1101011011 | 1110 = 11010110111110</code>.',
+        'At the receiver, division of <code>11010110111110</code> by <code>10011</code> gives remainder <code>0000</code>, which is the expected CRC check result.',
+      ]},
+    ],
+    conclusion: 'The CRC remainder is <code>1110</code>; therefore the transmitted codeword is <code>11010110111110</code>.',
+    markingScheme: [
+      {component: 'Convert polynomial to binary and identify degree', marks: '1'},
+      {component: 'Append four zeroes correctly', marks: '1'},
+      {component: 'Modulo-2 division working', marks: '2.5'},
+      {component: 'Correct remainder and transmitted codeword', marks: '1.5'},
+      {component: 'Receiver remainder check and conclusion', marks: '1'},
+    ],
+    examTip: 'Keep the original data separate from the zero-extended dividend; append the remainder to the original data.',
+  },
+  {
+    id: 'cn-original-2024-100602-q4a',
+    verified: 'BEU 2024 · Q.4(a) · 7 Marks · Cross-checked scan',
+    intro: 'The frame payload is the four bytes <code>A B ESC FLAG</code>. The supplied byte values are A=<code>01000111</code>, B=<code>11100011</code>, ESC=<code>11100000</code>, and FLAG=<code>01111110</code>.',
+    table: {
+      title: 'Transmitted Sequences (spaces separate bytes)',
+      headers: ['Framing method', 'Sequence'],
+      rows: [
+        ['Character count', '00000101 01000111 11100011 11100000 01111110'],
+        ['Flag bytes with byte stuffing', '01111110 01000111 11100011 11100000 11100000 11100000 01111110 01111110'],
+        ['Flag bytes with bit stuffing', '01111110 | 01000111110100011111000000011111010 | 01111110'],
+      ],
+    },
+    sections: [
+      {heading: '1. Character count', points: ['Using the convention that the count byte includes itself, the frame contains five bytes total: one count byte plus four payload bytes. Thus the count is decimal 5, or <code>00000101</code>. If a course text defines the count as payload bytes only, it writes 4; state the convention used.']},
+      {heading: '2. Byte stuffing', points: ['Surround the payload with FLAG bytes. Insert an ESC before each payload byte equal to ESC or FLAG. The original ESC becomes <code>ESC ESC</code>, and the original FLAG becomes <code>ESC FLAG</code>.']},
+      {heading: '3. Bit stuffing', points: ['Surround the unmodified 32-bit payload with FLAG delimiters. Within the payload only, insert a 0 after every run of five consecutive 1 bits; do not stuff the delimiter bits. The stuffed payload is <code>01000111110100011111000000011111010</code>.']},
+    ],
+    conclusion: 'Character count uses a length field, byte stuffing escapes reserved bytes, and bit stuffing inserts a zero after five consecutive data 1s.',
+    markingScheme: [
+      {component: 'Correct character-count convention and sequence', marks: '1.5'},
+      {component: 'Correct flag-byte framing and escaped payload', marks: '2'},
+      {component: 'Correct bit-stuffing rule and payload', marks: '2'},
+      {component: 'Clear delimiters and comparison', marks: '1.5'},
+    ],
+    examTip: 'Show each FLAG and ESC byte clearly. For bit stuffing, apply the rule only to the payload and keep delimiter flags unchanged.',
+  },
+  {
+    id: 'cn-original-2025-100602-q9b',
+    verified: 'BEU 2025 · Q.9(b) · 7 Marks · Cross-checked scan',
+    intro: 'Token Ring is a controlled-access LAN method standardized by IEEE 802.5. Stations form a logical ring and transmit only when they hold a circulating token.',
+    sections: [
+      {heading: '1. Working', points: [
+        'When the network is idle, a free token circulates from station to station. A station with data captures the token, marks it busy, and sends a frame containing destination and source addresses plus payload and error-checking fields.',
+        'The frame moves around the ring. The destination recognizes its address and copies the data; the frame continues until it returns to the sender, which removes it and releases a new free token.',
+        'Because only the token holder transmits, ordinary data collisions are avoided. Token rotation gives stations an orderly opportunity to transmit, although waiting time rises with ring load and token rotation time.',
+      ]},
+      {heading: '2. Advantages and limitations', points: [
+        'Advantages include predictable access, bounded access delay under normal operation, and no contention collisions.',
+        'Limitations include token-management overhead, more complex operation than a simple switched star, and susceptibility to ring or token faults unless bypass and monitoring mechanisms are used. Modern switched Ethernet has largely replaced Token Ring.',
+      ]},
+    ],
+    conclusion: 'Token Ring provides orderly, collision-free access by granting transmission to the station holding the token, at the cost of token and ring-management overhead.',
+    markingScheme: [
+      {component: 'Definition and IEEE 802.5 context', marks: '1'},
+      {component: 'Token circulation and transmission procedure', marks: '2.5'},
+      {component: 'Destination reception and sender token release', marks: '1'},
+      {component: 'Advantages and predictable access', marks: '1'},
+      {component: 'Limitations and conclusion', marks: '1.5'},
+    ],
+    examTip: 'Describe the complete cycle: free token, station captures it, frame circulates, sender removes the returning frame, and a free token is released.',
+  },
+  {
+    id: 'cn-original-2025-100602-q9d',
+    verified: 'BEU 2025 · Q.9(d) · 7 Marks · Cross-checked scan',
+    intro: 'Multiplexing combines several independent signals or data streams so they can share one communication link. A demultiplexer separates them at the receiving end.',
+    table: {title: 'Common Multiplexing Techniques', headers: ['Technique', 'How the link is shared', 'Example'], rows: [
+      ['FDM', 'Each signal uses a different frequency band at the same time.', 'Radio stations on different carrier frequencies.'],
+      ['TDM', 'Signals take turns in assigned time slots.', 'A synchronous digital trunk carrying several voice channels.'],
+      ['WDM', 'Optical channels use different light wavelengths in one fiber.', 'Dense WDM in fiber backbones.'],
+      ['CDM', 'Users share time and frequency using distinct spreading codes.', 'CDMA radio systems.'],
+    ]},
+    sections: [{heading: '1. Multiplexer and demultiplexer', points: [
+      'At the sender, a multiplexer allocates frequency bands, time slots, wavelengths, or codes to input streams and combines them onto the shared medium.',
+      'At the receiver, a demultiplexer uses the corresponding allocation information to recover each stream. The technique must prevent overlap or distinguish streams reliably.',
+    ]}],
+    conclusion: 'FDM separates signals by frequency, TDM by time, WDM by optical wavelength, and CDM by code; each allows multiple channels to share a physical medium.',
+    markingScheme: [
+      {component: 'Definition and multiplexer/demultiplexer purpose', marks: '1.5'},
+      {component: 'FDM explanation and example', marks: '1.25'},
+      {component: 'TDM explanation and example', marks: '1.25'},
+      {component: 'WDM explanation and example', marks: '1.25'},
+      {component: 'CDM or comparison and conclusion', marks: '1.75'},
+    ],
+    examTip: 'Use one phrase to distinguish each technique: frequency, time, wavelength, or code.',
+  },
+  {
+    id: 'cn-original-2023-100602-q6b',
+    verified: 'BEU 2023 · Q.6(b) · 7 Marks · Cross-checked scan',
+    intro: 'The sliding-window protocol is a data-link flow- and error-control method that allows several frames to be sent before acknowledgements arrive.',
+    diagrams: [{
+      title: 'Sender Window Slides as Acknowledgements Arrive',
+      ascii: 'Before ACK:   [0 sent] [1 sent] [2 sent] | 3 4 5\nSender window:  ^ frames permitted in flight\nACK for 0:     [0 done] [1 sent] [2 sent] [3 now allowed]\nWindow slides forward as the oldest outstanding frame is acknowledged.',
+    }],
+    sections: [
+      {heading: '1. Window operation', points: [
+        'Each frame carries a sequence number. The sender maintains a send window of frames it may transmit without waiting for individual acknowledgements; the receiver maintains a receive window of frame numbers it can accept.',
+        'As valid acknowledgements arrive, the sender removes acknowledged frames from the outstanding set and slides its window forward, opening room for later frames. Timers trigger retransmission if an expected acknowledgement does not arrive.',
+        'The receiver checks sequence numbers, detects duplicates or out-of-order frames according to the protocol, and sends acknowledgements. The window also limits outstanding data and provides flow control.',
+      ]},
+      {heading: '2. Common variants', points: [
+        'Stop-and-Wait is the one-frame special case. Go-Back-N uses a larger sender window and typically a one-frame receiver window; on a loss it retransmits the missing frame and later outstanding frames. Selective Repeat buffers acceptable out-of-order frames and retransmits only missing frames.',
+        'With an m-bit sequence number, Go-Back-N sender window is at most <code>2^m−1</code>; Selective Repeat sender and receiver windows are each at most <code>2^(m−1)</code> to avoid ambiguity after sequence-number wraparound.',
+      ]},
+    ],
+    conclusion: 'Sliding windows pipeline frames while acknowledgements move the sender and receiver windows. This improves link utilization and supports flow and error control.',
+    markingScheme: [
+      {component: 'Purpose and sequence-number concept', marks: '1'},
+      {component: 'Sender window and pipeline operation', marks: '2'},
+      {component: 'Receiver window, acknowledgements and retransmission', marks: '1.5'},
+      {component: 'Compare Stop-and-Wait, Go-Back-N and Selective Repeat', marks: '1.5'},
+      {component: 'Correct window-size limits and conclusion', marks: '1'},
+    ],
+    examTip: 'Explain how the window advances after an ACK, then distinguish Go-Back-N from Selective Repeat by their retransmission behavior.',
+  },
+  {
+    id: 'cn-original-2025-100602-q9c',
+    verified: 'BEU 2025 · Q.9(c) · 7 Marks · Cross-checked scan',
+    intro: 'A sliding-window protocol keeps track of numbered frames that may be in transit and advances its permitted range as acknowledgements arrive.',
+    sections: [
+      {heading: '1. Working principle', points: [
+        'The sender can transmit multiple frames within its send window instead of waiting after every frame. Each frame has a sequence number, and acknowledgements indicate which frames were received.',
+        'When acknowledgements arrive, the sender slides the window forward and may send new frames. A timer and retransmission rule recover from loss; the receiver uses sequence numbers to accept data in order or buffer out-of-order frames, depending on the variant.',
+      ]},
+      {heading: '2. Variants and benefits', points: [
+        'Stop-and-Wait permits one outstanding frame. Go-Back-N permits a larger send window but retransmits from a missing frame onward. Selective Repeat buffers valid out-of-order frames and retransmits only frames that are missing or damaged.',
+        'By pipelining frames, sliding windows improve throughput on links with propagation delay. Window limits also prevent a fast sender from overwhelming a receiver and provide recovery from transmission errors.',
+        'For an m-bit sequence number, Go-Back-N uses a sender window no larger than <code>2^m−1</code>; Selective Repeat uses windows no larger than <code>2^(m−1)</code> at sender and receiver to avoid confusing old and new frames after wraparound.',
+      ]},
+    ],
+    conclusion: 'Sliding-window protocols combine pipelined transmission, acknowledgements, sequence numbers, flow control, and retransmission to provide reliable link delivery.',
+    markingScheme: [
+      {component: 'Definition and purpose', marks: '1'},
+      {component: 'Sender/receiver windows and ACK-driven movement', marks: '2'},
+      {component: 'Explain pipelining and flow control benefit', marks: '1'},
+      {component: 'Compare Stop-and-Wait, Go-Back-N and Selective Repeat', marks: '2'},
+      {component: 'Correct sequence-space limits and conclusion', marks: '1'},
+    ],
+    examTip: 'Include sequence numbers, acknowledgements, and how the window advances; then state the key retransmission difference between Go-Back-N and Selective Repeat.',
+  },
   solutionFor('cn-q5', 'cn-q31'),
   solutionFor('cn-q6', 'cn-q30'),
   solutionFor('cn-q7', 'cn-q51'),

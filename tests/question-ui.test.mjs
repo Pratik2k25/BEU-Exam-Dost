@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
 import {
   filterWrittenQuestions,
   questionSourceLabel,
@@ -7,6 +8,12 @@ import {
   renderQuestionFilters,
   questionEmptyState,
 } from '../dist/question-view.js';
+
+test('marking allocation is presented as a suggested guide, not an official BEU scheme', () => {
+  const appSource = readFileSync(new URL('../dist/app.js', import.meta.url), 'utf8');
+  assert.match(appSource, /Suggested Point-wise Marking Guide/);
+  assert.doesNotMatch(appSource, /BEU Point-wise Marking Scheme/);
+});
 
 test('filterWrittenQuestions filters by kind, unit, year, and saved state', () => {
   const items = [
