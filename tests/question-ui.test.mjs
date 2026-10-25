@@ -68,6 +68,7 @@ test('questionSourceLabel formats original and important sources truthfully', ()
     questionSourceLabel(importantItem),
     'Important 7-Mark Question',
   );
+  assert.equal(questionSourceLabel({kind:'original',source:{year:2025,session:'supplementary',paperCode:'105401',questionNumber:'Q3(a)'}}),'BEU 2025 (S) · 105401 · Q.3(a)');
 });
 
 test('PYQ cards retain exam metadata without public source-scan links', () => {

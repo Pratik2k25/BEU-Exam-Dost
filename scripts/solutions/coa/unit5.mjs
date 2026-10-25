@@ -1,6 +1,6 @@
+import { coaOriginalSolutionsByUnit, coaImportantCorrectionsById } from './original.mjs';
 // BEU Model Solutions - COA Unit 5
-export const unit5Solutions = [
-  {
+export const unit5Solutions = [...coaOriginalSolutionsByUnit[5], {
     "id": "coa-q10",
     "verified": "BEU Verified Model Answer · 7 Marks",
     "intro": "Cache Memory mapping dictates how main memory blocks are positioned and located within the faster, smaller cache memory. The three primary mapping techniques are Direct Mapping, Associative Mapping, and Set-Associative Mapping.",
@@ -197,4 +197,4 @@ export const unit5Solutions = [
     ],
     "examTip": "Note that the Page Offset (d) is passed directly from logical to physical address without alteration. Show the EMAT formula with numerical variables for top marks."
   }
-];
+].map(answer => coaImportantCorrectionsById[answer.id] || answer);

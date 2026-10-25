@@ -1,6 +1,6 @@
+import { coaOriginalSolutionsByUnit, coaImportantCorrectionsById } from './original.mjs';
 // BEU Model Solutions - COA Unit 4
-export const unit4Solutions = [
-  {
+export const unit4Solutions = [...coaOriginalSolutionsByUnit[4], {
     "id": "coa-q7",
     "verified": "BEU Verified Model Answer · 7 Marks",
     "intro": "The Control Unit (CU) coordinates all operations of the computer by issuing timed control signals to the ALU, registers, and system buses. The two primary control unit design methodologies are Hardwired Control and Microprogrammed Control.",
@@ -224,4 +224,4 @@ export const unit4Solutions = [
     ],
     "examTip": "Cite the CPU Performance equation (CPU Time = IC × CPI × Clock Time) to explain the core theoretical divergence between RISC and CISC for maximum marks."
   }
-];
+].map(answer => coaImportantCorrectionsById[answer.id] || answer);

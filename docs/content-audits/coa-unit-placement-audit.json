@@ -1,0 +1,13 @@
+{
+  "subject": "coa",
+  "method": "Retain the original question wording and provenance, then place each question under the syllabus unit that matches the reviewed answer topic. This is a catalogue correction only; it does not alter the paper wording or its source reference.",
+  "reclassifications": [
+    { "questionId": "coa-original-2023-105401-q7b", "fromUnit": 2, "toUnit": 3, "reason": "Booth multiplication is reviewed with computer-arithmetic algorithms." },
+    { "questionId": "coa-original-2024s-105401-q4a", "fromUnit": 2, "toUnit": 3, "reason": "Restoring division is reviewed with computer-arithmetic algorithms." },
+    { "questionId": "coa-original-2024s-105401-q7b", "fromUnit": 1, "toUnit": 6, "reason": "The question is specifically about instruction pipelining and sequential-execution comparison." },
+    { "questionId": "coa-original-2025-105401-q2a", "fromUnit": 5, "toUnit": 1, "reason": "CPU, memory and I/O functional blocks are computer-structure fundamentals." },
+    { "questionId": "coa-original-2025-105401-q4a", "fromUnit": 2, "toUnit": 3, "reason": "Shift-and-add and Booth multiplication are reviewed with computer-arithmetic algorithms." },
+    { "questionId": "coa-original-2025s-105401-q2b", "fromUnit": 2, "toUnit": 3, "reason": "Booth multiplication with a worked product is reviewed with computer-arithmetic algorithms." },
+    { "questionId": "coa-original-2025s-105401-q9b", "fromUnit": 1, "toUnit": 6, "reason": "The question is specifically about instruction pipelining." }
+  ]
+}

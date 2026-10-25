@@ -478,7 +478,7 @@ test('important migration extracts the 88 questions truthfully', async () => {
   }
 });
 
-test('all 88 important questions across 5 non-CN subjects validate against schema and match solutions', async () => {
+test('all 88 important questions across 5 non-CN subjects validate against schema and match their Important solutions', async () => {
   const subjects = ['coa', 'flat', 'dbms', 'daa', 'etc'];
   const expectedCounts = {
     coa: 15,
@@ -499,10 +499,13 @@ test('all 88 important questions across 5 non-CN subjects validate against schem
     }
 
     assert.equal(questions.length, expectedCounts[subj], `${subj} questions count mismatch`);
-    assert.equal(solutions.length, expectedCounts[subj], `${subj} solutions count mismatch`);
+    const importantSolutionRefs = new Set(questions.map(({solutionRef}) => solutionRef));
+    const importantSolutions = solutions.filter(({id}) => importantSolutionRefs.has(id));
+
+    assert.equal(importantSolutions.length, expectedCounts[subj], `${subj} Important solutions count mismatch`);
 
     // Validates every question, every solution, 7-mark totals, and 1:1 references
-    validateSubjectContent(subj, questions, solutions);
+    validateSubjectContent(subj, questions, importantSolutions);
   }
 });
 
@@ -539,7 +542,7 @@ test('written question adapter normalizes all subjects with kind and attached so
   const {pyqs} = await import('../dist/data.js');
   const subjects = ['coa', 'flat', 'dbms', 'daa', 'etc'];
   const expectedCounts = {
-    coa: 15,
+    coa: 105,
     flat: 18,
     dbms: 16,
     daa: 21,
@@ -550,11 +553,13 @@ test('written question adapter normalizes all subjects with kind and attached so
     const questions = pyqs(subj);
     assert.equal(questions.length, expectedCounts[subj], `${subj} count mismatch`);
     for (const q of questions) {
-      assert.equal(q.kind, 'important', `${q.id} must have kind: important`);
+      assert.ok(['important', 'original'].includes(q.kind), `${q.id} must have a supported kind`);
       assert.ok(Array.isArray(q.topics) && q.topics.length > 0, `${q.id} must have topics`);
-      assert.equal(Object.hasOwn(q, 'years'), false, `${q.id} must not have years`);
       assert.ok(q.solution, `${q.id} must have attached solution`);
-      assert.equal(q.solution.id, q.id, `${q.id} solution ID must match`);
+      assert.equal(q.solution.id, q.solutionRef, `${q.id} solution reference must resolve`);
+      if (q.kind === 'important') {
+        assert.equal(Object.hasOwn(q, 'years'), false, `${q.id} must not have years`);
+      }
     }
   }
 

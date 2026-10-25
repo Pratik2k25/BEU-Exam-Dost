@@ -7,7 +7,9 @@ export function filterWrittenQuestions(items, {kind = 'original', unit = 'all', 
 
 export function questionSourceLabel(item) {
   if (item.kind === 'important') return 'Important 7-Mark Question';
-  return `BEU ${item.source.year} · ${item.source.paperCode} · Q.${item.source.questionNumber}`;
+  const questionNumber = item.source.questionNumber.replace(/^Q\.?\s*/i, '');
+  const session = item.source.session === 'supplementary' ? ' (S)' : '';
+  return `BEU ${item.source.year}${session} · ${item.source.paperCode} · Q.${questionNumber}`;
 }
 
 export function renderQuestionFilters({kind = 'original', unit = 'all', year = 'all', units = [], years = [], savedOnly = false} = {}) {

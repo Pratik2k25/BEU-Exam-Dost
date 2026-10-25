@@ -1,6 +1,6 @@
+import { coaOriginalSolutionsByUnit, coaImportantCorrectionsById } from './original.mjs';
 // BEU Model Solutions - COA Unit 2
-export const unit2Solutions = [
-  {
+export const unit2Solutions = [...coaOriginalSolutionsByUnit[2], {
     "id": "coa-q3",
     "verified": "BEU Verified Model Answer · 7 Marks",
     "intro": "A Carry Look-Ahead Adder (CLA) is a high-speed parallel binary adder designed to eliminate the sequential carry-propagation delay inherent in conventional Ripple Carry Adders (RCA). It computes all stage carries simultaneously in parallel using Carry Generate (Gi) and Carry Propagate (Pi) Boolean logic.",
@@ -93,13 +93,13 @@ export const unit2Solutions = [
         ],
         [
           "Value Formula",
-          "(-1)^S × (1.F) × 2^(E - 127)",
-          "(-1)^S × (1.F) × 2^(E - 1023)"
+          "For normal finite values: (-1)^S × (1.F) × 2^(E - 127)",
+          "For normal finite values: (-1)^S × (1.F) × 2^(E - 1023)"
         ],
         [
           "Special Values",
-          "E=0, F=0: ±0; E=255, F=0: ±∞; E=255, F≠0: NaN",
-          "E=0, F=0: ±0; E=2047, F=0: ±∞; E=2047, F≠0: NaN"
+          "E=0, F=0: ±0; E=0, F≠0: subnormal, (-1)^S × (0.F) × 2^-126; E=255, F=0: ±∞; E=255, F≠0: NaN",
+          "E=0, F=0: ±0; E=0, F≠0: subnormal, (-1)^S × (0.F) × 2^-1022; E=2047, F=0: ±∞; E=2047, F≠0: NaN"
         ]
       ]
     },
@@ -109,7 +109,7 @@ export const unit2Solutions = [
         "points": [
           "<b>Sign Bit (S):</b> Single bit indicating the sign of the real number: S = 0 represents positive, S = 1 represents negative.",
           "<b>Biased Exponent (E):</b> Stored as an unsigned biased integer to simplify hardware comparisons without signed sign-magnitude arithmetic. Bias is added to the actual exponent e: E = e + Bias.",
-          "<b>Normalized Mantissa (1.F):</b> In normalized form, the significand is shifted so that exactly one non-zero binary digit precedes the binary point (1.b1b2b3...). Because this leading 1 is always present for normalized numbers, it is omitted from storage (hidden/implicit bit), effectively providing 24 bits of precision in 32-bit format and 53 bits in 64-bit format."
+          "<b>Normalized Mantissa (1.F):</b> In normalized form, the significand is shifted so that exactly one non-zero binary digit precedes the binary point (1.b1b2b3...). Because this leading 1 is always present for normalized numbers, it is omitted from storage (hidden/implicit bit), effectively providing 24 bits of precision in 32-bit format and 53 bits in 64-bit format. When E = 0 and F ≠ 0, the value is subnormal: it uses 0.F and has no hidden leading 1."
         ]
       },
       {
@@ -146,4 +146,4 @@ export const unit2Solutions = [
     ],
     "examTip": "Show both the theoretical bit-field layout and a concrete numerical conversion (like -13.625). Always mention the implicit leading 1 of the normalized mantissa."
   }
-];
+].map(answer => coaImportantCorrectionsById[answer.id] || answer);

@@ -1,6 +1,6 @@
+import { coaOriginalSolutionsByUnit, coaImportantCorrectionsById } from './original.mjs';
 // BEU Model Solutions - COA Unit 1
-export const unit1Solutions = [
-  {
+export const unit1Solutions = [...coaOriginalSolutionsByUnit[1], {
     "id": "coa-q1",
     "verified": "BEU Verified Model Answer · 7 Marks",
     "intro": "The Instruction Cycle is the foundational operational sequence executed by a central processing unit (CPU) to process each machine language instruction. It comprises four major sequential phases: Fetch, Decode, Read Effective Address (for indirect addressing), and Execute.",
@@ -144,4 +144,4 @@ export const unit1Solutions = [
     ],
     "examTip": "Include the EA equation for every mode (e.g., EA = PC + Offset for Relative). A structured comparison table guarantees full marks under strict university evaluation."
   }
-];
+].map(answer => coaImportantCorrectionsById[answer.id] || answer);

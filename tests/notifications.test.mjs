@@ -6,9 +6,10 @@ import {claimNewNotifications,formatNotifDate,sortNotifications,SEEN_NOTIFICATIO
 
 function storage(){const values=new Map();return {getItem:key=>values.get(key)||null,setItem:(key,value)=>values.set(key,value)};}
 
-test('notification dates show the original instant in IST with a date and time',()=>{
+test('notification dates show the original instant as a clean local date and time',()=>{
  assert.equal(formatNotifDate('2026-10-24T10:25:07Z'),formatNotifDate('2026-10-24T15:55:07+05:30'));
- assert.match(formatNotifDate('2026-10-24T10:25:07Z'),/24 Oct 2026.*3:55:07 pm IST/i);
+ assert.match(formatNotifDate('2026-10-24T10:25:07Z'),/24 Oct 2026.*3:55 PM/i);
+ assert.doesNotMatch(formatNotifDate('2026-10-24T10:25:07Z'),/IST|:\d\d:\d\d/i);
  assert.equal(formatNotifDate('bad'),'Date unavailable');
 });
 

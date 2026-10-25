@@ -161,6 +161,9 @@ export function validateQuestion(question) {
     SOURCE_VERIFICATIONS,
     'question.source.verification',
   );
+  if (hasOwn(question.source, 'session')) {
+    requireAllowed(question.source.session, ['regular', 'supplementary'], 'question.source.session');
+  }
   requireSourceReference(question.source.url);
   return question;
 }

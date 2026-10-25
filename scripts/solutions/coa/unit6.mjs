@@ -1,6 +1,6 @@
+import { coaOriginalSolutionsByUnit, coaImportantCorrectionsById } from './original.mjs';
 // BEU Model Solutions - COA Unit 6
-export const unit6Solutions = [
-  {
+export const unit6Solutions = [...coaOriginalSolutionsByUnit[6], {
     "id": "coa-q13",
     "verified": "BEU Verified Model Answer · 7 Marks",
     "intro": "Instruction Pipelining is an architectural implementation technique where multiple instructions are overlapped in execution across dedicated sub-hardware stages, analogous to an industrial assembly line.",
@@ -172,4 +172,4 @@ export const unit6Solutions = [
     ],
     "examTip": "Draw a 2×2 matrix of Single/Multiple Instruction vs Single/Multiple Data. For SIMD, give modern examples like GPUs and AVX; for MIMD, mention modern multi-core processors."
   }
-];
+].map(answer => coaImportantCorrectionsById[answer.id] || answer);

@@ -1,6 +1,6 @@
+import { coaOriginalSolutionsByUnit, coaImportantCorrectionsById } from './original.mjs';
 // BEU Model Solutions - COA Unit 3
-export const unit3Solutions = [
-  {
+export const unit3Solutions = [...coaOriginalSolutionsByUnit[3], {
     "id": "coa-q5",
     "verified": "BEU Verified Model Answer · 7 Marks",
     "intro": "Booth’s Multiplication Algorithm is an efficient hardware multiplication technique for signed binary integers represented in 2’s complement form. It treats multi-bit strings of consecutive 1s as a single subtraction and addition (e.g., 0111_2 = +7 = 2^3 - 2^0), substantially reducing arithmetic operations.",
@@ -147,4 +147,4 @@ export const unit3Solutions = [
     ],
     "examTip": "Remember that in Non-Restoring division, if A is negative after the last step, one final addition (A <- A + M) is mandatory. Mention this edge case to score full marks."
   }
-];
+].map(answer => coaImportantCorrectionsById[answer.id] || answer);

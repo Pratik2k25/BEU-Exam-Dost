@@ -16,6 +16,15 @@
 
 export const changelog = [
   {
+    id: 'v0.6.0-coa-pyq-solutions',
+    date: '2026-10-25T11:21:52+05:30',
+    version: '0.6.0',
+    type: 'content',
+    title: 'COA PYQ solutions added',
+    body: 'Original 7-mark COA PYQ solutions from multiple exam years have been added. Each solution has been reviewed for accuracy and aligned with the relevant syllabus topic.',
+    badge: 'New Content',
+  },
+  {
     id: 'v0.3.0-solutions-all',
     date: '2026-10-24T15:55:07+05:30',
     version: '0.3.0',

@@ -9,7 +9,7 @@ export function sortNotifications(entries){
 export function formatNotifDate(iso){
  const date=new Date(iso);
  if(!Number.isFinite(date.getTime()))return 'Date unavailable';
- return new Intl.DateTimeFormat('en-IN',{timeZone:'Asia/Kolkata',day:'numeric',month:'short',year:'numeric',hour:'numeric',minute:'2-digit',second:'2-digit',hour12:true}).format(date)+' IST';
+ return new Intl.DateTimeFormat('en-IN',{timeZone:'Asia/Kolkata',day:'numeric',month:'short',year:'numeric',hour:'numeric',minute:'2-digit',hour12:true}).format(date).replace(/\b(am|pm)\b/i,match=>match.toUpperCase());
 }
 
 // Seeing an alert and dismissing a notification are independent actions.
