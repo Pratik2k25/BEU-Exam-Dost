@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {
   filterWrittenQuestions,
   questionSourceLabel,
+  questionSourceLink,
   renderQuestionFilters,
   questionEmptyState,
 } from '../dist/question-view.js';
@@ -61,6 +62,26 @@ test('questionSourceLabel formats original and important sources truthfully', ()
     questionSourceLabel(importantItem),
     'Important 7-Mark Question',
   );
+});
+
+test('questionSourceLink resolves bundled scans from the app root and labels them as scans', () => {
+  assert.deepEqual(questionSourceLink({
+    kind: 'original',
+    source: {
+      url: 'docs/content-sources/CN-2025-Q3a-scan.png',
+      verification: 'cross-checked-scan',
+    },
+  }), {
+    href: '/docs/content-sources/CN-2025-Q3a-scan.png',
+    label: 'View source scan',
+  });
+  assert.deepEqual(questionSourceLink({
+    kind: 'original',
+    source: {url: 'https://example.edu/paper.pdf', verification: 'official'},
+  }), {
+    href: 'https://example.edu/paper.pdf',
+    label: 'Official paper',
+  });
 });
 
 test('renderQuestionFilters renders category chips and conditional year selector', () => {

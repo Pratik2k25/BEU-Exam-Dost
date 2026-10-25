@@ -18,3 +18,20 @@ test('build automatically fingerprints changed assets and creates a complete ver
   assert.ok(readFileSync(join(output,'app-meta.js'),'utf8').includes(next.buildId));
  }finally{rmSync(root,{recursive:true,force:true});}
 });
+
+test('build bundles referenced scanned PYQ source assets into the release shell',()=>{
+ const root=mkdtempSync(join(tmpdir(),'exam-dost-source-build-'));
+ const sourcePath='docs/content-sources/CN-2025-Q3a-scan.png';
+ try{
+  const source=join(root,'source'),output=join(root,'output');cpSync(new URL('../dist',import.meta.url),source,{recursive:true});
+  appendFileSync(join(source,'data.js'),`\n// ${sourcePath}\n`);
+  const result=buildSite({sourceDir:source,outputDir:output});
+  const assetPath=join(output,...sourcePath.split('/'));
+  assert.deepEqual(readFileSync(assetPath),readFileSync(new URL(`../${sourcePath}`,import.meta.url)));
+  const worker=readFileSync(join(output,'sw.js'),'utf8');
+  const shell=JSON.parse(worker.match(/const SHELL=(\[.*?\]);/s)[1]);
+  assert.ok(shell.includes(`./${sourcePath}`));
+  assert.ok(existsSync(assetPath));
+  assert.ok(result.buildId);
+ }finally{rmSync(root,{recursive:true,force:true});}
+});

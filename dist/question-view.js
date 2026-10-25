@@ -10,6 +10,15 @@ export function questionSourceLabel(item) {
   return `BEU ${item.source.year} · ${item.source.paperCode} · Q.${item.source.questionNumber}`;
 }
 
+export function questionSourceLink(item) {
+  const url = item.source?.url;
+  if (!url) return null;
+  return {
+    href: url.startsWith('docs/content-sources/') ? `/${url}` : url,
+    label: item.source.verification === 'cross-checked-scan' ? 'View source scan' : 'Official paper',
+  };
+}
+
 export function renderQuestionFilters({kind = 'original', unit = 'all', year = 'all', units = [], years = [], savedOnly = false} = {}) {
   const isOriginal = kind === 'original';
   const unitOptions = units.map(u => `<option value="${u.id}" ${unit == u.id ? 'selected' : ''}>Unit ${u.id} · ${u.title}</option>`).join('');

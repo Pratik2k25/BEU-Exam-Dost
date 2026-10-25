@@ -1045,8 +1045,67 @@ const solutionFor = (id, sourceId) => toSolution({
   solution: unit3Entries.find((entry) => entry.id === sourceId).solution,
 });
 
+const cnCrcOriginalSolution = {
+  id: 'cn-original-2025-100602-q3a',
+  verified: 'BEU 2025 · Q.3(a) · 7 Marks · Cross-checked scan',
+  intro: 'Cyclic Redundancy Check (CRC) appends check bits to a message so the receiver can test for transmission errors. Here the data word is <code>11001001</code>, and the generator polynomial is <code>G(x) = x³ + 1</code>.',
+  sections: [
+    {
+      heading: '1. Convert the generator polynomial to binary',
+      points: [
+        'Write coefficients from <code>x³</code> through <code>x⁰</code>. The polynomial <code>x³ + 1</code> has coefficients 1, 0, 0, 1, so the generator bit pattern is <code>1001</code>. Its degree is 3 and its length is 4 bits.',
+      ],
+    },
+    {
+      heading: '2. Append zeros to the data word',
+      points: [
+        'Append as many zero bits as the degree of the generator (3): <code>11001001 → 11001001000</code>. This is the dividend for modulo-2 division.',
+      ],
+    },
+    {
+      heading: '3. Divide using modulo-2 XOR',
+      points: [
+        'Modulo-2 subtraction is XOR: equal bits produce 0 and different bits produce 1. At each step, align <code>1001</code> with the leftmost 1, XOR the four-bit window, then bring down the next dividend bit. Leading zeroes are omitted before the next alignment.',
+      ],
+    },
+    {
+      heading: '4. Append the CRC remainder',
+      points: [
+        'The final three bits of the division result are the remainder: <code>R = 011</code>. Append these to the original data word (not to the zero-extended dividend): <code>11001001 | 011 = 11001001011</code>.',
+      ],
+    },
+    {
+      heading: '5. Verify the transmitted codeword',
+      points: [
+        'Dividing <code>11001001011</code> by <code>1001</code> gives remainder <code>000</code>, as expected for a correctly formed CRC codeword. CRC detects many common error patterns, but a zero remainder cannot prove that every possible transmission error is absent.',
+      ],
+    },
+  ],
+  table: {
+    title: 'Modulo-2 long-division XOR steps',
+    headers: ['Step', 'Four-bit window', 'XOR operation', 'Result'],
+    rows: [
+      ['1', '1100', '1100 ⊕ 1001', '0101'],
+      ['2', '1011', '1011 ⊕ 1001', '0010'],
+      ['3', '1000', '1000 ⊕ 1001', '0001'],
+      ['4', '1100', '1100 ⊕ 1001', '0101'],
+      ['5', '1010', '1010 ⊕ 1001', '0011'],
+    ],
+  },
+  conclusion: 'The CRC remainder is <code>011</code>, so the transmitted message is <code>11001001011</code>.',
+  markingScheme: [
+    {component: 'CRC purpose and identification of the given data and generator', marks: '1'},
+    {component: 'Correct binary generator (1001) and three appended zeroes', marks: '1'},
+    {component: 'Modulo-2 XOR division with correct intermediate working', marks: '3'},
+    {component: 'Remainder 011 and correct transmitted codeword', marks: '1'},
+    {component: 'Receiver check and clear final statement', marks: '1'},
+  ],
+  examTip: 'Show the divisor, each XOR step and the three-bit remainder. Keep the zero-extended dividend separate from the original data word when appending the remainder.',
+};
+
 export const unit3Solutions = [
   ...unit3Entries.filter(({marks}) => marks === 7).map(toSolution),
+  cnCrcOriginalSolution,
   solutionFor('cn-q5', 'cn-q31'),
   solutionFor('cn-q6', 'cn-q30'),
   solutionFor('cn-q7', 'cn-q51'),

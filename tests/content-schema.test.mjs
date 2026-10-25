@@ -300,7 +300,7 @@ test('compiler preserves __proto__ as an own solution key in generated modules',
   assert.deepEqual(compiled.coaQuestions, [protoQuestion]);
 });
 
-test('CN migration preserves every legacy question and solution while separating marks', () => {
+test('CN migration preserves original, legacy, and supplemental questions while separating marks', () => {
   const importantSolutions = [
     ...unit1Solutions,
     ...unit2Solutions,
@@ -309,11 +309,12 @@ test('CN migration preserves every legacy question and solution while separating
     ...unit5Solutions,
     ...unit6Solutions,
   ];
-  const migratedQuestions = [...cnImportantQuestions, ...cnSupplementalQuestions];
+  const migratedQuestions = [...cnOriginalQuestions, ...cnImportantQuestions, ...cnSupplementalQuestions];
   const migratedSolutions = [...importantSolutions, ...cnSupplementalSolutions];
   const questionById = new Map(migratedQuestions.map((question) => [question.id, question]));
   const solutionById = new Map(migratedSolutions.map((solution) => [solution.id, solution]));
-  const legacyIds = [
+  const expectedIds = [
+    'cn-original-2025-100602-q3a',
     'cn-q1', 'cn-q10', 'cn-q11', 'cn-q12', 'cn-q13', 'cn-q14', 'cn-q15', 'cn-q16',
     'cn-q17', 'cn-q18', 'cn-q2', 'cn-q20', 'cn-q21', 'cn-q28', 'cn-q29', 'cn-q3',
     'cn-q30', 'cn-q31', 'cn-q32', 'cn-q33', 'cn-q34', 'cn-q35', 'cn-q36', 'cn-q37',
@@ -323,12 +324,12 @@ test('CN migration preserves every legacy question and solution while separating
     'cn-q8', 'cn-q9',
   ].sort();
 
-  assert.equal(migratedQuestions.length, 50);
-  assert.equal(migratedSolutions.length, 50);
-  assert.equal(questionById.size, 50, 'question IDs must be unique');
-  assert.equal(solutionById.size, 50, 'solution IDs must be unique');
-  assert.deepEqual([...questionById.keys()].sort(), legacyIds);
-  assert.deepEqual([...solutionById.keys()].sort(), legacyIds);
+  assert.equal(migratedQuestions.length, 51);
+  assert.equal(migratedSolutions.length, 51);
+  assert.equal(questionById.size, 51, 'question IDs must be unique');
+  assert.equal(solutionById.size, 51, 'solution IDs must be unique');
+  assert.deepEqual([...questionById.keys()].sort(), expectedIds);
+  assert.deepEqual([...solutionById.keys()].sort(), expectedIds);
 
   for (const compiledQ of compiledCnQuestions) {
     const migratedQuestion = questionById.get(compiledQ.id);
@@ -354,7 +355,7 @@ test('CN migration preserves every legacy question and solution while separating
     assert.ok(question.topics.length > 0);
   }
 
-  assert.deepEqual(cnOriginalQuestions, []);
+  assert.deepEqual(cnOriginalQuestions.map(({id}) => id), ['cn-original-2025-100602-q3a']);
   assert.deepEqual(
     cnSupplementalQuestions.map(({marks}) => marks).sort((left, right) => left - right),
     [3, 4, 14, 14, 14, 14],
@@ -365,8 +366,16 @@ test('CN migration preserves every legacy question and solution while separating
   );
 
   assert.deepEqual(
-    validateSubjectContent('cn', cnImportantQuestions, importantSolutions),
-    {subject: 'cn', questions: cnImportantQuestions, solutions: importantSolutions},
+    validateSubjectContent(
+      'cn',
+      cnImportantQuestions,
+      importantSolutions.filter(({id}) => cnImportantQuestions.some((question) => question.solutionRef === id)),
+    ),
+    {
+      subject: 'cn',
+      questions: cnImportantQuestions,
+      solutions: importantSolutions.filter(({id}) => cnImportantQuestions.some((question) => question.solutionRef === id)),
+    },
   );
   for (const question of cnSupplementalQuestions) {
     assert.equal(question.kind, 'supplemental');
@@ -375,6 +384,33 @@ test('CN migration preserves every legacy question and solution while separating
     assert.equal(Object.hasOwn(question, 'source'), false);
     validateSolution(solutionById.get(question.solutionRef), question.marks);
   }
+});
+
+test('CN 2025 Q3(a) original CRC answer has scan provenance and correct division', () => {
+  const question = cnOriginalQuestions.find(({id}) => id === 'cn-original-2025-100602-q3a');
+  const solution = unit3Solutions.find(({id}) => id === 'cn-original-2025-100602-q3a');
+
+  assert.ok(question);
+  assert.equal(question.kind, 'original');
+  assert.equal(question.marks, 7);
+  assert.deepEqual(question.source, {
+    year: 2025,
+    paperCode: '100602',
+    questionNumber: 'Q3(a)',
+    url: 'docs/content-sources/CN-2025-Q3a-scan.png',
+    verification: 'cross-checked-scan',
+  });
+  assert.ok(solution);
+  assert.deepEqual(solution.table.rows, [
+    ['1', '1100', '1100 ⊕ 1001', '0101'],
+    ['2', '1011', '1011 ⊕ 1001', '0010'],
+    ['3', '1000', '1000 ⊕ 1001', '0001'],
+    ['4', '1100', '1100 ⊕ 1001', '0101'],
+    ['5', '1010', '1010 ⊕ 1001', '0011'],
+  ]);
+  assert.match(solution.conclusion, /011.*11001001011/);
+  assert.match(solution.sections[4].points[0], /remainder <code>000<\/code>/);
+  assert.equal(sumMarkingScheme(solution.markingScheme), 7);
 });
 
 test('important migration extracts the 88 questions truthfully', async () => {
@@ -495,9 +531,14 @@ test('written question adapter normalizes all subjects with kind and attached so
   }
 
   const cnItems = pyqs('cn');
-  assert.equal(cnItems.length, 44);
+  assert.equal(cnItems.length, 45);
   for (const q of cnItems) {
-    assert.equal(q.kind, 'important');
     assert.ok(q.solution);
+    if (q.kind === 'original') {
+      assert.equal(q.source.verification, 'cross-checked-scan');
+      assert.equal(q.source.questionNumber, 'Q3(a)');
+    } else {
+      assert.equal(q.kind, 'important');
+    }
   }
 });
