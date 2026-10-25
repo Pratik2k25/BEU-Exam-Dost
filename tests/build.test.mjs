@@ -19,7 +19,7 @@ test('build automatically fingerprints changed assets and creates a complete ver
  }finally{rmSync(root,{recursive:true,force:true});}
 });
 
-test('build bundles referenced scanned PYQ source assets into the release shell',()=>{
+test('release excludes development source scans even when questions reference them',()=>{
  const root=mkdtempSync(join(tmpdir(),'exam-dost-source-build-'));
  const sourcePath='docs/content-sources/CN-2025-Q3a-scan.png';
  try{
@@ -27,11 +27,10 @@ test('build bundles referenced scanned PYQ source assets into the release shell'
   appendFileSync(join(source,'data.js'),`\n// ${sourcePath}\n`);
   const result=buildSite({sourceDir:source,outputDir:output});
   const assetPath=join(output,...sourcePath.split('/'));
-  assert.deepEqual(readFileSync(assetPath),readFileSync(new URL(`../${sourcePath}`,import.meta.url)));
   const worker=readFileSync(join(output,'sw.js'),'utf8');
   const shell=JSON.parse(worker.match(/const SHELL=(\[.*?\]);/s)[1]);
-  assert.ok(shell.includes(`./${sourcePath}`));
-  assert.ok(existsSync(assetPath));
+  assert.equal(shell.some(path=>path.includes('docs/content-sources/')),false);
+  assert.equal(existsSync(assetPath),false);
   assert.ok(result.buildId);
  }finally{rmSync(root,{recursive:true,force:true});}
 });

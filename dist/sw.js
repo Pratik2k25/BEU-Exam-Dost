@@ -5,6 +5,11 @@ self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=
 // Serve one complete cached release until the next worker safely takes over.
 self.addEventListener('fetch',event=>{
  if(event.request.method!=='GET'||new URL(event.request.url).origin!==self.location.origin)return;
+ // Version checks must see the deployment currently served by the network,
+ // even while this worker continues serving the previous offline shell.
+ if(new URL(event.request.url).pathname===new URL('release.json',self.registration.scope).pathname){
+  event.respondWith(fetch(event.request,{cache:'no-store'}));return;
+ }
  event.respondWith((async()=>{
   try{
    const cache=await caches.open(CACHE);
@@ -52,27 +57,40 @@ self.addEventListener('notificationclick',event=>{
 });
 
 let activation=null;
+const visibleWindows=async()=>(await self.clients.matchAll({type:'window',includeUncontrolled:true})).filter(c=>c.url.startsWith(self.registration.scope)&&c.visibilityState!=='hidden');
+function finishActivation(round){
+ if(activation!==round)return;
+ clearTimeout(round.timer);activation=null;round.resolve();
+}
+async function activateWhenApproved(round,{timeout=false}={}){
+ if(activation!==round||round.activating)return;
+ const windows=await visibleWindows();
+ if(activation!==round||round.activating)return;
+ if(!windows.every(c=>round.approved.has(c.id))){if(timeout)finishActivation(round);return;}
+ // Hidden or frozen windows keep their current document and defer their own
+ // reload if they contain a quiz or unsaved form. They cannot stall other tabs.
+ round.activating=true;await self.skipWaiting();finishActivation(round);
+}
 async function requestActivation(){
- if(activation)return;
- const windows=(await self.clients.matchAll({type:'window',includeUncontrolled:true})).filter(c=>c.url.startsWith(self.registration.scope));
- if(!windows.length){await self.skipWaiting();return;}
+ if(activation)return activation.done;
  const requestId=String(Date.now())+'-'+Math.random().toString(36).slice(2);
- activation={requestId,expected:new Set(windows.map(c=>c.id)),approved:new Set()};
- activation.timer=setTimeout(()=>{activation=null;},5000);
+ const round={requestId,expected:new Set(),approved:new Set()};
+ round.done=new Promise(resolve=>{round.resolve=resolve;});activation=round;
+ const windows=await visibleWindows();
+ if(!windows.length){await self.skipWaiting();finishActivation(round);return;}
+ round.expected=new Set(windows.map(c=>c.id));
+ round.timer=setTimeout(()=>{activateWhenApproved(round,{timeout:true}).catch(()=>finishActivation(round));},1500);
  for(const client of windows)client.postMessage({type:'UPDATE_CHECK',requestId});
+ // Keep the worker alive while awaiting votes instead of abandoning the timer
+ // when the original message event finishes.
+ return round.done;
 }
 self.addEventListener('message',event=>{
  if(event.data?.type==='REQUEST_ACTIVATION'){event.waitUntil(requestActivation());return;}
  const vote=event.data;
  if(vote?.type!=='CLIENT_UPDATE_STATUS'||!activation||vote.requestId!==activation.requestId||!activation.expected.has(event.source?.id))return;
- if(!vote.safe){clearTimeout(activation.timer);activation=null;return;}
- activation.approved.add(event.source.id);
- if(activation.approved.size===activation.expected.size){
-  const approved=activation.approved;clearTimeout(activation.timer);
-  event.waitUntil((async()=>{
-   const windows=(await self.clients.matchAll({type:'window',includeUncontrolled:true})).filter(c=>c.url.startsWith(self.registration.scope));
-   if(windows.every(c=>approved.has(c.id)))await self.skipWaiting();
-   activation=null;
-  })());
- }
+ const round=activation;
+ if(!vote.safe){finishActivation(round);return;}
+ round.approved.add(event.source.id);
+ event.waitUntil(activateWhenApproved(round));
 });

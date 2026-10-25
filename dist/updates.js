@@ -1,8 +1,12 @@
-// New releases install in the background and reload only when the current UI is safe.
-export function installUpdates({canReload,beforeReload,onReady=()=>{},onDeferred=()=>{},env=window,nav=navigator,doc=document}){
+import {buildId as installedBuildId} from './app-meta.js';
+
+// An open, online app detects new releases within one short polling interval.
+// Each window still saves its own work before reloading.
+export const UPDATE_INTERVAL_MS=5000;
+export function installUpdates({canReload,beforeReload,onReady=()=>{},onDeferred=()=>{},env=window,nav=navigator,doc=document,currentBuild=installedBuildId}){
  if(!nav.serviceWorker)return;
  const serviceWorker=nav.serviceWorker;
- let registration,hadController=!!serviceWorker.controller,pendingReload=false,reloading=false,dirtyForm=null,notified=false,lastCheck=0;
+ let registration,hadController=!!serviceWorker.controller,pendingReload=false,reloading=false,dirtyForm=null,notified=false,checking=null;
  const safe=()=>canReload()&&!dirtyForm?.isConnected;
  function reloadIfSafe(){
   if(!pendingReload||reloading||!safe())return;
@@ -15,10 +19,21 @@ export function installUpdates({canReload,beforeReload,onReady=()=>{},onDeferred
   if(safe())registration.waiting.postMessage({type:'REQUEST_ACTIVATION'});
   else if(!notified){notified=true;onDeferred();}
  }
- async function check(){
-  if(!registration||doc.hidden)return;
-  if(Date.now()-lastCheck>=60000){lastCheck=Date.now();try{await registration.update();}catch{/* Retry when back online. */}}
-  activateIfSafe();
+ function check({initial=false}={}){
+  if(!registration||doc.hidden||nav.onLine===false||reloading)return Promise.resolve();
+  if(checking)return checking;
+  checking=(async()=>{
+   let changed=initial;
+   try{
+    if(typeof env.fetch==='function'){
+     const response=await env.fetch(new URL('release.json',registration.scope||env.location.href),{cache:'no-store',headers:{'Cache-Control':'no-cache'},signal:AbortSignal.timeout(UPDATE_INTERVAL_MS)});
+     if(response.ok){const release=await response.json();changed=changed||(typeof release.buildId==='string'&&release.buildId!==currentBuild);}
+    }else changed=true;
+    if(changed&&!registration.installing)await registration.update();
+   }catch{/* The installed release stays available; retry after connectivity returns. */}
+   activateIfSafe();
+  })().finally(()=>{checking=null;});
+  return checking;
  }
  function watchInstalling(){
   const worker=registration.installing;if(!worker)return;
@@ -37,8 +52,8 @@ export function installUpdates({canReload,beforeReload,onReady=()=>{},onDeferred
  for(const name of ['hashchange','focus','online','pageshow'])env.addEventListener(name,()=>env.setTimeout(()=>check(),0));
  doc.addEventListener('visibilitychange',()=>{if(!doc.hidden)check();});
  serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(reg=>{
-  registration=reg;reg.addEventListener('updatefound',watchInstalling);watchInstalling();activateIfSafe();check();
+  registration=reg;reg.addEventListener('updatefound',watchInstalling);watchInstalling();activateIfSafe();check({initial:true});
  }).catch(()=>{/* A failed update leaves the installed app usable. */});
  // Retry votes after a quiz, modal, unsaved form, or another open tab becomes safe.
- env.setInterval(()=>{if(!doc.hidden){activateIfSafe();check();}},10000);
+ env.setInterval(()=>{if(!doc.hidden){activateIfSafe();check();}},UPDATE_INTERVAL_MS);
 }

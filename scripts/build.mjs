@@ -10,26 +10,8 @@ export function buildSite({sourceDir=join(root,'dist'),outputDir=join(root,'buil
  if(outputDir===sourceDir)throw Error('Build output must be separate from source.');
  const digest=createHash('sha256');
  for(const file of files(sourceDir)){digest.update(relative(sourceDir,file));digest.update('\0');digest.update(readFileSync(file));}
- const sourceRefs=new Set();
- for(const file of files(sourceDir)){
-  if(!file.endsWith('.js'))continue;
-  const contents=readFileSync(file,'utf8');
-  for(const match of contents.matchAll(/docs\/content-sources\/[A-Za-z0-9 _().-]+/g))sourceRefs.add(match[0]);
- }
- const sourceFiles=[...sourceRefs].sort().map(sourceRef=>{
-  const sourcePath=resolve(root,...sourceRef.split('/'));
-  const sourceRoot=resolve(root,'docs','content-sources');
-  const sourceRelative=relative(sourceRoot,sourcePath);
-  if(!sourceRef.startsWith('docs/content-sources/')||sourceRelative===''||sourceRelative.startsWith('..')){
-   throw Error(`Invalid bundled source reference: ${sourceRef}`);
-  }
-  if(!existsSync(sourcePath))throw Error(`Bundled source file is missing: ${sourceRef}`);
-  digest.update(sourceRef);digest.update('\0');digest.update(readFileSync(sourcePath));
-  return {sourceRef,sourcePath};
- });
  digest.update(version);const buildId=digest.digest('hex').slice(0,16);
  rmSync(outputDir,{recursive:true,force:true});mkdirSync(outputDir,{recursive:true});cpSync(sourceDir,outputDir,{recursive:true});
- for(const {sourceRef,sourcePath} of sourceFiles){const target=join(outputDir,...sourceRef.split('/'));mkdirSync(dirname(target),{recursive:true});cpSync(sourcePath,target);}
  const index=join(outputDir,'index.html');writeFileSync(index,readFileSync(index,'utf8').replace(/(app\.js|style\.css)\?v=[^"']+/g,`$1?v=${buildId}`));
  const metadata=join(outputDir,'app-meta.js');let meta=readFileSync(metadata,'utf8').replace(/export const appVersion='[^']*'/,`export const appVersion='${version}'`).replace(/export const buildId='[^']*'/,`export const buildId='${buildId}'`);writeFileSync(metadata,meta);
  writeFileSync(join(outputDir,'release.json'),JSON.stringify({version,buildId,commit})+'\n');
