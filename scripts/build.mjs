@@ -1,4 +1,4 @@
-import {cpSync,mkdirSync,readFileSync,writeFileSync,readdirSync,rmSync,existsSync} from 'node:fs';
+import {cpSync,mkdirSync,readFileSync,writeFileSync,readdirSync,rmSync,existsSync,copyFileSync} from 'node:fs';
 import {resolve,join,relative,dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {createHash} from 'node:crypto';
@@ -8,6 +8,15 @@ function files(dir){return readdirSync(dir,{withFileTypes:true}).flatMap(e=>e.is
 export function buildSite({sourceDir=join(root,'dist'),outputDir=join(root,'build'),version=JSON.parse(readFileSync(join(root,'package.json'))).version,commit=process.env.VERCEL_GIT_COMMIT_SHA||null}={}){
  sourceDir=resolve(sourceDir);outputDir=resolve(outputDir);
  if(outputDir===sourceDir)throw Error('Build output must be separate from source.');
+ if(sourceDir===resolve(join(root,'dist'))){
+  const assets=join(sourceDir,'assets');mkdirSync(assets,{recursive:true});
+  for(const [from,to] of [
+   ['node_modules/qrcode-generator/dist/qrcode.mjs','qrcode-generator.mjs'],
+   ['node_modules/qr-scanner/qr-scanner.min.js','qr-scanner.min.js'],
+   ['node_modules/qr-scanner/qr-scanner-worker.min.js','qr-scanner-worker.min.js'],
+   ['node_modules/qr-scanner/LICENSE','LICENSE.qr-scanner.txt'],
+  ]) copyFileSync(join(root,from),join(assets,to));
+ }
  const digest=createHash('sha256');
  for(const file of files(sourceDir)){digest.update(relative(sourceDir,file));digest.update('\0');digest.update(readFileSync(file));}
  digest.update(version);const buildId=digest.digest('hex').slice(0,16);

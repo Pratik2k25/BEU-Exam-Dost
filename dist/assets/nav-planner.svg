@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none">
+  <defs>
+    <linearGradient id="paper" x1="33" y1="24" x2="93" y2="100" gradientUnits="userSpaceOnUse"><stop stop-color="#FFFDF1"/><stop offset="1" stop-color="#E8F5E9"/></linearGradient>
+    <linearGradient id="cover" x1="30" y1="36" x2="98" y2="99" gradientUnits="userSpaceOnUse"><stop stop-color="#55C98C"/><stop offset="1" stop-color="#16874D"/></linearGradient>
+    <linearGradient id="side" x1="34" y1="82" x2="101" y2="100" gradientUnits="userSpaceOnUse"><stop stop-color="#16723F"/><stop offset="1" stop-color="#0D4F32"/></linearGradient>
+    <filter id="shadow" x="15" y="15" width="104" height="104" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feGaussianBlur stdDeviation="5"/></filter>
+  </defs>
+  <ellipse cx="66" cy="101" fill="#173B2B" fill-opacity=".2" filter="url(#shadow)" rx="39" ry="8"/>
+  <g transform="rotate(-5 64 64)">
+    <path d="M27 38c0-5 4-9 9-9h56c5 0 9 4 9 9v51c0 5-4 9-9 9H36c-5 0-9-4-9-9V38Z" fill="url(#side)"/>
+    <path d="M31 34c0-5 4-9 9-9h51c5 0 9 4 9 9v46c0 5-4 9-9 9H40c-5 0-9-4-9-9V34Z" fill="url(#paper)" stroke="#D9E8D9" stroke-width="2"/>
+    <path d="M31 38c0-7 5-12 12-12h44c7 0 13 5 13 12v10H31V38Z" fill="url(#cover)"/>
+    <path d="M45 22v17m38-17v17" stroke="#EBAE5D" stroke-linecap="round" stroke-width="8"/>
+    <path d="M45 23v15m38-15v15" stroke="#FFE5B2" stroke-linecap="round" stroke-width="3"/>
+    <path d="m46 63 5 5 9-11m12 6h10M46 78l5 5 9-11m12 6h10" stroke="#36A96D" stroke-linecap="round" stroke-linejoin="round" stroke-width="5"/>
+    <path d="M34 35c1-4 4-6 8-7" stroke="#B9F4D2" stroke-linecap="round" stroke-width="3" opacity=".8"/>
+    <circle cx="94" cy="69" r="4" fill="#F2B867"/>
+  </g>
+</svg>

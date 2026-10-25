@@ -74,4 +74,4 @@ To achieve top grades in BEU 7-mark subjective questions:
 - **Web App URL:** https://app.beudeveloper.in/
 - **Main Developer / Landing Page:** https://beudeveloper.in/
 - **Syllabus & Sitemap:** https://app.beudeveloper.in/sitemap.xml
-- **Support & Inquiries:** helpebookwallah@gmail.com
+- **Support & Inquiries:** beudeveloper@gmail.com
