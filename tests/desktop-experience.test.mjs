@@ -29,16 +29,21 @@ test('successful sync stores a timestamp and linked device card renders it', () 
   assert.match(app, /sync-last-sync/);
 });
 
-test('Telegram telemetry sends only event and device mode, including help-request events', () => {
-  assert.match(telemetry, /notifyHelpRequest\(\)\s*\{\s*return sendEvent\('help_request'\)/);
-  assert.doesNotMatch(telemetry, /help:\s*payload/);
-  assert.doesNotMatch(telemetryApi, /Name:|College:|Message:|body\.help/);
-  assert.match(telemetryApi, /\[BEU Exam Dost\] \$\{body\.event\} \| \$\{device\.os\} \$\{device\.appMode\}/);
-  assert.match(app, /e\.stopImmediatePropagation\(\)[\s\S]*?notifyHelpRequest\(\)[\s\S]*?Your request stays on this device until you choose to open your email app and send it/);
-  assert.match(app, /mailto:beudeveloper@gmail\.com\?subject=/);
+test('profile creation and help submissions send bounded details through server-side Telegram', () => {
+  assert.match(telemetry, /notifyProfileCreated\(profile\)/);
+  assert.match(telemetry, /notifyHelpRequest\(payload\)/);
+  assert.match(telemetryApi, /body\.profile/);
+  assert.match(telemetryApi, /body\.help/);
+  assert.match(telemetryApi, /cleanText\(profile\.name\)/);
+  assert.match(telemetryApi, /cleanText\(help\.message, 1500\)/);
+  assert.match(app, /notifyProfileCreated\(state\.profile\)/);
+  assert.match(app, /notifyHelpRequest\(\{name:/);
+  assert.match(app, /Your name, college, branch and request details are sent to the BEU Exam Dost support team via Telegram/);
+  assert.doesNotMatch(app, /mailto:beudeveloper@gmail\.com\?subject=/);
+  assert.doesNotMatch(app, /Your request details are not sent to Telegram/);
 });
 
-test('telemetry API drops extra student details before building Telegram message', async () => {
+test('telemetry API includes sanitized profile and help fields in Telegram message', async () => {
   const previousToken = process.env.TELEGRAM_BOT_TOKEN;
   const previousChat = process.env.TELEGRAM_CHAT_ID;
   const previousFetch = globalThis.fetch;
@@ -52,14 +57,24 @@ test('telemetry API drops extra student details before building Telegram message
   try {
     const response = await telemetryHandler.fetch(new Request('https://local.test/api/telemetry', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ event: 'help_request', device: { os: 'Windows', appMode: 'installed' }, name: 'private student', message: 'private request' }),
+      body: JSON.stringify({ event: 'help_request', device: { os: 'Windows', appMode: 'installed' }, help: { name: 'QA Student', college: 'BEU Test College', branch: 'CSE', category: 'General Query', subject: 'CN', message: 'Telegram delivery QA' } }),
     }));
     assert.equal(response.status, 200);
-    assert.equal(telegramPayload.text, '[BEU Exam Dost] help_request | Windows installed');
-    assert.doesNotMatch(JSON.stringify(telegramPayload), /private student|private request/);
+    assert.match(telegramPayload.text, /\[BEU Exam Dost\] help_request \| Windows installed/);
+    assert.match(telegramPayload.text, /QA Student/);
+    assert.match(telegramPayload.text, /BEU Test College/);
+    assert.match(telegramPayload.text, /Telegram delivery QA/);
+    assert.doesNotMatch(JSON.stringify(telegramPayload), /unit-test-token/);
   } finally {
     if (previousToken === undefined) delete process.env.TELEGRAM_BOT_TOKEN; else process.env.TELEGRAM_BOT_TOKEN = previousToken;
     if (previousChat === undefined) delete process.env.TELEGRAM_CHAT_ID; else process.env.TELEGRAM_CHAT_ID = previousChat;
     globalThis.fetch = previousFetch;
   }
+});
+
+test('profile and quiz history redraw after remote sync and on tab resume', () => {
+  assert.match(app, /persistSyncedState\(result\.data\);syncStatus='synced';if\(\['profile','history','home'\]\.includes\(route\(\)\[0\]\)\)render\(\)/);
+  assert.match(app, /announceNewNotifications\(\);runSyncCycle\(false\)/);
+  assert.match(app, /function profile\(\)[\s\S]*?Recent quiz attempts/);
+  assert.match(app, /\(a\.finished\?'\/result\/'\:'\/attempt\/'\)\+a\.id/);
 });

@@ -25,19 +25,21 @@ export function getDeviceInfo() {
   return { os, browser, appMode: standalone ? 'installed' : 'web' };
 }
 
-async function sendEvent(event) {
+async function sendEvent(event, details) {
   try {
+    const payload = { event, device: getDeviceInfo() };
+    if (event === 'profile_saved' && details) payload.profile = details;
+    if (event === 'help_request' && details) payload.help = details;
     const response = await fetch('/api/telemetry', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ event, device: getDeviceInfo() }),
+      body: JSON.stringify(payload),
       keepalive: true,
     });
     return response.ok;
   } catch { return false; }
 }
 
-export function notifyProfileCreated() { return sendEvent('profile_saved'); }
+export function notifyProfileCreated(profile) { return sendEvent('profile_saved', profile); }
 export function notifyAppOpened() { return sendEvent('app_opened'); }
 
-// A help request logs only that the form was submitted and the device class.
-export function notifyHelpRequest() { return sendEvent('help_request'); }
+export function notifyHelpRequest(payload) { return sendEvent('help_request', payload); }

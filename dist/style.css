@@ -1392,9 +1392,9 @@
 [data-theme=dark] .onboarding-copyright{border-color:#34434d;color:#aebdc7}
 .onboarding-sync-content{display:grid;grid-template-columns:minmax(130px,210px) minmax(0,1fr);align-items:center;gap:22px}
 .onboarding-sync-content .onboarding-sync-instructions{min-width:0}
-.onboarding-qr-placeholder.has-pairing-qr{padding:8px;background:#fff}
-.onboarding-qr-placeholder .sync-qr{width:100%;padding:0;background:#fff;box-shadow:none}
-.onboarding-qr-placeholder .sync-qr svg{display:block;width:100%;height:auto}
+.onboarding-qr-placeholder.has-pairing-qr{box-sizing:border-box;display:flex;align-items:center;justify-content:center;overflow:hidden;width:210px;height:210px;padding:8px;border:1px solid #d9e2e8;border-radius:20px;background:#fff}
+.onboarding-qr-placeholder .sync-qr{box-sizing:border-box;width:100%;height:100%;padding:0;background:#fff;box-shadow:none}
+.onboarding-qr-placeholder .sync-qr svg{display:block;width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain}
 .pairing-status-region:empty{display:none}
 .pairing-status-region h3{margin:10px 0 4px;font-size:16px}
 .pairing-status-region p{margin:5px 0;color:var(--muted);font-size:13px;line-height:1.5}
@@ -1409,3 +1409,4 @@
 [data-theme=dark] .onboarding-brand img{filter:none}
 .sync-qr{border:1px solid var(--line);box-shadow:0 0 0 7px var(--surface),0 14px 28px rgba(19,73,50,.16)}
 .sync-status-column{display:grid;justify-items:end;gap:5px;flex:none}.sync-last-sync{font-size:12px;color:var(--muted);white-space:nowrap}.desktop-install-card .settings-row{display:flex;align-items:center;gap:12px}.desktop-install-card .settings-row>span:nth-child(2){flex:1;min-width:0}.desktop-install-card .settings-row small{display:block;margin-top:4px;color:var(--muted);line-height:1.45}.desktop-install-card .settings-row>.button{flex:none;min-height:44px}@media(max-width:700px){.sync-status-column{justify-items:start;margin-top:10px}.desktop-install-card .settings-row{align-items:flex-start;flex-wrap:wrap}.desktop-install-card .settings-row>.button{margin-left:44px}}
+.profile-attempt-card{position:relative;display:block;padding:18px 54px 18px 20px}.profile-attempt-heading{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.profile-attempt-heading>span:last-of-type{margin-left:auto}.profile-attempt-card>p{margin:10px 0 4px}.profile-attempt-card>.icon{position:absolute;right:20px;top:50%;transform:translateY(-50%)}
