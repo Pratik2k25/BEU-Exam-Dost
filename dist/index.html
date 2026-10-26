@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <script>document.documentElement.classList.add('js');try{const saved=JSON.parse(localStorage.getItem('exam-dost-v1')||'null');document.documentElement.dataset.theme=saved?.state?.settings?.theme==='dark'?'dark':'light'}catch{document.documentElement.dataset.theme='light'}</script>
   <title>BEU 4th Sem CSE PYQ, Notes, Syllabus | BEU Exam Dost</title>
 
   <!-- Primary SEO Meta Tags -->
@@ -61,6 +62,7 @@
   <link rel="apple-touch-icon" href="./assets/icon-192.png">
   <link rel="apple-touch-icon" sizes="512x512" href="./assets/icon-512.png">
   <link rel="stylesheet" href="./style.css?v=15">
+  <style>html.js #app.app-booting>header.main-header,html.js #app.app-booting>main{display:none!important}html.js #app.app-booting{min-height:100dvh;background:var(--bg,#f5f8f7);color:var(--ink,#19202e)}html.js #app.app-booting>.app-startup{min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;font:600 15px/1.5 Outfit,system-ui,sans-serif;color:var(--muted,#718096)}.app-startup{display:none}.app-startup img{width:min(210px,55vw);height:auto}.app-startup:after{content:'';width:24px;height:24px;border:3px solid rgba(22,102,62,.18);border-top-color:#16663e;border-radius:50%;animation:app-startup-spin .8s linear infinite}@keyframes app-startup-spin{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){.app-startup:after{animation:none}}</style>
 
   <!-- Import map for bare ES module specifiers -->
   <script type="importmap">
@@ -251,7 +253,8 @@
   </script>
 </head>
 <body>
-  <div id="app">
+  <div id="app" class="app-booting">
+    <div class="app-startup" role="status" aria-live="polite"><img src="./assets/logo-horizontal.png" alt="BEU Exam Dost"><span>Opening BEU Exam Dost…</span></div>
     <!-- Static Crawlable Semantic Shell for Search Bots & AI Crawlers (Replaced on JS mount) -->
     <header class="main-header" style="max-width:860px;margin:auto;padding:24px 24px 0">
       <a class="wordmark" href="#/home">

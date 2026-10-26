@@ -16,6 +16,15 @@
 
 export const changelog = [
   {
+    id: 'v0.7.2-desktop-release',
+    date: '2026-10-26T06:20:27+05:30',
+    version: '0.7.2',
+    type: 'announcement',
+    title: 'Desktop access is now available',
+    body: 'BEU Exam Dost is now available on desktop. Connect your existing mobile profile with a QR code or four-digit PIN and continue studying on a larger screen.',
+    badge: 'Release',
+  },
+  {
     id: 'v0.6.0-coa-pyq-solutions',
     date: '2026-10-25T11:21:52+05:30',
     version: '0.6.0',

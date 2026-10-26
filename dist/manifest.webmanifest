@@ -21,6 +21,13 @@
     "utilities"
   ],
   "prefer_related_applications": false,
+  "related_applications": [
+    {
+      "platform": "webapp",
+      "url": "/manifest.webmanifest",
+      "id": "/?source=pwa"
+    }
+  ],
   "icons": [
     {
       "src": "./assets/icon-192.png",
