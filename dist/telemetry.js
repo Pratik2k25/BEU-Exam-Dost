@@ -28,7 +28,8 @@ export function getDeviceInfo() {
 async function sendEvent(event, details) {
   try {
     const payload = { event, device: getDeviceInfo() };
-    if (event === 'profile_saved' && details) payload.profile = details;
+    if (['profile_saved', 'app_opened', 'desktop_login', 'device_paired'].includes(event) && details?.profile) payload.profile = details.profile;
+    if (['desktop_login', 'device_paired'].includes(event) && details?.label) payload.device.label = details.label;
     if (event === 'help_request' && details) payload.help = details;
     const response = await fetch('/api/telemetry', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -39,7 +40,9 @@ async function sendEvent(event, details) {
   } catch { return false; }
 }
 
-export function notifyProfileCreated(profile) { return sendEvent('profile_saved', profile); }
-export function notifyAppOpened() { return sendEvent('app_opened'); }
+export function notifyProfileCreated(profile) { return sendEvent('profile_saved', { profile }); }
+export function notifyAppOpened(profile) { return sendEvent('app_opened', { profile }); }
+export function notifyDesktopLogin(profile, label) { return sendEvent('desktop_login', { profile, label }); }
+export function notifyDevicePaired(profile, label) { return sendEvent('device_paired', { profile, label }); }
 
 export function notifyHelpRequest(payload) { return sendEvent('help_request', payload); }
