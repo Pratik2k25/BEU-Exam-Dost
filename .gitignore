@@ -8,3 +8,5 @@ build/
 scratch/
 .worktrees/
 .neon
+
+.vercel
