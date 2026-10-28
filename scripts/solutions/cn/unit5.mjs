@@ -131,45 +131,79 @@ rwnd = RcvBuffer - [ LastByteRcvd - LastByteRead ]`
     question: 'What is congestion? Explain three congestion control policies in Transport Layer with suitable diagram.',
     solution: {
       verified: 'BEU 2024 · Q.8(b) · 7 Marks',
-      intro: 'Congestion in computer networks occurs when the aggregate packet arrival rate exceeds the forwarding or buffering capacity of intermediate routers, causing queue overflow, packet drops, and throughput collapse.',
+      intro: 'Congestion in computer networks occurs when the aggregate volume of packets injected into the subnet exceeds the packet-handling capacity of intermediate routers and transmission links. If unmanaged, queuing delays soar, buffer queues overflow, dropped packets trigger retransmission storms, and network throughput drops precipitously to near zero (Congestion Collapse).',
       diagrams: [
         {
-          title: 'TCP Congestion Window (cwnd) Evolution Curve Across Phases',
+          title: 'TCP Congestion Window (cwnd) Dynamics Across Transmission Phases',
           ascii:
 `cwnd (MSS)
   ^
-16|                              [ CONGESTION AVOIDANCE (AIMD) ]
-  |                              /|
-12|                             / |
-  |                            /  | <--- 3 Duplicate ACKs (Triple Dup ACK)
- 8|            +--------------+   |
-  |           / [ssthresh = 8]    | [Fast Recovery: cwnd = ssthresh + 3]
- 4|          /                    |\\
-  |         / [SLOW START]        | \\
- 2|        /                      |  \\
- 1|---+---+                       +---+------------------------> Time (RTTs)
-      0   1   2   3   4   5   6   7   8   9  10  11  12`
+16|                                  [ CONGESTION AVOIDANCE (AIMD) ]
+  |                                  /|
+12|                                 / |
+  |                                /  | <--- 3 Duplicate ACKs (Triple Dup ACK)
+ 8|            +------------------+   |
+  |           / [ssthresh = 8]        | [Fast Recovery: cwnd = ssthresh + 3 MSS]
+ 4|          /                        |\\
+  |         / [SLOW START]            | \\
+ 2|        /                          |  \\
+ 1|---+---+                           +---+----------------------------> Time (RTTs)
+      0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15`
+        },
+        {
+          title: 'Offered Traffic Load vs Network Throughput & Congestion Collapse',
+          ascii:
+`Throughput
+  ^
+  |        Ideal Linear Throughput (45° line)
+  |        . . . . . . . . . . . . . . . . . . .
+  |       /          * [KNEE: Delay starts rising]
+  |      /         *   *
+  |     /        *       *
+  |    /       *           * [CLIFF: Buffer Overflow]
+  |   /      *               *
+  |  /     *                   *
+  | /    *                       * * * * * [CONGESTION COLLAPSE: Near zero useful work]
+  +----------------------------------------------------> Offered Load`
         }
       ],
       sections: [
         {
           heading: '1. Three Fundamental Transport-Layer Policies',
           points: [
-            '<b>1. Slow Start:</b> Begins at <code>cwnd = 1 MSS</code>. For every received ACK, cwnd increases by 1 MSS (effectively doubling cwnd every RTT: 1 → 2 → 4 → 8). Exponential growth continues until cwnd reaches the slow-start threshold (<code>ssthresh</code>).',
-            '<b>2. Congestion Avoidance (Additive Increase):</b> Once <code>cwnd ≥ ssthresh</code>, growth shifts to linear increase: <code>cwnd = cwnd + 1 MSS</code> per RTT. Probes for available bandwidth cautiously without overwhelming buffers.',
-            '<b>3. Fast Retransmit & Fast Recovery (Multiplicative Decrease):</b><br>• <i>Fast Retransmit:</i> When sender receives 3 duplicate ACKs for the same segment, it assumes the packet was dropped and immediately retransmits it without waiting for the retransmission timer to expire.<br>• <i>Fast Recovery:</i> Instead of resetting cwnd back to 1 (which TCP Tahoe did), TCP Reno sets <code>ssthresh = cwnd / 2</code> and <code>cwnd = ssthresh + 3 MSS</code>, continuing linear increase.'
+            '<b>1. Slow Start (Exponential Probing):</b> The connection begins with <code>cwnd = 1 MSS</code>. For every individual non-duplicate ACK received, the sender increments cwnd by 1 MSS. Over one round-trip time (RTT), cwnd doubles exponentially (<code>1 → 2 → 4 → 8 MSS</code>). Exponential growth continues until <code>cwnd</code> reaches the slow-start threshold (<code>ssthresh</code>) or a packet loss occurs.',
+            '<b>2. Congestion Avoidance (Additive Increase):</b> When <code>cwnd ≥ ssthresh</code>, exponential growth ceases and shifts to linear, conservative probing: for each RTT where all packets are successfully acknowledged, cwnd increases by exactly <code>1 MSS</code>: <br><code>cwnd = cwnd + MSS × (MSS / cwnd)</code> per received ACK. This probes for extra bandwidth without abruptly inducing bufferbloat.',
+            '<b>3. Fast Retransmit & Fast Recovery (Multiplicative Decrease):</b><br>• <i>Fast Retransmit:</i> When an intermediate packet is lost while subsequent packets arrive, the receiver generates duplicate ACKs. Upon receiving 3 duplicate ACKs (4 identical ACKs total), the sender infers packet loss immediately and retransmits the missing segment without waiting for the slow Retransmission Timeout (RTO) timer.<br>• <i>Fast Recovery (TCP Reno):</i> Rather than resetting cwnd to 1 MSS (as primitive TCP Tahoe did), TCP Reno cuts threshold to half: <code>ssthresh = max(FlightSize / 2, 2 MSS)</code>, sets <code>cwnd = ssthresh + 3 MSS</code> (accounting for buffered packets that triggered duplicate ACKs), and continues linear additive increase once the missing frame is acknowledged.'
+          ]
+        },
+        {
+          heading: '2. Open-Loop vs Closed-Loop Congestion Control Taxonomies',
+          points: [
+            '<b>Open-Loop (Prevention):</b> Protocols design policies prior to data flow to prevent congestion from arising (e.g., traffic policing, Leaky Bucket shaping, admission control, packet discard policies).',
+            '<b>Closed-Loop (Detection & Recovery):</b> Operates dynamically during active data transfer based on feedback loops (e.g., Explicit Congestion Notification [ECN] bits in IP headers, choke packets, and TCP AIMD window adjustments).'
           ]
         }
       ],
-      conclusion: 'By combining exponential probing (Slow Start), additive increase (Avoidance), and multiplicative decrease (Fast Recovery), TCP stabilizes global Internet traffic without central coordination.',
+      table: {
+        title: 'Comparison of TCP Congestion Control Mechanisms',
+        headers: ['Mechanism Phase', 'Trigger Condition', 'Window Adjustment Algorithm', 'Growth Trajectory', 'Primary Objective'],
+        rows: [
+          ['Slow Start', 'Connection initiation or after RTO timeout', 'cwnd = cwnd + 1 MSS per ACK', 'Exponential (2^n per RTT)', 'Rapidly probe initial channel bandwidth capacity'],
+          ['Congestion Avoidance', 'cwnd reaches or exceeds ssthresh', 'cwnd = cwnd + 1 MSS per RTT', 'Linear (Additive Increase: +1 per RTT)', 'Cautiously consume extra bandwidth near link capacity'],
+          ['Fast Retransmit', 'Arrival of 3 duplicate ACKs', 'Immediate retransmission of lost segment', 'Instantaneous event trigger', 'Avoid waiting for catastrophic RTO timer expiry'],
+          ['Fast Recovery', 'Immediately follows Fast Retransmit', 'ssthresh = cwnd / 2; cwnd = ssthresh + 3', 'Linear resumption without Slow Start', 'Maintain high network pipeline throughput after isolated drops'],
+          ['Timeout Fallback', 'Retransmission Timer (RTO) expires', 'ssthresh = cwnd / 2; cwnd resets to 1 MSS', 'Drops to base 1 MSS; enters Slow Start', 'Aggressive safety backoff during catastrophic link failure']
+        ]
+      },
+      conclusion: 'TCP achieves decentralized network stability across billions of endpoints by coupling exponential bandwidth probing (Slow Start) with Additive Increase Multiplicative Decrease (AIMD) feedback control.',
       markingScheme: [
-        { component: 'Network Congestion Definition & Symptoms', marks: '1.0' },
+        { component: 'Network Congestion Definition, Symptoms & Knee/Cliff Diagram', marks: '1.5' },
         { component: 'Slow Start Mechanism & Exponential Growth Formula', marks: '1.5' },
-        { component: 'Congestion Avoidance (AIMD) Mechanism', marks: '1.5' },
-        { component: 'Fast Retransmit & Fast Recovery (3 Duplicate ACKs)', marks: '1.5' },
-        { component: 'Labelled cwnd vs Time Progression Graph', marks: '1.5' }
+        { component: 'Congestion Avoidance (AIMD) Linear Formula', marks: '1.5' },
+        { component: 'Fast Retransmit & Fast Recovery (3 Duplicate ACKs Rule)', marks: '1.5' },
+        { component: 'Comprehensive 5-Phase Comparison Table & Conclusion', marks: '1.0' }
       ],
-      examTip: 'Label ssthresh clearly on the graph where the exponential curve transitions into a straight line (linear growth).'
+      examTip: 'Examiners expect two labelled diagrams: the cwnd vs time curve (showing Slow Start, ssthresh knee, and AIMD sawtooth) and the Offered Load vs Throughput curve showing the congestion collapse cliff.'
     }
   },
   {
@@ -183,65 +217,77 @@ rwnd = RcvBuffer - [ LastByteRcvd - LastByteRead ]`
     question: 'Explain leaky bucket and token bucket algorithm. Compare their burst handling capabilities and compute maximum burst duration.',
     solution: {
       verified: 'BEU 2023 · Q.3(b) · 7 Marks',
-      intro: 'Traffic shaping controls the volume and rate of traffic sent into a network to ensure QoS. Leaky Bucket and Token Bucket are the two primary traffic shaping algorithms used in packet networks.',
+      intro: 'Traffic shaping is an open-loop mechanism that regulates the rate and volume of packet transmissions entering a network, smoothing bursty application traffic into predictable, compliant streams to prevent router buffer overflow and enforce Quality of Service (QoS). The two canonical traffic-shaping paradigms are the Leaky Bucket Algorithm and the Token Bucket Algorithm.',
       diagrams: [
         {
-          title: 'Leaky Bucket (Rigid Uniform Rate) vs Token Bucket (Bursts Allowed)',
+          title: 'Architectural Comparison: Leaky Bucket (Rigid Constant Rate) vs Token Bucket (Controlled Bursts)',
           ascii:
-`[ LEAKY BUCKET ]                                [ TOKEN BUCKET ]
-Bursty Packet Inflow                            Tokens generated at rate r
-       |                                                |
-       v                                                v
-+--------------+                                +--------------+
-| Packet Queue | (Fixed capacity C)             | Token Bucket | (Capacity b)
-+--------------+                                +--------------+
-       |                                                |
-       | Water leaks at CONSTANT rate                   v (Packet grabs token)
-       v                                         +--------------+
-Strictly Constant Output Stream                  | Output Gate  | ===> Burst Out
-(Bursts completely eliminated)                   +--------------+      at Peak M`
+`[ 1. LEAKY BUCKET ALGORITHM ]                     [ 2. TOKEN BUCKET ALGORITHM ]
+Bursty Packet Inflow (Irregular arrival)          Tokens generated at constant rate r tokens/sec
+       |                                                 |
+       v                                                 v
++--------------+                                  +--------------+
+| Packet Queue | (Fixed capacity C bytes)         | Token Bucket | (Capacity b tokens)
++--------------+                                  +--------------+
+       |                                                 |
+       | Water leaks at STRICT CONSTANT RATE             v (Packet captures tokens)
+       v                                          +--------------+
+Strictly Constant Output Stream                   | Output Gate  | ===> Transmission at Peak Rate M
+(Bursts completely eliminated; delay added)       +--------------+      (Allows short controlled bursts)`
         }
       ],
       sections: [
         {
-          heading: '1. Leaky Bucket Algorithm',
+          heading: '1. Leaky Bucket Operational Mechanics',
           points: [
-            'Buffers incoming bursty packets in a finite queue of capacity C.',
-            'Discharges packets at a strictly uniform, constant rate (r), regardless of inflow rate.',
-            'If packet inflow exceeds bucket capacity, subsequent packets overflow and are dropped.',
-            'Cannot transmit bursts even if the network link is completely idle.'
+            '<b>Concept:</b> Analogous to a bucket with a small orifice at the base. Water may pour into the bucket in violent, irregular bursts, but it drains out at an invariant, smooth rate as long as water remains in the bucket.',
+            '<b>Queue Buffer:</b> In networking, incoming packets are queued in a finite FIFO buffer of capacity <code>C</code> bytes. Packets are dequeued and transmitted onto the transmission medium at a strictly constant rate <code>ρ</code> (bytes/second).',
+            '<b>Packet Discard:</b> If a sudden packet burst arrives when the buffer queue is full, the excess packets overflow the bucket and are immediately dropped.',
+            '<b>Key Characteristic:</b> The output rate is completely rigid. It suppresses all bursts and cannot send above rate <code>ρ</code> even if downstream network links are completely idle.'
           ]
         },
         {
-          heading: '2. Token Bucket Algorithm & Maximum Burst Equation',
+          heading: '2. Token Bucket Operational Mechanics & Burst Derivation',
           points: [
-            'Tokens are deposited into a token bucket of capacity b at a constant rate r tokens/sec.',
-            'To transmit a packet of size m bytes, m tokens are removed from the bucket. If not enough tokens, packet waits.',
-            'When the bucket is full (b tokens accumulated during idle periods), the sender can transmit a short burst at maximum link speed M.',
-            '<b>Maximum Burst Duration Formula:</b> Let burst duration be S seconds. Total bytes transmitted during burst = <code>b + r × S</code>.<br>At peak rate M: <code>M × S = b + r × S ⇒ S = b / (M - r) seconds</code>.'
+            '<b>Concept:</b> A token generator deposits virtual tokens into a bucket of capacity <code>b</code> bytes at a sustained constant rate <code>r</code> tokens/second. When the bucket fills to <code>b</code>, incoming tokens overflow and are discarded (never packets!).',
+            '<b>Transmission Condition:</b> To transmit a packet of size <code>m</code> bytes, exactly <code>m</code> tokens must be removed from the bucket. If fewer than <code>m</code> tokens are available, the packet must wait or be marked non-compliant.',
+            '<b>Burst Capacity:</b> When a sender has been idle, the bucket fills to capacity <code>b</code>. If a sudden burst arrives, the sender can transmit at the maximum physical link rate <code>M</code> (where <code>M > r</code>) until accumulated tokens are depleted.',
+            '<b>Mathematical Derivation of Maximum Burst Duration:</b><br>Let <code>S</code> be the maximum burst duration in seconds.<br>During time <code>S</code>, the total bytes transmitted at peak rate <code>M</code> is <code>M × S</code>.<br>The total tokens available during time <code>S</code> is initial tokens <code>b</code> plus freshly generated tokens <code>r × S</code>.<br>Equating available tokens with transmitted bytes: <br><code>M × S = b + r × S ⇒ S × (M - r) = b ⇒ S = b / (M - r) seconds</code>.<br>Maximum burst volume transmitted is <code>V_burst = M × S = M × b / (M - r) bytes</code>.'
+          ]
+        },
+        {
+          heading: '3. Worked Numerical Problem',
+          points: [
+            '<b>Given Parameters:</b> Token bucket capacity <code>b = 2 Megabytes (MB)</code>, token generation rate <code>r = 2 MB/sec</code>, maximum physical link transmission rate <code>M = 10 MB/sec</code>.',
+            '<b>Calculation 1 — Maximum Burst Duration (S):</b> <br><code>S = b / (M - r) = 2 MB / (10 MB/s - 2 MB/s) = 2 / 8 = 0.25 seconds</code>.',
+            '<b>Calculation 2 — Total Burst Volume (V):</b> <br><code>V = M × S = 10 MB/s × 0.25 s = 2.5 Megabytes</code>. (Consists of 2.0 MB initial bucket capacity + 0.5 MB tokens generated during the 0.25s burst).'
           ]
         }
       ],
       table: {
-        title: 'Comparison: Leaky Bucket vs Token Bucket',
-        headers: ['Feature', 'Leaky Bucket Algorithm', 'Token Bucket Algorithm'],
+        title: 'Comprehensive Technical Comparison: Leaky Bucket vs Token Bucket',
+        headers: ['Evaluation Parameter', 'Leaky Bucket Algorithm', 'Token Bucket Algorithm'],
         rows: [
-          ['Output Rate', 'Strictly constant, uniform rate', 'Average rate r, but allows bursts up to peak rate M'],
-          ['Burst Handling', 'Smooths bursts; bursts never transmitted', 'Allows controlled, bounded bursts'],
-          ['Discard Behavior', 'Discards packets when queue fills', 'Discards tokens when token bucket fills (never drops packets)'],
-          ['Resource Saved', 'Buffers packets', 'Accumulates tokens (virtual permissions)'],
-          ['Token Dependency', 'No tokens used', 'Packet must capture token to transmit']
+          ['Output Stream Profile', 'Strictly constant, uniform transmission rate', 'Average rate r over long term, but permits bursts up to peak rate M'],
+          ['Burst Tolerance', 'Zero burst tolerance; completely flattens all bursts', 'Allows controlled, bounded bursts proportional to bucket depth b'],
+          ['Discard Behavior', 'Discards packets when the queue buffer overflows', 'Discards tokens when bucket fills; packets are never dropped due to token overflow'],
+          ['Internal Storage', 'Buffers actual data packets in a physical memory queue', 'Accumulates virtual tokens (integer counters)'],
+          ['Token Dependency', 'No tokens; purely timer-based dequeue', 'Packet transmission is strictly gated by token availability'],
+          ['Delay Profile', 'Introduces variable queuing delay for bursty traffic', 'Zero extra delay during bursts as long as tokens are available'],
+          ['Bandwidth Utilization', 'May waste bandwidth if link is idle and packets are queued', 'Maximizes link utilization by dumping bursts when capacity allows'],
+          ['Representative Protocols', 'ATM Constant Bit Rate (CBR) traffic policing', 'IPv4/IPv6 RSVP, DiffServ, and token-bucket traffic policers']
         ]
       },
-      conclusion: 'Token Bucket provides superior flexibility for computer data because it accommodates natural bursts while enforcing long-term average bandwidth limits.',
+      conclusion: 'While the Leaky Bucket algorithm provides a rigid, predictable output stream ideal for constant-bit-rate voice, the Token Bucket algorithm offers superior flexibility for bursty computer data by permitting short, bounded bursts while guaranteeing long-term average bandwidth compliance.',
       markingScheme: [
-        { component: 'Leaky Bucket Working Principle & Constant Leak Rate', marks: '1.5' },
-        { component: 'Token Bucket Working Principle & Token Accumulation', marks: '1.5' },
-        { component: 'Neat Architectural Diagrams for Both Algorithms', marks: '1.5' },
-        { component: 'Maximum Burst Duration Derivation [S = b / (M - r)]', marks: '1.5' },
-        { component: 'Comparison Table & Conclusion', marks: '1.0' }
+        { component: 'Traffic Shaping Definitions & Motivation', marks: '1.0' },
+        { component: 'Neat Architectural Comparison Diagram', marks: '1.5' },
+        { component: 'Leaky Bucket Mechanics & Queue Discard Breakdown', marks: '1.0' },
+        { component: 'Token Bucket Mechanics & Derivation of Burst Formula [S = b / (M - r)]', marks: '1.5' },
+        { component: 'Worked Numerical Calculation (Duration S & Volume V)', marks: '1.0' },
+        { component: '8-Parameter Comparison Table & Academic Conclusion', marks: '1.0' }
       ],
-      examTip: 'Always write down the burst formula S = b / (M - r). Examiners look specifically for this mathematical expression.'
+      examTip: 'Examiners award full 7 marks when you derive the burst duration equation S = b / (M - r) step-by-step and provide a numerical example with realistic numbers.'
     }
   },
   {
@@ -255,53 +301,88 @@ Strictly Constant Output Stream                  | Output Gate  | ===> Burst Out
     question: 'Explain the TCP Three-Way Handshake mechanism for connection establishment and connection termination with sequence numbers and timing diagrams. Why is the 2MSL TIME-WAIT state necessary?',
     solution: {
       verified: 'BEU 2022 · Q.7(a) / 2024 · 7 Marks',
-      intro: 'Transmission Control Protocol (TCP) establishes an end-to-end full-duplex byte-stream connection using a Three-Way Handshake and terminates it using a Four-Way Handshake with symmetric half-closes.',
+      intro: 'Transmission Control Protocol (TCP, RFC 793) is a connection-oriented transport-layer protocol providing full-duplex, reliable byte-stream communication. Connection establishment is governed by a robust Three-Way Handshake that synchronizes Initial Sequence Numbers (ISNs), while termination uses a Four-Way Handshake that gracefully closes each simplex direction with a mandatory 2MSL TIME-WAIT state.',
       diagrams: [
         {
-          title: 'TCP 3-Way Handshake & 4-Way Teardown Timing Ladder',
+          title: 'TCP Connection Management: 3-Way Handshake & 4-Way Teardown Timing Ladder',
           ascii:
-`CLIENT (Active Open)                                SERVER (Passive Open)
-  |                                                    | (LISTEN)
-  |---- SYN, Seq=x ----------------------------------->| (SYN_RCVD)
-  |<--- SYN-ACK, Seq=y, Ack=x+1 -----------------------|
-  |---- ACK, Seq=x+1, Ack=y+1 ------------------------>| (ESTABLISHED)
+`CLIENT (Active Open: IP:Port C)                      SERVER (Passive Open: IP:Port S)
+  |                                                    | State: LISTEN
+  |==== [ THREE-WAY HANDSHAKE ESTABLISHMENT ] ========|
   |                                                    |
-  |================ CONNECTION ESTABLISHED ============|
+  |--- 1. SYN, Seq = x ------------------------------->| State: SYN_RCVD (Allocates buffers)
+  |    (Controls: SYN=1, ACK=0)                        |
+  |<-- 2. SYN-ACK, Seq = y, Ack = x + 1 ---------------| State: SYN_RCVD
+  |    (Controls: SYN=1, ACK=1)                        |
+  |--- 3. ACK, Seq = x + 1, Ack = y + 1 -------------->| State: ESTABLISHED
+  |    (Controls: SYN=0, ACK=1; may carry data)        |
+  | State: ESTABLISHED                                 | State: ESTABLISHED
   |                                                    |
-  |---- FIN, Seq=u ----------------------------------->| (CLOSE_WAIT)
-  |<--- ACK, Ack=u+1 ----------------------------------|
-  |                                                    | (Server finishes data)
-  |<--- FIN, Seq=v ------------------------------------| (LAST_ACK)
-  |---- ACK, Ack=v+1 --------------------------------->| (CLOSED)
-  | [TIME_WAIT State: Wait 2MSL = 120s]                |
-  v (CLOSED)                                           v`
+  |================ FULL-DUPLEX DATA TRANSFER =========|
+  |                                                    |
+  |==== [ FOUR-WAY HANDSHAKE TERMINATION ] ===========|
+  |                                                    |
+  |--- 1. FIN, Seq = u ------------------------------->| State: CLOSE_WAIT (Client closes write)
+  | State: FIN_WAIT_1                                  |
+  |<-- 2. ACK, Ack = u + 1 ----------------------------| (Server acknowledges client close)
+  | State: FIN_WAIT_2                                  | (Server may continue sending data)
+  |                                                    |
+  |<-- 3. FIN, Seq = v --------------------------------| State: LAST_ACK (Server closes write)
+  |--- 4. ACK, Ack = v + 1 --------------------------->| State: CLOSED
+  | State: TIME_WAIT (Wait 2MSL = 120s timer)          |
+  v State: CLOSED (Timer expires; socket released)     v`
         }
       ],
+      table: {
+        title: 'TCP Connection State Transition Matrix',
+        headers: ['Connection State', 'Operating Endpoint', 'Triggering Event / Action', 'Next State Transition'],
+        rows: [
+          ['LISTEN', 'Server', 'Application binds port and waits for incoming client SYN', 'SYN_RCVD (on receiving SYN)'],
+          ['SYN_SENT', 'Client', 'Application initiates active open; sends SYN segment with ISN x', 'ESTABLISHED (on receiving SYN-ACK)'],
+          ['SYN_RCVD', 'Server', 'Server received SYN, allocated TCB buffers, sent SYN-ACK', 'ESTABLISHED (on receiving ACK)'],
+          ['ESTABLISHED', 'Client & Server', 'Handshake completed; bidirectional data transfer active', 'FIN_WAIT_1 (Client close) / CLOSE_WAIT (Server close)'],
+          ['FIN_WAIT_1', 'Client', 'Application closes; sent FIN segment to server', 'FIN_WAIT_2 (on receiving ACK)'],
+          ['CLOSE_WAIT', 'Server', 'Received client FIN, sent ACK; waiting for local app close', 'LAST_ACK (when server sends its FIN)'],
+          ['FIN_WAIT_2', 'Client', 'Received ACK for own FIN; waiting for server FIN', 'TIME_WAIT (on receiving server FIN)'],
+          ['LAST_ACK', 'Server', 'Sent FIN to client; waiting for final ACK', 'CLOSED (on receiving final ACK)'],
+          ['TIME_WAIT', 'Active Closer (Client)', 'Sent final ACK; waiting 2MSL (120s) to absorb delayed packets', 'CLOSED (after 2MSL timeout)']
+        ]
+      },
       sections: [
         {
-          heading: '1. Three-Way Handshake (Connection Establishment)',
+          heading: '1. Three-Way Handshake & Why Two-Way Handshake Fails',
           points: [
-            '<b>Step 1 (SYN):</b> Client selects random Initial Sequence Number (ISN) x and transmits <code>SYN = 1, Seq = x</code>.',
-            '<b>Step 2 (SYN-ACK):</b> Server allocates buffers and responds with <code>SYN = 1, ACK = 1, Seq = y, Ack = x + 1</code>.',
-            '<b>Step 3 (ACK):</b> Client acknowledges server’s sequence number: <code>ACK = 1, Seq = x + 1, Ack = y + 1</code>. May carry user payload.'
+            '<b>Step 1 (Client SYN):</b> Client selects a random 32-bit Initial Sequence Number (ISN) <code>x</code> and sends <code>SYN = 1, ACK = 0, Seq = x</code>. Random ISN generation protects against cross-connection sequence hijacking.',
+            '<b>Step 2 (Server SYN-ACK):</b> Server allocates Transmission Control Block (TCB) buffers, chooses its own ISN <code>y</code>, and sends <code>SYN = 1, ACK = 1, Seq = y, Ack = x + 1</code>.',
+            '<b>Step 3 (Client ACK):</b> Client validates the server response and replies with <code>SYN = 0, ACK = 1, Seq = x + 1, Ack = y + 1</code>. This third segment may carry initial application data.',
+            '<b>Why a Two-Way Handshake is Fatal:</b> If only 2 messages were used, a delayed duplicate SYN from an old terminated session could arrive at the server. The server would believe a new connection was requested, allocate memory and send SYN-ACK, immediately entering ESTABLISHED state! The client, having never initiated the connection, ignores the SYN-ACK. The server remains permanently trapped in a half-open ghost connection, causing catastrophic server memory leaks.'
           ]
         },
         {
-          heading: '2. Four-Way Handshake & Why 2MSL TIME-WAIT is Mandatory',
+          heading: '2. Four-Way Teardown & Symmetric Half-Close',
           points: [
-            '<b>Four-Way Teardown:</b> Because TCP is full-duplex, each direction closes independently (FIN from client, ACK from server; then FIN from server, ACK from client).',
-            '<b>Why 2MSL TIME-WAIT (2 × Maximum Segment Lifetime ≈ 120s):</b><br>• <i>Reason 1: Reliable Final ACK Delivery:</i> If client’s final ACK is lost, server retransmits FIN. The client must stay alive in TIME-WAIT to re-send the ACK, preventing server from hanging in LAST_ACK.<br>• <i>Reason 2: Clearing Phantom Duplicate Segments:</i> Ensures all delayed duplicate segments from the old connection dissipate in the network before the same socket pair (IP:Port) can be reused.'
+            'Because TCP connections are full-duplex (two independent simplex streams), each direction must be terminated separately.',
+            'When the client application issues <code>close()</code>, it sends a <code>FIN</code> segment. The server acknowledges with <code>ACK</code>. At this stage, the client-to-server direction is closed, but the server may continue transmitting pending data to the client (Half-Close state).',
+            'Once the server finishes sending all remaining data, it sends its own <code>FIN</code> segment. The client sends the final <code>ACK</code>, entering <code>TIME_WAIT</code>.'
+          ]
+        },
+        {
+          heading: '3. Why the 2MSL TIME-WAIT State is Mandatory (Two Strict Proofs)',
+          points: [
+            '<b>Reason 1 — Graceful Recovery from Lost Final ACK:</b> If the client’s final ACK (Step 4) is lost in transit, the server will time out and retransmit its FIN (Step 3). If the client were in CLOSED state, it would respond with an error <code>RST</code> segment, causing the server to terminate abnormally with a connection reset error. By remaining in TIME_WAIT for <code>2MSL</code>, the client can retransmit the final ACK smoothly.',
+            '<b>Reason 2 — Draining Lingering Phantom Segments:</b> Packets can be delayed in Internet router queues for up to Maximum Segment Lifetime (<code>MSL ≈ 60–120s</code>). Waiting <code>2MSL</code> (120–240 seconds) guarantees that all obsolete duplicate segments from the old connection evaporate from the network before the same socket pair (IP:Port) can be legally reused by a new connection.'
           ]
         }
       ],
-      conclusion: 'TCP connection management guarantees synchronized sequence numbers before data transfer and prevents duplicate cross-connection data corruption via the 2MSL TIME-WAIT state.',
+      conclusion: 'TCP connection management balances synchronization robustness with leak protection: the 3-Way Handshake prevents half-open ghost connections, while the 2MSL TIME-WAIT state guarantees clean teardown and prevents stale packet corruption.',
       markingScheme: [
-        { component: 'Three-Way Handshake Sequence Number Flow', marks: '2.0' },
-        { component: 'Neat Handshake & Teardown Timing Diagrams', marks: '2.0' },
-        { component: 'Four-Way Teardown Half-Close Explanation', marks: '1.5' },
-        { component: 'Justification of 2MSL TIME-WAIT State (2 reasons)', marks: '1.5' }
+        { component: 'Three-Way Handshake Step-by-Step Flow & Sequence Numbers', marks: '1.5' },
+        { component: 'Neat Handshake & 4-Way Teardown Timing Diagrams', marks: '1.5' },
+        { component: 'TCP State Transition Matrix & Why 2-Way Handshake Fails', marks: '1.5' },
+        { component: 'Four-Way Teardown Half-Close Explanation', marks: '1.0' },
+        { component: 'Justification of 2MSL TIME-WAIT State (Both Proofs)', marks: '1.5' }
       ],
-      examTip: 'Draw separate labelled sequence diagrams for SYN → SYN-ACK → ACK setup and FIN/ACK teardown; state that TIME-WAIT lasts 2MSL so delayed duplicates expire and the final ACK can be retransmitted.'
+      examTip: 'Examiners award full marks when you draw both sequence ladders (setup & teardown) and state both reasons for 2MSL (retransmitting lost final ACK and letting delayed old duplicates expire).'
     }
   },
   {
@@ -350,41 +431,56 @@ Strictly Constant Output Stream                  | Output Gate  | ===> Burst Out
         }
       ],
       table: {
-        title: 'Comprehensive Comparison: TCP vs UDP',
+        title: 'Comprehensive Technical Comparison: TCP vs UDP',
         headers: ['Feature Parameter', 'Transmission Control Protocol (TCP)', 'User Datagram Protocol (UDP)'],
         rows: [
-          ['Connection Model', 'Connection-oriented (requires 3-way handshake)', 'Connectionless (no handshake, sends directly)'],
-          ['Delivery Reliability', 'Guaranteed (uses ACKs, retransmissions, timeouts)', 'Unreliable / Best-effort (packets can be lost/duplicated)'],
-          ['Byte Ordering', 'Strictly ordered byte stream (in-sequence delivery)', 'No sequencing; datagrams can arrive out of order'],
-          ['Header Overhead', '20 bytes base (up to 60 bytes with options)', 'Fixed 8 bytes only (minimal protocol tax)'],
-          ['Flow Control', 'Yes (Sliding Window based on receiver window rwnd)', 'No flow control mechanism'],
-          ['Congestion Control', 'Yes (Slow Start, Congestion Avoidance, Fast Recovery)', 'No built-in congestion control'],
-          ['Transmission Mode', 'Unicast only (point-to-point connection)', 'Supports Unicast, Multicast, and Broadcast'],
-          ['Data Framing Boundary', 'Stream-oriented (continuous byte stream, no boundaries)', 'Message-oriented (preserves application packet boundaries)'],
-          ['Speed & Latency', 'Higher latency due to handshakes and ACKs', 'Ultra-fast, lowest latency (ideal for real-time traffic)']
+          ['Connection Model', 'Connection-oriented (requires 3-way handshake before transfer)', 'Connectionless (no handshake; sends directly to destination socket)'],
+          ['Delivery Reliability', 'Guaranteed delivery (uses sequence numbers, ACKs, retransmission timers)', 'Unreliable / Best-effort (packets may be lost, duplicated, or dropped)'],
+          ['Byte Ordering', 'Strictly ordered byte stream (guarantees in-sequence delivery)', 'No sequencing; datagrams can arrive out of order without reordering'],
+          ['Header Overhead', '20 bytes base (up to 60 bytes with optional fields)', 'Fixed 8 bytes only (minimal protocol tax and low serialization delay)'],
+          ['Flow Control', 'Yes (Dynamic Sliding Window based on receiver window rwnd)', 'No flow control mechanism (receiver buffer can be overrun)'],
+          ['Congestion Control', 'Yes (Slow Start, Congestion Avoidance AIMD, Fast Recovery cwnd)', 'No built-in congestion control (injects traffic at application rate)'],
+          ['Transmission Mode', 'Unicast only (strict point-to-point connection)', 'Supports Unicast, Multicast, and Broadcast'],
+          ['Data Framing Boundary', 'Stream-oriented (continuous byte stream without message delimiters)', 'Message-oriented (preserves exact application packet boundaries)'],
+          ['Speed & Latency', 'Higher latency due to handshakes, ACKs, and retransmissions', 'Ultra-fast, lowest possible latency (ideal for real-time traffic)']
         ]
       },
       sections: [
         {
-          heading: '1. Engineering Trade-offs & Application Mapping',
+          heading: '1. Architectural Deep Dive: How TCP Establishes Reliability Over Unreliable IP',
           points: [
-            '<b>When to use TCP:</b> When absolute data integrity is required and losing a single byte would corrupt the transaction (e.g., HTTP/HTTPS web browsing, FTP file transfer, SSH remote terminals, SMTP/IMAP email, database transactions).',
-            '<b>When to use UDP:</b> When speed, timely delivery, and low overhead outweigh packet loss tolerance (e.g., DNS name queries, VoIP audio calls, live video streaming, DHCP address configuration, SNMP network telemetry, online gaming).'
+            '<b>Byte-Stream Sequencing:</b> TCP treats application data as an unstructured stream of bytes, numbering each individual byte with a 32-bit sequence number. This allows the receiver to detect duplicate segments, reorder packets arriving via different routes, and detect missing gaps.',
+            '<b>Cumulative Acknowledgments & RTO:</b> The receiver issues cumulative ACKs acknowledging the next byte expected. The sender dynamically tracks Round Trip Time (RTT) using Jacobson’s algorithm to calculate the Retransmission Timeout (<code>RTO = SRTT + 4 × RTTVAR</code>). If an ACK is not received before RTO expires, the segment is automatically retransmitted.',
+            '<b>Dual Window Rate Regulation:</b> Transmission rate is strictly bounded by <code>Effective_Window = min(rwnd, cwnd)</code>. The receive window (<code>rwnd</code>) prevents buffer overflow at the receiver host (Flow Control), while the congestion window (<code>cwnd</code>) prevents bottleneck router queue collapse inside the network fabric (Congestion Control).'
+          ]
+        },
+        {
+          heading: '2. Architectural Deep Dive: Why UDP Excels at Low-Latency Real-Time Transport',
+          points: [
+            '<b>Minimalist Header Design:</b> UDP requires only 4 fields (16-bit Source Port, 16-bit Destination Port, 16-bit Length, and 16-bit Checksum), totaling just 8 bytes compared to TCP’s 20–60 bytes. This reduces header processing overhead and serialization delay on bandwidth-constrained links.',
+            '<b>Preservation of Message Boundaries:</b> Unlike TCP which merges or segments application writes into arbitrary chunks, UDP sends each application block as an independent, discrete datagram. A single <code>read()</code> at the receiver retrieves exactly one <code>write()</code> from the sender.',
+            '<b>Checksum Over Pseudo-Header:</b> UDP calculates a 16-bit One’s Complement checksum over the UDP segment prepended with a 12-byte IP Pseudo-Header (Source IP, Dest IP, protocol=17, UDP length), verifying that misrouted packets are detected and discarded.'
+          ]
+        },
+        {
+          heading: '3. Engineering Decision Matrix & Real-World Application Mapping',
+          points: [
+            '<b>When to choose TCP:</b> Mission-critical applications where losing even a single byte would corrupt data integrity (e.g., HTTP/HTTPS web documents, FTP binary file downloads, SSH remote administration, SMTP/IMAP email transmission, financial database transactions).',
+            '<b>When to choose UDP:</b> Latency-sensitive applications where timeliness is vastly more important than 100% packet delivery (e.g., VoIP voice calls where retransmitting audio after 200ms is jarring, live video streaming, multiplayer gaming, DNS hostname resolution, DHCP network boot).'
           ]
         }
       ],
-      conclusion: 'TCP prioritizes absolute reliability, flow control, and data ordering at the expense of higher latency, whereas UDP prioritizes minimal delay and low protocol overhead for real-time and query-based network applications.',
+      conclusion: 'TCP prioritizes absolute reliability, guaranteed ordering, and network stability at the cost of connection latency and transmission jitter, whereas UDP delivers lightweight, lowest-latency transport for real-time and query-based network applications.',
       markingScheme: [
         { component: 'Architectural Overview & Connection Philosophy', marks: '1.0' },
-        { component: 'Neat Labelled Header Format Diagrams (TCP & UDP)', marks: '2.0' },
-        { component: 'Comparison Table (≥7 parameters)', marks: '2.0' },
-        { component: 'Flow Control & Congestion Control Comparison', marks: '1.0' },
-        { component: 'Application Protocol Mapping & Use Cases', marks: '1.0' }
+        { component: 'Neat Labelled Header Format Diagrams (TCP 20-60B & UDP 8B)', marks: '2.0' },
+        { component: 'Comprehensive 9-Parameter Comparison Table', marks: '2.0' },
+        { component: 'TCP Reliability Architecture (Sequencing, RTO, Dual Windows)', marks: '1.0' },
+        { component: 'UDP Lightweight Mechanics & Application Decision Matrix', marks: '1.0' }
       ],
       examTip: 'Examiners award top marks for drawing the 8-byte UDP header precisely (Port, Port, Length, Checksum) and explaining why real-time voice (VoIP) prefers UDP over TCP (retransmitting old audio packets is useless in live talk).'
     }
-  }
-,
+  },
   {
     id: 'cn-q56',
     num: 56,
@@ -669,59 +765,164 @@ export const unit5Solutions = [
   {
     id: 'cn-original-2025-100602-q4a',
     verified: 'BEU 2025 · Q.4(a) · 7 Marks · Cross-checked scan',
-    intro: 'TCP establishes a reliable, full-duplex connection using a three-way handshake that synchronizes initial sequence numbers and confirms both endpoints can send and receive.',
+    intro: 'Transmission Control Protocol (TCP, RFC 793) is a connection-oriented transport layer protocol that provides reliable, in-sequence, full-duplex byte-stream delivery. Before any application data can be exchanged, TCP must establish an end-to-end logical association between sender and receiver sockets using a Three-Way Handshake. This mechanism synchronizes Initial Sequence Numbers (ISNs), allocates receive buffers, and guarantees that delayed duplicate connection requests cannot corrupt active sessions.',
+    diagrams: [
+      {
+        title: 'TCP Three-Way Handshake Timing Ladder with Sequence Numbers & State Transitions',
+        ascii:
+`TCP CLIENT (Active Open)                                 TCP SERVER (Passive Open)
+Socket: 192.168.1.10:52000                               Socket: 203.0.113.80:80
+[State: CLOSED]                                          [State: LISTEN]
+      |                                                        |
+      |==== 1. SYN Segment (Seq = x, ACK = 0, CTL = SYN) =====>| [State: SYN_RCVD]
+      |     (Client selects random ISN x; allocates buffers)   | (Server allocates buffers
+[State: SYN_SENT]                                              |  and transmission control block)
+      |                                                        |
+      |<=== 2. SYN + ACK (Seq = y, Ack = x + 1, CTL = SYN,ACK)=|
+      |     (Server selects ISN y; acknowledges client x)      |
+      |                                                        |
+[State: ESTABLISHED]                                           |
+      |                                                        |
+      |==== 3. ACK Segment (Seq = x + 1, Ack = y + 1, CTL=ACK)=|====> [State: ESTABLISHED]
+      |     (Client acknowledges server ISN y; may carry data) |
+      v                                                        v
+      |================ FULL-DUPLEX DATA TRANSFER OPEN ========|
+      |---> PSH/ACK Data Segment (Seq = x + 1, Ack = y + 1) -->|
+      |<--- ACK Segment (Seq = y + 1, Ack = x + 1 + length) ---|`
+      },
+      {
+        title: 'Why a Two-Way Handshake Fails: The Delayed Duplicate SYN Hazard',
+        ascii:
+`CLIENT                                                     SERVER
+  |                                                          |
+  |--- Old Delayed SYN (Seq = x) from dead connection ------>| Server accepts!
+  |<-- SYN-ACK (Seq = y, Ack = x + 1) -----------------------| Server enters ESTABLISHED!
+  |                                                          | (Server allocates buffers,
+  |??? Client receives unexpected SYN-ACK for unknown conn   |  wasting RAM and state)
+  |--- RST (Reset) Segment --------------------------------->| Connection aborted!
+With only a 2-way handshake, the server would remain locked in a half-open state indefinitely!`
+      }
+    ],
+    table: {
+      title: 'TCP Connection State Transition Matrix (Client vs Server)',
+      headers: ['TCP State', 'Participating Host', 'Triggering Event / API Call', 'Transmitted Segment', 'Next State'],
+      rows: [
+        ['CLOSED', 'Server', 'Passive Open: listen() system call', 'None', 'LISTEN'],
+        ['CLOSED', 'Client', 'Active Open: connect() system call', 'SYN (Seq = x)', 'SYN_SENT'],
+        ['LISTEN', 'Server', 'Receives SYN from Client', 'SYN + ACK (Seq = y, Ack = x + 1)', 'SYN_RCVD'],
+        ['SYN_SENT', 'Client', 'Receives SYN + ACK from Server', 'ACK (Seq = x + 1, Ack = y + 1)', 'ESTABLISHED'],
+        ['SYN_RCVD', 'Server', 'Receives ACK from Client', 'None (Connection Ready)', 'ESTABLISHED'],
+        ['ESTABLISHED', 'Both', 'Bidirectional full-duplex data stream', 'Data segments (PSH, ACK)', 'ESTABLISHED']
+      ]
+    },
     sections: [
-      {heading: '1. Three-way handshake', points: [
-        '<b>Step 1 — SYN:</b> The client sends a SYN segment with initial sequence number <code>x</code> and enters SYN-SENT.',
-        '<b>Step 2 — SYN + ACK:</b> The server replies with SYN and ACK, its initial sequence number <code>y</code>, and acknowledgement <code>x+1</code>. It enters SYN-RECEIVED.',
-        '<b>Step 3 — ACK:</b> The client sends acknowledgement <code>y+1</code>. Both sides have now acknowledged the peer’s SYN; the connection can carry data.',
-      ]},
-      {heading: '2. Why three messages are needed', points: [
-        'Each SYN consumes one sequence number. The final ACK confirms that the client received the server’s sequence number and response, while the server has already confirmed receipt of the client’s SYN.',
-        'The handshake establishes connection state and initial sequence-number synchronization; it does not itself guarantee that the application has accepted or processed data.',
-      ]},
+      {
+        heading: '1. Step-by-Step Three-Way Handshake Procedure',
+        points: [
+          '<b>Step 1 — SYN (Client to Server):</b><br>• The client process executes <code>connect()</code>, sending a TCP segment with the control bit <code>SYN = 1</code> and <code>ACK = 0</code>.<br>• Client picks a pseudo-random 32-bit Initial Sequence Number (ISN) <code>x</code> (clock-driven to avoid collisions with old sessions).<br>• SYN consumes exactly one sequence number. Client transitions from <code>CLOSED</code> to <code>SYN_SENT</code>.',
+          '<b>Step 2 — SYN + ACK (Server to Client):</b><br>• The server, operating in <code>LISTEN</code> mode, receives the SYN segment, allocates a Transmission Control Block (TCB) and socket buffers, and enters <code>SYN_RCVD</code>.<br>• Server responds with both <code>SYN = 1</code> and <code>ACK = 1</code>.<br>• It declares its own independent ISN <code>y</code> and acknowledges client sequence number: <code>Acknowledgment Number = x + 1</code>.',
+          '<b>Step 3 — ACK (Client to Server):</b><br>• The client receives the SYN+ACK, transitions into <code>ESTABLISHED</code> state, and sends the final confirmation segment with <code>ACK = 1, SYN = 0</code>.<br>• Sequence number is <code>x + 1</code>, and <code>Acknowledgment Number = y + 1</code>.<br>• This segment may piggyback the first byte of application data. Upon receipt, the server enters <code>ESTABLISHED</code>. Both endpoints are now synchronized and ready for full-duplex data exchange.'
+        ]
+      },
+      {
+        heading: '2. Why Three Messages Are Mathematically Necessary',
+        points: [
+          '<b>1. Independent Sequence Number Synchronization:</b> TCP is full-duplex (two independent simplex streams). Each direction requires one message to announce its sequence number and one message to confirm receipt. By piggybacking the server’s acknowledgment with its own SYN (Step 2), four steps are optimized into three.',
+          '<b>2. Preventing Half-Open Connections (Delayed Duplicate SYN):</b> Suppose an old SYN segment was delayed in intermediate routers and arrives at the server after the client has closed the old session. Under a two-way handshake, the server would open a connection and allocate resources. In a three-way handshake, the client receives an unexpected SYN+ACK, notices an obsolete acknowledgment number, and replies with a <code>RST</code> (Reset) segment, protecting the server from memory exhaustion.'
+        ]
+      }
     ],
-    diagrams: [{
-      title: 'TCP Three-way Connection Establishment',
-      ascii: 'Client                                      Server\n  | ---- SYN, seq=x --------------------------> |\n  | <--- SYN+ACK, seq=y, ack=x+1 ------------- |\n  | ---- ACK, ack=y+1 ------------------------> |\n  |         Connection established             |',
-    }],
-    conclusion: 'TCP establishes a connection through SYN, SYN+ACK, and ACK, synchronizing the initial sequence numbers in both directions.',
+    conclusion: 'The TCP Three-Way Handshake guarantees mutual synchronization of sequence numbers and protects both endpoints against phantom duplicate requests, providing a solid foundation for reliable, full-duplex Internet communications.',
     markingScheme: [
-      {component: 'Purpose of connection establishment', marks: '1'},
-      {component: 'Client SYN and sequence number', marks: '1'},
-      {component: 'Server SYN+ACK and acknowledgement', marks: '2'},
-      {component: 'Final ACK and connection states', marks: '1.5'},
-      {component: 'Sequence-number synchronization and conclusion', marks: '1.5'},
+      { component: 'Purpose of Connection Establishment & Full-Duplex Synchronization', marks: '1.5' },
+      { component: 'Complete Labelled Three-Way Handshake Timing Ladder & State Diagram', marks: '2.0' },
+      { component: 'Detailed Step-by-Step Message Analysis (SYN, SYN-ACK, ACK Arithmetic)', marks: '1.5' },
+      { component: 'Mathematical Proof: Why a Two-Way Handshake Fails (Delayed Duplicate SYN)', marks: '1.0' },
+      { component: 'TCP Connection State Transition Table & Conclusion', marks: '1.0' }
     ],
-    examTip: 'Write the acknowledgement values explicitly: the server acknowledges <code>x+1</code> and the client acknowledges <code>y+1</code>.',
+    examTip: 'Examiners check for explicit acknowledgment numbers: Step 2 must show Ack = x + 1, and Step 3 must show Ack = y + 1. Always state that SYN consumes 1 sequence number even though it carries 0 bytes of payload.'
   },
   {
     id: 'cn-original-2025-100602-q5b',
     verified: 'BEU 2025 · Q.5(b) · 7 Marks · Cross-checked scan',
-    intro: 'The Leaky Bucket algorithm shapes or rate-limits traffic by releasing queued packets at a controlled, approximately constant rate.',
-    diagrams: [{
-      title: 'Leaky Bucket Traffic Shaping',
-      ascii: 'Bursty input packets\n        ↓\n  +-------------+       fixed-rate output\n  | finite queue| -----------------------> network\n  +-------------+\n        ↓\n packets arriving when the queue is full are discarded',
-    }],
+    intro: 'Traffic shaping is a proactive congestion-management mechanism operating at the Transport and Network layers that regulates the rate and volume of traffic transmitted into a network. The Leaky Bucket algorithm, proposed by Jonathan Turner in 1986, is the classical traffic shaping and rate-limiting algorithm that converts bursty, unpredictable packet arrivals into a smooth, strictly constant-rate output stream.',
+    diagrams: [
+      {
+        title: 'Leaky Bucket Traffic Shaping Architecture & Finite Buffer Mechanics',
+        ascii:
+`            BURSTY PACKET ARRIVALS (Unpredictable peaks)
+                         |
+                         |  (Variable rate: e.g., 10 Mbps burst)
+                         v
+            +-------------------------+
+            |      LEAKY BUCKET       |
+            |     (Finite Queue C)    |  <--- If buffer overflows (Queue > C),
+            | ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ |       excess incoming packets are DROPPED!
+            | Buffered Packet Packets |
+            +-------------------------+
+                         |
+                         | Water leaks through hole at strictly CONSTANT rate
+                         v
+            [ REGULATED OUTPUT STREAM ] ====> Transmitted to network at
+            (Smoothed, uniform rate: r)       constant rate (e.g., 2 Mbps)`
+      },
+      {
+        title: 'Traffic Waveform: Bursty Inflow vs Constant Leaky Bucket Outflow',
+        ascii:
+`Traffic Rate (Mbps)
+10 |      +---+               +---+
+ 8 |      |   | (Burst)       |   | (Burst)
+ 6 |      |   |               |   |
+ 4 |      |   |               |   |
+ 2 |------+---+---------------+---+------------------> Time
+   |
+   |==== TRANSFORMS THROUGH LEAKY BUCKET TO: ====>
+   |
+ 2 |-------------------------------------------------> Time (Constant Rate r = 2 Mbps)`
+      }
+    ],
+    table: {
+      title: 'Comprehensive Engineering Comparison: Leaky Bucket vs Token Bucket',
+      headers: ['Evaluation Parameter', 'Leaky Bucket Algorithm', 'Token Bucket Algorithm'],
+      rows: [
+        ['Primary Objective', 'Traffic smoothing (eliminates all bursts)', 'Traffic shaping & policing (allows bounded bursts)'],
+        ['Output Transmission Rate', 'Strictly uniform, constant rate (no bursts allowed)', 'Average rate r, but allows short bursts at peak line speed M'],
+        ['Bucket Contents', 'Holds actual data packets in a FIFO buffer queue', 'Holds virtual tokens (permissions) generated at rate r'],
+        ['Action on Idle Link', 'Idle capacity is lost; cannot save transmission credits', 'Accumulates tokens up to maximum bucket capacity b'],
+        ['Packet Discard Condition', 'Packets are discarded when packet queue C overflows', 'Tokens are discarded when token bucket b overflows (packets wait)'],
+        ['Hardware Implementation', 'Single FIFO queue drained by a timer interrupt', 'Token generator counter and packet transmission gate'],
+        ['Application Suitability', 'ATM networks, fixed-rate audio/video streaming', 'Burst-tolerant IP networks, cloud API rate limiting']
+      ]
+    },
     sections: [
-      {heading: '1. Operation', points: [
-        'Incoming packets enter a finite buffer (the bucket). The scheduler transmits queued packets at a configured rate, smoothing bursts into a steadier output stream.',
-        'If packets arrive faster than the service rate for long enough to fill the buffer, additional packets are dropped or marked according to the implementation. A packet-based bucket drains by transmitting packets; a byte-based bucket can enforce a bit rate.',
-      ]},
-      {heading: '2. Traffic shaping and rate limiting', points: [
-        'For shaping, the queue delays excess packets until capacity is available, subject to buffer size and delay limits. For policing, an implementation may discard or remark traffic that exceeds the configured rate instead of buffering it.',
-        'The algorithm bounds output burstiness and protects downstream links, but it may increase delay and lose packets when the queue is full. Unlike a token bucket, a strict leaky-bucket shaper does not preserve idle capacity as a large future burst allowance.',
-      ]},
+      {
+        heading: '1. Operational Principles of the Leaky Bucket',
+        points: [
+          '<b>The Physical Metaphor:</b> Imagine a water bucket with a small hole drilled at the bottom. Water can be poured in bursts, but it leaks out at a constant, steady rate. If water is poured in faster than it leaks and the bucket fills to its brim (capacity <code>C</code>), overflow water spills over the edge and is lost.',
+          '<b>Data Network Implementation:</b><br>• The bucket is implemented as a finite First-In First-Out (FIFO) queue of capacity <code>C</code> bytes (or packets).<br>• Irregular, bursty packet streams from the host are enqueued into the FIFO buffer.<br>• At fixed periodic clock ticks, the queue interface transmits packets at a strictly regulated constant rate <code>r</code> bytes/second.<br>• <b>Buffer Overflow Handling:</b> If the buffer is completely full when a new packet arrives, the packet is immediately dropped (packet loss). This enforces strict adherence to Service Level Agreements (SLAs).'
+        ]
+      },
+      {
+        heading: '2. Worked Numerical Example of Traffic Shaping',
+        points: [
+          '<b>Given Parameters:</b> Bucket capacity <code>C = 12 MB</code>, Constant leak output rate <code>r = 2 MB/s</code>. The network experiences an initial burst of data arriving at <code>10 MB/s</code> for <code>2 seconds</code>.',
+          '<b>Step 1 — Total Arrived Data in 2 seconds:</b><br><code>Data_in = 10 MB/s × 2 s = 20 MB</code>.',
+          '<b>Step 2 — Data Discharged During Burst:</b><br><code>Data_out = 2 MB/s × 2 s = 4 MB</code>.',
+          '<b>Step 3 — Net Data Accumulated in Buffer:</b><br><code>Accumulated = Data_in - Data_out = 20 MB - 4 MB = 16 MB</code>.',
+          '<b>Step 4 — Packet Drop & Buffer Status:</b><br>Since bucket capacity is <code>C = 12 MB</code>, excess data is dropped: <br><code>Dropped Data = 16 MB - 12 MB = 4 MB</code>.<br>The bucket is now completely full (12 MB).',
+          '<b>Step 5 — Time to Empty Remaining Buffer:</b><br><code>T_empty = 12 MB / 2 MB/s = 6 seconds</code>.<br>Total transmission time = <code>2 s (during burst) + 6 s (draining) = 8 seconds</code>.'
+        ]
+      }
     ],
-    conclusion: 'A finite queue and fixed drain rate smooth traffic and enforce a rate; excess traffic waits when shaping is possible and is discarded or marked when the bucket is full.',
+    conclusion: 'The Leaky Bucket algorithm provides deterministic rate limiting and traffic smoothing by forcing bursty network traffic into a constant-rate stream, protecting downstream routers from buffer bloat and congestion collapse.',
     markingScheme: [
-      {component: 'Definition and purpose', marks: '1'},
-      {component: 'Finite bucket/queue and fixed output rate', marks: '2'},
-      {component: 'Traffic-shaping behavior', marks: '1.5'},
-      {component: 'Rate-limiting/policing and overflow behavior', marks: '1.5'},
-      {component: 'Benefits, delay/loss limitation, conclusion', marks: '1'},
+      { component: 'Traffic Shaping Definition & Leaky Bucket Metaphor', marks: '1.5' },
+      { component: 'Neat Architectural Diagrams (Bucket Structure & Waveform Smoothing)', marks: '2.0' },
+      { component: 'Rate-Limiting & Traffic Policing Mechanisms (Buffer vs Drop)', marks: '1.5' },
+      { component: 'Worked Numerical Example with Step-by-Step Drop Calculations', marks: '1.0' },
+      { component: 'Leaky Bucket vs Token Bucket Comparison Table & Conclusion', marks: '1.0' }
     ],
-    examTip: 'State both the fixed drain rate and what happens when the finite bucket is full.',
+    examTip: 'Include the numerical example showing arrived data, transmitted data, accumulated buffer, and dropped bytes. This demonstrates practical mastery of traffic shaping to university examiners.'
   },
 ];
 export const unit5SupplementalSolutions = unit5Entries

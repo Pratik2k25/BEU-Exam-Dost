@@ -10,57 +10,91 @@ const unit3Entries = [
     question: 'Explain Sliding Window protocol using Go-Back-N.',
     solution: {
       verified: 'BEU 2024 · Q.3(a) · 7 Marks',
-      intro: 'Go-Back-N (GBN) ARQ is a sliding window protocol that enables pipelined transmission of multiple data frames before requiring an acknowledgment (ACK), significantly improving channel utilization over Stop-and-Wait.',
+      intro: 'Go-Back-N (GBN) ARQ is a sliding window protocol that enables pipelined transmission of multiple data frames before requiring an acknowledgment (ACK). By utilizing channel bandwidth during propagation delay, it overcomes the severe idle-time inefficiency of Stop-and-Wait.',
       diagrams: [
         {
-          title: 'Go-Back-N Sliding Window Mechanism & Retransmission Ladder',
+          title: 'Go-Back-N Sliding Window Retransmission Ladder (Lost Frame & Timeout)',
           ascii:
-`[ SENDER WINDOW: Size Ws = 2^m - 1 = 3 (m = 2 bits) ]
-[ 0  1  2 ] 3  0  1  2 ...   (Frames 0, 1, 2 sent)
+`[ SENDER SLIDING WINDOW: Capacity Ws = 2^m - 1 = 3 (m = 2 bits) ]
+Frames in flight: [ 0  1  2 ]  Next to send: 3
 
-SENDER                                           RECEIVER
-  |                                                 |
-  |--- Frame 0 ------------------------------------>| Accepted, ACK 1 sent
-  |--- Frame 1 (LOST IN TRANSIT X)                  | (Discarded)
-  |--- Frame 2 ------------------------------------>| Out-of-order! Discarded
-  |--- Frame 3 ------------------------------------>| Out-of-order! Discarded
-  |                                                 |
-  |<-- ACK 1 ---------------------------------------| (Slide window by 1)
-  | [TIMER FOR FRAME 1 EXPIRES!]                    |
-  |                                                 |
-  |=== GO BACK TO N: Retransmit ALL from 1 ===      |
-  |--- Frame 1 ------------------------------------>| Accepted, ACK 2 sent
-  |--- Frame 2 ------------------------------------>| Accepted, ACK 3 sent
-  |--- Frame 3 ------------------------------------>| Accepted, ACK 0 sent
-  v                                                 v`
+SENDER                                                RECEIVER (Wr = 1)
+  |                                                      |
+  |--- Frame 0 ----------------------------------------->| Accepted; sends ACK 1
+  |--- Frame 1 (LOST IN TRANSIT X)                       | (Never arrives!)
+  |--- Frame 2 ----------------------------------------->| Out of order! Discarded
+  |--- Frame 3 ----------------------------------------->| Out of order! Discarded
+  |                                                      |
+  |<-- Cumulative ACK 1 ---------------------------------| Slides window: [ 1  2  3 ]
+  |                                                      |
+  | [TIMER FOR FRAME 1 EXPIRES!]                         |
+  |                                                      |
+  |=== GO BACK TO N: Retransmit ALL Unacked from 1 ===   |
+  |--- Frame 1 (Retransmitted) ------------------------->| Accepted; sends ACK 2
+  |--- Frame 2 (Retransmitted) ------------------------->| Accepted; sends ACK 3
+  |--- Frame 3 (Retransmitted) ------------------------->| Accepted; sends ACK 0
+  v                                                      v`
+        },
+        {
+          title: 'Mathematical Proof: Sequence Ambiguity if Ws = 2^m',
+          ascii:
+`SCENARIO SHOWING WHY SENDER WINDOW Ws MUST BE STRICTLY <= 2^m - 1:
+Assume m = 2 bits (Sequences: 0, 1, 2, 3). Suppose Ws = 2^m = 4 (Incorrect!).
+
+SENDER (Window 0,1,2,3)                               RECEIVER (Expects 0)
+  |--- Frames 0, 1, 2, 3 sent -------------------------->| Receives 0,1,2,3 in order
+  |                                                      | Window slides to NEW 0,1,2,3
+  |<-- Cumulative ACK 0 (LOST IN NETWORK X) -------------|
+  |                                                      |
+  | [Timer expires for Frame 0; Sender Retransmits 0]    |
+  |--- Frame 0 (OLD Retransmitted Frame) --------------->| Receives Frame 0!
+  |                                                      | ERROR: Receiver thinks this
+  |                                                      | is NEW Frame 0 of window 2!
+  v                                                      v Accepts duplicate as new!
+CONCLUSION: Restricting Ws <= 2^m - 1 prevents overlapping sequence ambiguity.`
         }
       ],
       sections: [
         {
-          heading: '1. Window Sizes and Mathematical Constraint',
+          heading: '1. Sliding Window Pointers & Mathematical Constraints',
           points: [
-            '<b>Sender Window Size (Ws):</b> For an m-bit sequence number, <code>Ws ≤ 2ᵐ - 1</code>.',
-            '<b>Receiver Window Size (Wr):</b> Strictly <code>Wr = 1</code> (accepts only the next expected in-order frame).',
-            '<b>Why Ws Cannot Be 2ᵐ:</b> If <code>Ws = 2ᵐ</code>, a lost cumulative ACK makes it impossible for the receiver to distinguish between retransmitted duplicate frames and a brand-new window of frames (Sequence Number Ambiguity).'
+            '<b>Sender Pointers:</b> The sender maintains three tracking boundaries: <code>Sf</code> (sequence number of first unacknowledged frame), <code>Sn</code> (sequence number of next frame to be sent), and window capacity <code>Ws</code>.',
+            '<b>Window Sizing Rule:</b> For an <code>m</code>-bit sequence number space, the sender window size must satisfy <code>Ws ≤ 2ᵐ - 1</code>. The receiver window size is fixed at <code>Wr = 1</code>.',
+            '<b>Receiver Window (Wr = 1):</b> The receiver maintains only one pointer <code>Rn</code> (expected sequence number). It accepts only the frame where <code>Seq == Rn</code>. Any out-of-order frame is silently discarded, eliminating the need for receiver buffering.'
           ]
         },
         {
-          heading: '2. Operational Dynamics & Channel Efficiency',
+          heading: '2. Operational Dynamics, Retransmissions & Channel Efficiency',
           points: [
-            '<b>Cumulative ACK:</b> <code>ACK n</code> acknowledges all frames up to <code>n - 1</code>. If an intermediate frame is lost, receiver discards all subsequent frames.',
-            '<b>Single Retransmission Timer:</b> Sender maintains a timer for the oldest unacknowledged frame. On timeout, sender "goes back" and retransmits all unacknowledged frames in the current window.',
-            '<b>Channel Efficiency (η):</b> <code>η = Ws / (1 + 2a)</code>, where <code>a = Tp / Tt</code> (propagation time / transmission time).'
+            '<b>Cumulative Acknowledgment:</b> The receiver sends cumulative ACKs where <code>ACK n</code> validates that all frames through <code>n - 1</code> have been received successfully, and that the receiver now expects frame <code>n</code>.',
+            '<b>Single Retransmission Timer:</b> The sender maintains a single hardware or logical timer associated only with the oldest unacknowledged frame (<code>Sf</code>). When this timer expires, the sender assumes all in-flight frames were lost and retransmits the entire window starting from <code>Sf</code> up to <code>Sn - 1</code> (hence the name Go-Back-N).',
+            '<b>Channel Efficiency (η):</b> Let <code>Tt</code> be transmission time and <code>Tp</code> be one-way propagation time. Define <code>a = Tp / Tt</code>. Maximum theoretical efficiency is: <br><code>η = Ws / (1 + 2a)</code> (bounded by 100% when <code>Ws ≥ 1 + 2a</code>).'
           ]
         }
       ],
-      conclusion: 'Go-Back-N drastically improves channel utilization over noisy high-bandwidth links compared to Stop-and-Wait, but wastes link bandwidth during high error rates due to bulk retransmissions.',
+      table: {
+        title: 'Comparative Analysis: Stop-and-Wait vs Go-Back-N vs Selective Repeat',
+        headers: ['Evaluation Parameter', 'Stop-and-Wait ARQ', 'Go-Back-N (GBN) ARQ', 'Selective Repeat (SR) ARQ'],
+        rows: [
+          ['Sender Window Size (Ws)', '1', '2ᵐ - 1', '2ᵐ⁻¹'],
+          ['Receiver Window Size (Wr)', '1', '1', '2ᵐ⁻¹ (Equal to Ws)'],
+          ['Acknowledgment Type', 'Individual ACK per frame', 'Cumulative ACK (ACK n confirms up to n-1)', 'Individual / Selective ACK (SACK)'],
+          ['Receiver Buffer Requirement', '1 buffer (Current frame only)', '1 buffer (Discards out-of-order frames)', 'Ws buffers (Stores out-of-order frames)'],
+          ['Retransmission Behavior', 'Retransmits only the single timed-out frame', 'Retransmits ALL unacknowledged frames in window', 'Retransmits ONLY the damaged or lost frame'],
+          ['Timer Architecture', 'Single timer', 'Single timer (for oldest unacked frame)', 'Independent timer per transmitted frame'],
+          ['Channel Efficiency (η)', '1 / (1 + 2a)', 'Ws / (1 + 2a)', 'Ws / (1 + 2a)'],
+          ['Complexity & Cost', 'Simplest; minimum memory', 'Moderate; efficient sender, simple receiver', 'Highest; complex buffer tracking and logic']
+        ]
+      },
+      conclusion: 'Go-Back-N provides high channel utilization over long-delay links with minimal receiver buffer memory, making it an excellent balance between implementation simplicity and transmission throughput.',
       markingScheme: [
-        { component: 'Go-Back-N Principle & Window Constraints (Ws = 2ᵐ - 1, Wr = 1)', marks: '2.0' },
-        { component: 'Sequence Number Ambiguity Proof', marks: '1.5' },
-        { component: 'Neat Timing Ladder Diagram with Frame Loss & Recovery', marks: '2.0' },
-        { component: 'Channel Efficiency Equation & Performance Analysis', marks: '1.5' }
+        { component: 'Go-Back-N Principle & Window Constraints (Ws = 2ᵐ - 1, Wr = 1)', marks: '1.5' },
+        { component: 'Sequence Number Ambiguity Proof with Diagram', marks: '1.5' },
+        { component: 'Neat Timing Ladder Diagram with Frame Loss & Go-Back Recovery', marks: '1.5' },
+        { component: 'Channel Efficiency Equation & Performance Analysis', marks: '1.0' },
+        { component: 'Comprehensive 8-Parameter Comparison Table (S&W vs GBN vs SR)', marks: '1.5' }
       ],
-      examTip: 'Examiners always look for the proof of why Ws = 2ᵐ - 1 (not 2ᵐ). Show the scenario where ACK is lost and the receiver cannot distinguish new frame 0 from old frame 0.'
+      examTip: 'Examiners always look for the mathematical proof of why Ws = 2ᵐ - 1 (not 2ᵐ). Show the scenario where ACK is lost and the receiver cannot distinguish new frame 0 from old frame 0.'
     }
   },
   {
@@ -229,31 +263,46 @@ Slot boundary                  Slot boundary                  Slot boundary
 Initial Delay = Average (Tfr / 2) + Tfr = 1.5 * Tfr!`
         }
       ],
+      table: {
+        title: 'Technical Comparison: Pure ALOHA vs Slotted ALOHA',
+        headers: ['Evaluation Parameter', 'Pure ALOHA', 'Slotted ALOHA'],
+        rows: [
+          ['Time Synchronization', 'Continuous; no global clock synchronization required', 'Discrete; channel divided into synchronized time slots of duration Tfr'],
+          ['Transmission Rule', 'Station transmits immediately whenever a frame is ready', 'Station must wait and transmit strictly at the beginning of the next slot'],
+          ['Vulnerable Period', '2 × Tfr ([-Tfr, +Tfr] around transmission start)', '1 × Tfr (Only during the current time slot)'],
+          ['Throughput Formula', 'S = G × e^(-2G)', 'S = G × e^(-G)'],
+          ['Maximum Channel Throughput (S_max)', '1 / (2e) ≈ 18.4% (at offered load G = 0.5)', '1 / e ≈ 36.8% (at offered load G = 1.0)'],
+          ['Transmission Delay at Low Load (G → 0)', 'Tfr (Lowest possible delay; immediate transmission)', '1.5 × Tfr (Includes average slot alignment wait of Tfr / 2)'],
+          ['Implementation Complexity', 'Extremely simple; uncoordinated random access', 'Requires global master clock / synchronization overhead']
+        ]
+      },
       sections: [
         {
-          heading: '1. Mathematical Throughput Equations',
+          heading: '1. Mathematical Throughput Equations & Derivation',
           points: [
-            '<b>Pure ALOHA:</b> Vulnerable period = <code>2 × Tfr</code>. Throughput: <code>S = G × e⁻²ᴳ</code>. Maximum throughput = <code>18.4%</code> at G = 0.5.',
-            '<b>Slotted ALOHA:</b> Vulnerable period = <code>1 × Tfr</code>. Throughput: <code>S = G × e⁻ᴳ</code>. Maximum throughput = <code>36.8%</code> at G = 1.0.'
+            '<b>Pure ALOHA Vulnerable Period:</b> If station A starts transmitting at time <code>t0</code>, any other frame transmitted in the interval <code>[t0 - Tfr, t0 + Tfr]</code> will collide with A. Total vulnerable window = <code>2 × Tfr</code>.',
+            '<b>Pure ALOHA Throughput (S):</b> Assuming Poisson arrival of frames with offered load <code>G</code> frames per transmission time: <code>S = G × e⁻²ᴳ</code>. Differentiating with respect to G: <code>dS/dG = e⁻²ᴳ(1 - 2G) = 0 ⇒ G = 0.5</code>. Maximum throughput = <code>S_max = 0.5 × e⁻¹ = 1/(2e) ≈ 18.4%</code>.',
+            '<b>Slotted ALOHA Vulnerable Period:</b> Stations transmit only at slot boundaries. A collision occurs only if two stations generate frames in the same preceding slot. Vulnerable window = <code>1 × Tfr</code>.',
+            '<b>Slotted ALOHA Throughput (S):</b> Probability of zero other frames in slot is <code>e⁻ᴳ</code>: <code>S = G × e⁻ᴳ</code>. Maximized at <code>G = 1.0</code>, giving <code>S_max = 1 × e⁻¹ = 1/e ≈ 36.8%</code> (exactly twice Pure ALOHA).'
           ]
         },
         {
           heading: '2. Rigorous Delay Analysis at Low Load (G → 0)',
           points: [
-            'At very low traffic load (G → 0), collision probability is virtually zero (<code>P_coll ≈ 0</code>). Almost every packet transmits successfully on its first attempt without retransmissions.',
-            '<b>Pure ALOHA Delay:</b> Transmits instantly when generated. Delay = <code>Tfr</code>.',
-            '<b>Slotted ALOHA Delay:</b> Must wait for the beginning of the next synchronized slot. Uniform arrival distribution gives average slot wait of <code>Tfr / 2</code>. Total Delay = <code>Tfr / 2 + Tfr = 1.5 × Tfr</code>.',
-            '<b>Conclusion:</b> Pure ALOHA has LESS delay at low load (1.0 Tfr vs 1.5 Tfr).'
+            'At very low traffic load (<code>G → 0</code>), collision probability is virtually zero (<code>P_coll ≈ 0</code>). Stations successfully transmit on their very first attempt without incurring exponential backoff or retransmissions.',
+            '<b>Pure ALOHA Delay Calculation:</b> When a packet arrives at time <code>t0</code>, it is transmitted over the channel immediately. Total initial delay is simply the frame transmission time: <br><code>Delay_Pure = Tfr</code>.',
+            '<b>Slotted ALOHA Delay Calculation:</b> A packet generated at time <code>t0</code> cannot transmit immediately; it must wait until the next slot boundary. Assuming Poisson/uniform packet arrivals within a slot of length <code>Tfr</code>, the average waiting time is <code>Tfr / 2</code>. Once the slot begins, transmission takes <code>Tfr</code>. Total delay is: <br><code>Delay_Slotted = (Tfr / 2) + Tfr = 1.5 × Tfr</code>.',
+            '<b>Definitive Conclusion:</b> <b>Pure ALOHA has LESS delay than Slotted ALOHA at low load</b> (<code>1.0 × Tfr</code> vs <code>1.5 × Tfr</code>, representing 33.3% less delay). Although Slotted ALOHA achieves double the capacity under heavy traffic, under light traffic Pure ALOHA provides superior latency because stations never wait for slot boundaries.'
           ]
         }
       ],
-      conclusion: 'At low network load, Pure ALOHA experiences 33% less delay than Slotted ALOHA because it transmits immediately without waiting for slot boundaries.',
+      conclusion: 'At low network load (G → 0), Pure ALOHA achieves 33.3% lower latency than Slotted ALOHA (1.0 Tfr vs 1.5 Tfr) because stations transmit instantly upon frame generation without waiting for slot boundaries.',
       markingScheme: [
         { component: 'Pure vs Slotted ALOHA Definitions & Vulnerable Times', marks: '1.5' },
-        { component: 'Throughput Formulas (S = G·e⁻²ᴳ and S = G·e⁻ᴳ)', marks: '1.5' },
-        { component: 'Mathematical Delay Derivation at G → 0', marks: '2.0' },
-        { component: 'Comparative Timing Diagram (Immediate vs Slot Alignment)', marks: '1.5' },
-        { component: 'Final Definitive Answer (Pure ALOHA has less delay)', marks: '0.5' }
+        { component: 'Throughput Formulas (S = G·e⁻²ᴳ and S = G·e⁻ᴳ) & Maxima', marks: '1.5' },
+        { component: 'Mathematical Delay Derivation at G → 0 (1.0 Tfr vs 1.5 Tfr)', marks: '1.5' },
+        { component: 'Comparative Timing Diagram (Immediate vs Slot Alignment)', marks: '1.0' },
+        { component: '7-Parameter Comparison Table & Final Verdict', marks: '1.5' }
       ],
       examTip: 'Many students wrongly answer Slotted ALOHA because its maximum throughput is higher. Be precise: the question specifically asks about DELAY at LOW LOAD, where Pure ALOHA wins!'
     }
@@ -1048,6 +1097,45 @@ const cnAlohaOriginalSolution = {
   id: 'cn-original-2025-100602-q3b',
   verified: 'BEU 2025 · Q.3(b) · 7 Marks · Cross-checked scan',
   intro: 'Pure ALOHA lets a station transmit whenever it has a frame. Slotted ALOHA divides time into equal slots of one frame-transmission time and allows transmission only at slot boundaries. This synchronization reduces collisions and raises the maximum channel throughput.',
+  diagrams: [
+    {
+      title: 'Vulnerable Period Comparison: Pure ALOHA (2T) vs Slotted ALOHA (T)',
+      ascii:
+`[ PURE ALOHA: Vulnerable Window = 2 * T ]
+Time: ----------(t - T)-------------------(t)-------------------(t + T)---------->
+Frame A:          [================ Target Frame ===============]
+Frame B:   [====== Overlap ======]
+Frame C:                                             [====== Overlap ======]
+Any frame beginning in interval (t - T, t + T) causes collision! Vulnerable time = 2T.
+
+[ SLOTTED ALOHA: Vulnerable Window = T ]
+Time:      |     Slot k - 1    |        Slot k         |       Slot k + 1     |
+           |                   |                       |                      |
+Station 1: |                   |  [===== Frame 1 =====]|                      |
+Station 2: |                   |  [===== Frame 2 =====]|                      |
+                                           ^
+                                           | COLLISION!
+Frames transmit ONLY at slot boundaries. Vulnerable time = T (Collisions halved!).`
+    },
+    {
+      title: 'Throughput S vs Offered Traffic Load G Characteristic Curves',
+      ascii:
+`Throughput S (Successful Frames / Frame Time)
+0.40 +                                     Slotted ALOHA (Max S = 1/e ≈ 36.8% @ G=1)
+     |                                          .-''''-.
+0.35 +                                        .'        '.
+0.30 +                                       /            \\
+0.25 +                                      /              \\
+0.20 +              Pure ALOHA             /                \\
+     |          (Max S = 1/(2e)           /                  \\
+0.15 +           ≈ 18.4% @ G=0.5)        /                    \\
+     |                .---.             /                      \\
+0.10 +              .'     '.          /                        \\
+0.05 +             /         \\        /                          \\
+0.00 +---+----+---/-----------\\------+----+----+----+----+----+----+----> Offered Load G
+     0  0.2  0.4 0.5         1.0         1.5         2.0         2.5`
+    }
+  ],
   table: {
     title: 'Pure ALOHA and Slotted ALOHA comparison',
     headers: ['Feature', 'Pure ALOHA', 'Slotted ALOHA'],
@@ -1075,22 +1163,78 @@ const cnAlohaOriginalSolution = {
         'Thus Slotted ALOHA doubles the maximum throughput: <code>(1/e) ÷ (1/(2e)) = 2</code>. This factor compares the two protocols at their respective maximum-throughput loads; it does not mean Slotted ALOHA is exactly twice as efficient at every offered load.',
       ],
     },
+    {
+      heading: '3. Delay Characteristics at Low Load vs High Load',
+      points: [
+        'At light network load (G → 0), collisions are rare. Pure ALOHA transmits instantly upon packet generation (delay = T). Slotted ALOHA stations must wait for the next slot boundary, incurring an average synchronization delay of T / 2 (total delay = 1.5 T). Thus, Pure ALOHA has lower latency at low traffic!',
+        'At high network load (G > 0.5), Pure ALOHA collapses rapidly into collision saturation, causing exponential retransmissions. Slotted ALOHA sustains twice the load before throughput drops.'
+      ]
+    }
   ],
   conclusion: 'Slotted ALOHA requires time synchronization, but it halves the vulnerable period from 2T to T and raises maximum throughput from about 18.4% to 36.8%.',
   markingScheme: [
-    {component: 'Operating principle and synchronization comparison', marks: '1.5'},
-    {component: 'Vulnerable-period explanation (2T versus T)', marks: '1.5'},
-    {component: 'Correct throughput equations', marks: '1.5'},
-    {component: 'Maximum-throughput derivation and values', marks: '1.5'},
-    {component: 'Explain the twofold maximum-efficiency improvement and conclude', marks: '1'},
+    { component: 'Operating principle and synchronization comparison', marks: '1.5' },
+    { component: 'Vulnerable-period explanation (2T versus T)', marks: '1.5' },
+    { component: 'Correct throughput equations', marks: '1.5' },
+    { component: 'Maximum-throughput derivation and values', marks: '1.5' },
+    { component: 'Explain the twofold maximum-efficiency improvement and conclude', marks: '1.0' },
   ],
-  examTip: 'Define <code>T</code> and <code>G</code> before writing the equations. Say that the maximum throughput doubles; avoid claiming a twofold gain at every offered load.',
+  examTip: 'Define T and G before writing the equations. Say that the maximum throughput doubles; avoid claiming a twofold gain at every offered load.',
 };
 
 const cnCrcOriginalSolution = {
   id: 'cn-original-2025-100602-q3a',
   verified: 'BEU 2025 · Q.3(a) · 7 Marks · Cross-checked scan',
   intro: 'Cyclic Redundancy Check (CRC) appends check bits to a message so the receiver can test for transmission errors. Here the data word is <code>11001001</code>, and the generator polynomial is <code>G(x) = x³ + 1</code>.',
+  diagrams: [
+    {
+      title: 'Full Modulo-2 XOR Long Division Trace (Sender Codeword Generation)',
+      ascii:
+`Divisor: 1001 ) 1 1 0 0 1 0 0 1 0 0 0 ( Quotient: 1 1 0 1 1 0 1 1
+                1 0 0 1
+                -------
+                0 1 0 1 1
+                  1 0 0 1
+                  -------
+                  0 0 1 0 0 0
+                      1 0 0 1
+                      -------
+                      0 0 0 1 1 0 0
+                            1 0 0 1
+                            -------
+                            0 1 0 1 0
+                              1 0 0 1
+                              -------
+                              0 0 1 1 0
+                                1 0 0 1
+                                -------
+                                0 1 1 1 0
+                                  1 0 0 1
+                                  -------
+                                  0 0 1 1  ===> Remainder R = 011 (3 bits)`
+    },
+    {
+      title: 'Sender Generation and Receiver Error Verification Architecture',
+      ascii:
+`[ SENDER ]                                        [ RECEIVER ]
+Dataword: 11001001 (k = 8 bits)                    Received: 11001001011 (n = 11 bits)
+Append r=3 zeros: 11001001000                     Divide by G = 1001
+Modulo-2 Divide by G = 1001                       Modulo-2 division yields:
+Remainder R = 011                                 Remainder = 000 (ZERO!)
+Codeword T = D || R = 11001001011 ---------------> [ ACCEPTED: NO BIT ERRORS DETECTED ]`
+    }
+  ],
+  table: {
+    title: 'Modulo-2 long-division XOR steps',
+    headers: ['Step', 'Four-bit window', 'XOR operation', 'Result'],
+    rows: [
+      ['1', '1100', '1100 ⊕ 1001', '0101'],
+      ['2', '1011', '1011 ⊕ 1001', '0010'],
+      ['3', '1000', '1000 ⊕ 1001', '0001'],
+      ['4', '1100', '1100 ⊕ 1001', '0101'],
+      ['5', '1010', '1010 ⊕ 1001', '0011'],
+    ],
+  },
   sections: [
     {
       heading: '1. Convert the generator polynomial to binary',
@@ -1123,24 +1267,13 @@ const cnCrcOriginalSolution = {
       ],
     },
   ],
-  table: {
-    title: 'Modulo-2 long-division XOR steps',
-    headers: ['Step', 'Four-bit window', 'XOR operation', 'Result'],
-    rows: [
-      ['1', '1100', '1100 ⊕ 1001', '0101'],
-      ['2', '1011', '1011 ⊕ 1001', '0010'],
-      ['3', '1000', '1000 ⊕ 1001', '0001'],
-      ['4', '1100', '1100 ⊕ 1001', '0101'],
-      ['5', '1010', '1010 ⊕ 1001', '0011'],
-    ],
-  },
   conclusion: 'The CRC remainder is <code>011</code>, so the transmitted message is <code>11001001011</code>.',
   markingScheme: [
-    {component: 'CRC purpose and identification of the given data and generator', marks: '1'},
-    {component: 'Correct binary generator (1001) and three appended zeroes', marks: '1'},
-    {component: 'Modulo-2 XOR division with correct intermediate working', marks: '3'},
-    {component: 'Remainder 011 and correct transmitted codeword', marks: '1'},
-    {component: 'Receiver check and clear final statement', marks: '1'},
+    { component: 'CRC purpose and identification of the given data and generator', marks: '1.0' },
+    { component: 'Correct binary generator (1001) and three appended zeroes', marks: '1.0' },
+    { component: 'Modulo-2 XOR division with correct intermediate working', marks: '3.0' },
+    { component: 'Remainder 011 and correct transmitted codeword', marks: '1.0' },
+    { component: 'Receiver check and clear final statement', marks: '1.0' },
   ],
   examTip: 'Show the divisor, each XOR step and the three-bit remainder. Keep the zero-extended dividend separate from the original data word when appending the remainder.',
 };
@@ -1152,213 +1285,526 @@ export const unit3Solutions = [
   {
     id: 'cn-original-2023-100602-q4b',
     verified: 'BEU 2023 · Q.4(b) · 7 Marks · Cross-checked scan',
-    intro: 'A shared channel needs a medium access control (MAC) method so stations coordinate access and reduce destructive collisions.',
+    intro: 'In computer networks where multiple nodes share a single broadcast transmission medium, Medium Access Control (MAC) protocols are essential to allocate bandwidth, regulate transmissions, prevent packet collisions, and resolve channel contention efficiently.',
+    diagrams: [
+      {
+        title: 'Taxonomy of Medium Access Control (MAC) Techniques',
+        ascii:
+`                    MEDIUM ACCESS CONTROL (MAC) PROTOCOLS
+                                      |
+         +----------------------------+----------------------------+
+         |                            |                            |
+         v                            v                            v
+  RANDOM ACCESS               CONTROLLED ACCESS              CHANNELIZATION
+  (Contention-Based)          (Collision-Free)               (Static Multiplexing)
+  • Pure ALOHA                • Reservation Systems          • FDMA (Frequency)
+  • Slotted ALOHA             • Polling (Primary/Secondary)  • TDMA (Time Slots)
+  • CSMA (1-P, Non-P, p-P)    • Token Passing (Token Ring)   • CDMA (Orthogonal Codes)
+  • CSMA/CD (Ethernet)
+  • CSMA/CA (Wi-Fi 802.11)`
+      }
+    ],
+    table: {
+      title: 'Comparative Analysis of the Three Popular MAC Categories',
+      headers: ['Evaluation Parameter', 'Random Access (Contention)', 'Controlled Access (Token Passing)', 'Channelization (FDMA/TDMA/CDMA)'],
+      rows: [
+        ['Channel Access Rule', 'Stations compete; transmit when ready; resolve collisions', 'Stations take turns; transmit only with explicit permission/token', 'Dedicated slice of frequency, time, or code allocated'],
+        ['Collision Possibility', 'Collisions possible; requires backoff recovery', 'Completely collision-free under normal operation', 'Zero collisions (channels completely isolated)'],
+        ['Efficiency at Light Load', 'Very high; zero waiting delay', 'Lower; token rotation overhead even with no data', 'Low; allocated bandwidth wasted if station is idle'],
+        ['Efficiency at Heavy Load', 'Collapses due to frequent collisions', 'Very high; orderly, bounded access delay', 'High and predictable; constant throughput'],
+        ['Typical Applications', 'Ethernet (CSMA/CD), Wi-Fi (CSMA/CA)', 'Token Ring (802.5), FDDI, industrial fieldbuses', 'Cellular networks (2G GSM, 3G CDMA, 4G LTE)']
+      ]
+    },
     sections: [
-      {heading: '1. Why MAC techniques are needed', points: [
-        'Without coordination, two stations may transmit at once and corrupt both frames. MAC rules decide when a station may use the shared medium, how it detects or avoids collisions, and what it does after contention.',
-        'A useful MAC method balances throughput, delay, fairness, control overhead, and the needs of wired or wireless links.',
-      ]},
-      {heading: '2. Three popular techniques', points: [
-        '<b>ALOHA (random access):</b> A station transmits when ready; after a collision it waits a random backoff and retries. Slotted ALOHA restricts attempts to synchronized slot boundaries, reducing the vulnerable period from <code>2T</code> to <code>T</code>.',
-        '<b>CSMA (carrier sensing):</b> A station listens before transmitting. If the channel is busy it defers; persistence rules determine whether it waits or retries. CSMA/CD detects collisions during wired Ethernet transmission, while CSMA/CA uses contention and acknowledgements to reduce collisions in wireless LANs.',
-        '<b>Token passing (controlled access):</b> A short control frame called a token circulates among stations. Only the station holding the token may transmit, giving orderly access and bounded waiting under normal operation.',
-      ]},
+      {
+        heading: '1. Random Access Techniques (Contention-Based)',
+        points: [
+          'No station is superior. Stations contend for the channel; if multiple transmit simultaneously, collision occurs.',
+          '<b>ALOHA:</b> Simplest scheme; stations transmit at will (Pure) or at slot starts (Slotted). Collisions trigger random exponential backoff.',
+          '<b>CSMA (Carrier Sense Multiple Access):</b> Stations "listen before talking". If medium is busy, station defers according to persistence algorithms (1-persistent, non-persistent, p-persistent).',
+          '<b>CSMA/CD (Wired Ethernet):</b> Stations "listen while talking". On detecting collision, transmission aborts immediately and jam signal is broadcast.',
+          '<b>CSMA/CA (Wireless 802.11):</b> Collisions cannot be detected over radio; uses DIFS sensing, exponential backoff, and optional RTS/CTS handshakes.'
+        ]
+      },
+      {
+        heading: '2. Controlled Access & Channelization Techniques',
+        points: [
+          '<b>Reservation:</b> Stations divide time into intervals; stations reserve transmission slots in advance via a reservation frame.',
+          '<b>Polling:</b> Central primary controller polls secondary stations in round-robin order (Poll/Select).',
+          '<b>Token Passing:</b> A small special frame (token) circulates among stations in a logical ring. Only the token-holder can transmit, providing deterministic bounded delay.',
+          '<b>Channelization:</b> Divides total channel capacity into dedicated sub-channels: FDMA divides bandwidth, TDMA divides time into synchronous slots, and CDMA uses unique orthogonal Walsh-Hadamard codes.'
+        ]
+      }
     ],
-    table: {title: 'MAC Access Methods', headers: ['Method', 'Access rule', 'Main characteristic'], rows: [
-      ['ALOHA', 'Transmit and retry after random backoff.', 'Simple contention; collisions are possible.'],
-      ['CSMA', 'Sense the channel before transmitting.', 'Reduces collisions; exact behavior depends on persistence and medium.'],
-      ['Token passing', 'Transmit only while holding the token.', 'Controlled, predictable access; token management adds overhead.'],
-    ]},
-    conclusion: 'MAC protocols prevent uncontrolled use of a shared channel. ALOHA and CSMA use contention, while token passing grants access in turn.',
+    conclusion: 'MAC protocols govern shared medium usage: contention-based random access provides lowest latency at light load, controlled token passing provides deterministic fairness at high load, and channelization delivers guaranteed QoS in telecommunications.',
     markingScheme: [
-      {component: 'Need for shared-medium coordination', marks: '1.5'},
-      {component: 'ALOHA operation and collision handling', marks: '1.5'},
-      {component: 'CSMA operation and wired/wireless variants', marks: '2'},
-      {component: 'Token passing operation', marks: '1.5'},
-      {component: 'Comparison and conclusion', marks: '0.5'},
+      { component: 'Need for MAC Coordination on Shared Broadcast Media', marks: '1.5' },
+      { component: 'Taxonomy Diagram Categorizing Random, Controlled & Channelization', marks: '1.5' },
+      { component: 'Random Access Protocols (ALOHA, CSMA, CSMA/CD, CSMA/CA)', marks: '1.5' },
+      { component: 'Controlled Access (Token Passing, Polling, Reservation)', marks: '1.0' },
+      { component: 'Channelization (FDMA/TDMA/CDMA) & Comparison Table', marks: '1.5' }
     ],
-    examTip: 'State the channel access rule and one strength or limitation for each method.',
+    examTip: 'Draw the 3-branch classification tree first (Random Access, Controlled Access, Channelization) and write one real-world protocol example for each.'
   },
   {
     id: 'cn-original-2023-100602-q9c',
     verified: 'BEU 2023 · Q.9(c) · 7 Marks · Cross-checked scan',
-    intro: 'A Virtual LAN (VLAN) is a logical Layer 2 broadcast domain configured on a switched network. It groups ports or users independently of their physical location.',
+    intro: 'A Virtual Local Area Network (VLAN) is a logical Layer 2 broadcast domain configured within one or more physical switches, grouping network endpoints based on organizational department, function, or security policy regardless of physical location.',
+    diagrams: [
+      {
+        title: 'Physical Switch Segmented into Logical VLANs with 802.1Q Trunk Link',
+        ascii:
+`                    ROUTER / LAYER 3 SWITCH (Inter-VLAN Routing)
+                                        |
+                            Trunk Link  | (Carries IEEE 802.1Q tagged frames)
+                                        v
+                    +---------------------------------------+
+                    |        LAYER 2 ETHERNET SWITCH        |
+                    +---------------------------------------+
+                     /          \\                 /         \\
+           Access   /            \\ Access Access /           \\ Access
+           Port 1  /       Port 2 \\        Port 3/      Port 4\\
+                  v                v            v              v
+            [ Host A ]        [ Host B ]   [ Host C ]     [ Host D ]
+            VLAN 10           VLAN 10      VLAN 20        VLAN 20
+            (Engineering)     (Engineering)(Accounts)     (Accounts)
+            192.168.10.2      192.168.10.3 192.168.20.2   192.168.20.3
+            <-- Broadcast Domain 10 --->   <-- Broadcast Domain 20 --->`
+      },
+      {
+        title: 'IEEE 802.1Q 4-Byte Frame Tag Architecture',
+        ascii:
+`+------------+-----+----------+----------+--------------------+--------+------+-----+
+| Preamble   | SFD | Dest MAC | Src MAC  | 802.1Q Tag (4 B)   | Length | Data | FCS |
+| 7 Bytes    | 1 B | 6 Bytes  | 6 Bytes  | TPID (2B) | TCI(2B)| 2 Bytes| Payld| 4 B |
++------------+-----+----------+----------+--------------------+--------+------+-----+
+                                               |
+              +--------------------------------+-------------------------------+
+              | TPID = 0x8100 (16 bits) | Priority (3b) | CFI (1b) | VID (12 bits) |
+              +-------------------------+---------------+----------+---------------+
+              • Tag Protocol Identifier (TPID): 0x8100 identifies 802.1Q tagged frame.
+              • Priority Code Point (PCP): 3 bits for 802.1p Quality of Service (QoS).
+              • VLAN Identifier (VID): 12 bits supporting 4,096 distinct VLANs (0 to 4095).`
+      }
+    ],
+    table: {
+      title: 'Comparison: Traditional Physical LAN vs Virtual LAN (VLAN)',
+      headers: ['Comparison Feature', 'Traditional Physical LAN', 'Virtual LAN (VLAN)'],
+      rows: [
+        ['Broadcast Domain Boundary', 'Defined strictly by physical switch/router ports', 'Defined logically by switch software configuration'],
+        ['Relocation & Moves', 'Requires physical rewiring and recabling', 'Simple software port reassignment on switch console'],
+        ['Broadcast Containment', 'Entire switch is flooded by single broadcast', 'Broadcasts confined strictly within member VLAN ports'],
+        ['Security Isolation', 'All connected hosts can sniff shared broadcast traffic', 'Traffic between distinct VLANs strictly blocked at L2'],
+        ['Hardware Requirement', 'Separate physical switch required per department', 'Single physical switch hosts multiple virtual departments'],
+        ['Cost & Scalability', 'High hardware cost and poor cable utilization', 'High port density, low hardware and operational cost']
+      ]
+    },
     sections: [
-      {heading: '1. VLAN operation', points: [
-        'An administrator assigns switch ports to VLAN IDs. Frames within one VLAN share a broadcast domain; a Layer 2 switch does not forward a broadcast from one VLAN into another.',
-        'An access port normally carries one VLAN for an end device. A trunk carries traffic for multiple VLANs between switches or to a router, commonly using IEEE 802.1Q tags to identify the VLAN.',
-        'Communication between different VLANs requires Layer 3 routing, such as a router or a multilayer switch.',
-      ]},
-      {heading: '2. Benefits and considerations', points: [
-        'VLANs limit broadcast scope, improve logical segmentation, simplify moves and changes, and support policy separation for groups such as students, staff, and servers.',
-        'A VLAN is not encryption: security still depends on correct switch configuration, access controls, and routing policy. Misconfigured trunks or VLAN assignments can expose traffic.',
-      ]},
+      {
+        heading: '1. Core Switch Port Classifications',
+        points: [
+          '<b>Access Ports:</b> Connected to ordinary end-user devices (PCs, printers, IP phones). Traffic on access ports is standard untagged Ethernet frames. The switch injects the VLAN tag internally upon ingress and strips the tag upon egress.',
+          '<b>Trunk Ports:</b> High-capacity inter-switch or switch-to-router links that multiplex traffic for multiple VLANs simultaneously. Each frame is stamped with an IEEE 802.1Q tag containing the 12-bit VLAN ID (VID).'
+        ]
+      },
+      {
+        heading: '2. Inter-VLAN Routing & Enterprise Advantages',
+        points: [
+          '<b>Inter-VLAN Communication:</b> Layer 2 switches strictly prevent traffic from leaking across VLAN boundaries. Communication between VLAN 10 and VLAN 20 requires Layer 3 routing via a Router-on-a-Stick (sub-interfaces with 802.1Q encapsulation) or a Layer 3 Multilayer Switch (Switch Virtual Interfaces - SVIs).',
+          '<b>1. Broadcast Containment:</b> Limits ARP and DHCP broadcast floods to local workgroups, saving bandwidth across the enterprise.',
+          '<b>2. Enhanced Security:</b> Sensitive financial or HR traffic is logically isolated from general student/guest networks.',
+          '<b>3. Cost Efficiency:</b> Eliminates the need to purchase dedicated physical switches for small departments.'
+        ]
+      }
     ],
-    diagram: null,
-    conclusion: 'VLANs use switch configuration and 802.1Q tagging to create separate logical broadcast domains on shared physical infrastructure; routing is required between them.',
+    conclusion: 'VLANs divide physical network infrastructure into flexible, secure, and isolated logical broadcast domains using IEEE 802.1Q frame tagging, reducing operational costs while improving network security and broadcast efficiency.',
     markingScheme: [
-      {component: 'Definition and Layer 2 broadcast-domain concept', marks: '1.5'},
-      {component: 'Port assignment and access-port behavior', marks: '1.5'},
-      {component: '802.1Q trunk operation', marks: '1.5'},
-      {component: 'Inter-VLAN routing', marks: '1'},
-      {component: 'Benefits and security limitation', marks: '1.5'},
+      { component: 'VLAN Definition & Layer 2 Broadcast Domain Architecture Diagram', marks: '1.5' },
+      { component: 'IEEE 802.1Q Tag Architecture Diagram & Field Breakdown (VID 12-bit)', marks: '1.5' },
+      { component: 'Access Ports vs Trunk Ports Working Mechanisms', marks: '1.5' },
+      { component: 'Inter-VLAN Routing (Router-on-a-Stick / Multilayer Switch)', marks: '1.0' },
+      { component: 'Key Advantages (Security, Containment) & Comparison Table', marks: '1.5' }
     ],
-    examTip: 'Include the distinction between an access port and a trunk, and state that VLANs need Layer 3 routing to communicate with each other.',
+    examTip: 'Always draw the 802.1Q frame format showing the 12-bit VLAN ID field (which explains why switches support up to 4096 VLANs = 2^12) and explain the difference between an access port (untagged) and a trunk port (tagged).'
   },
   {
     id: 'cn-original-2024-100602-q3b',
     verified: 'BEU 2024 · Q.3(b) · 7 Marks · Cross-checked scan',
-    intro: 'Cyclic Redundancy Check (CRC) treats a bit string as a polynomial over modulo-2 arithmetic. For generator <code>G(x)=x⁴+x+1</code>, the binary divisor is <code>10011</code>.',
+    intro: 'Cyclic Redundancy Check (CRC) is an algebraic polynomial error-detecting code based on GF(2) modulo-2 arithmetic. For message M = 1101011011 and generator polynomial G(x) = x⁴ + x + 1, we determine the transmitted codeword and verify receiver validation.',
+    diagrams: [
+      {
+        title: 'Full Modulo-2 XOR Long Division Trace',
+        ascii:
+`Divisor: 10011 ) 1 1 0 1 0 1 1 0 1 1 0 0 0 0 ( Quotient: 1 1 0 0 0 1 0 0 1 1
+                 1 0 0 1 1
+                 ---------
+                 0 1 0 0 1 1
+                   1 0 0 1 1
+                   ---------
+                   0 0 0 0 0 1 0 1 1 0
+                             1 0 0 1 1
+                             ---------
+                             0 0 1 0 1 0 0
+                                 1 0 0 1 1
+                                 ---------
+                                 0 0 1 1 1 0  ===> Remainder R = 1110 (4 bits)`
+      },
+      {
+        title: 'Sender Codeword Transmission & Receiver Zero-Remainder Verification',
+        ascii:
+`[ SENDER ]                                        [ RECEIVER ]
+Message: 1101011011 (k = 10 bits)                 Received: 11010110111110 (n = 14 bits)
+Append r=4 zeros: 11010110110000                  Divide by G = 10011
+Divide by 10011 -> Remainder R = 1110             Modulo-2 division gives:
+Codeword T = M || R = 11010110111110 -----------> Remainder = 0000 (NO ERROR DETECTED!)`
+      }
+    ],
     sections: [
-      {heading: '1. Append zeroes', points: ['The generator has degree 4, so append four zeroes to data <code>1101011011</code>: <code>11010110110000</code>.']},
-      {heading: '2. Modulo-2 division', points: [
-        'Divide <code>11010110110000</code> by <code>10011</code>. In modulo-2 subtraction, use XOR without carries or borrows. The successive non-zero windows and results are <code>11010⊕10011=01001</code>, <code>10011⊕10011=00000</code>, <code>10110⊕10011=00101</code>, and <code>10100⊕10011=00111</code>; skip zero-leading windows and bring down the next dividend bit at each shift.',
-        'The final four-bit remainder is <code>R = 1110</code>.',
-      ]},
-      {heading: '3. Form and check the codeword', points: [
-        'Append the remainder to the original data: <code>1101011011 | 1110 = 11010110111110</code>.',
-        'At the receiver, division of <code>11010110111110</code> by <code>10011</code> gives remainder <code>0000</code>, which is the expected CRC check result.',
-      ]},
+      {
+        heading: '1. Parameters & Modulo-2 Arithmetic Formulation',
+        points: [
+          '<b>Given Message (M):</b> <code>1101011011</code> (Length <code>k = 10 bits</code>).',
+          '<b>Generator Polynomial:</b> <code>G(x) = x⁴ + x + 1 = 1·x⁴ + 0·x³ + 0·x² + 1·x¹ + 1·x⁰</code>.',
+          '<b>Binary Divisor (G):</b> <code>10011</code> (Length = 5 bits, degree <code>r = 4</code>).',
+          '<b>Appended Zeros:</b> Append <code>r = 4</code> zeros to message: <code>Dividend = 1101011011 0000</code> (14 bits).'
+        ]
+      },
+      {
+        heading: '2. Codeword Formation & Receiver Verification Check',
+        points: [
+          '<b>Remainder (CRC Checksum):</b> <code>R = 1110</code> (4 bits).',
+          '<b>Transmitted Codeword (T):</b> <code>T = Message || Remainder = 1101011011 || 1110 = 11010110111110</code> (14 bits).',
+          '<b>Receiver Verification:</b> Receiver divides <code>11010110111110 ÷ 10011</code>. Since the remainder is strictly <code>0000</code>, the transmission is verified error-free.'
+        ]
+      }
     ],
-    conclusion: 'The CRC remainder is <code>1110</code>; therefore the transmitted codeword is <code>11010110111110</code>.',
+    conclusion: 'The 4-bit CRC remainder is 1110, yielding transmitted codeword 11010110111110. A zero remainder at the receiver confirms error-free transmission.',
     markingScheme: [
-      {component: 'Convert polynomial to binary and identify degree', marks: '1'},
-      {component: 'Append four zeroes correctly', marks: '1'},
-      {component: 'Modulo-2 division working', marks: '2.5'},
-      {component: 'Correct remainder and transmitted codeword', marks: '1.5'},
-      {component: 'Receiver remainder check and conclusion', marks: '1'},
+      { component: 'Polynomial to Binary Conversion (G(x) = x⁴+x+1 → 10011, r = 4)', marks: '1.0' },
+      { component: 'Appending 4 Zeros to Message (11010110110000)', marks: '1.0' },
+      { component: 'Full Modulo-2 Long Division Steps & Trace Diagram', marks: '2.5' },
+      { component: 'Codeword Construction (11010110111110)', marks: '1.0' },
+      { component: 'Receiver Verification (Remainder = 0000) & Conclusion', marks: '1.5' }
     ],
-    examTip: 'Keep the original data separate from the zero-extended dividend; append the remainder to the original data.',
+    examTip: 'Box the final remainder R = 1110 and show the receiver verification step explicitly to claim all 7 marks.'
   },
   {
     id: 'cn-original-2024-100602-q4a',
     verified: 'BEU 2024 · Q.4(a) · 7 Marks · Cross-checked scan',
-    intro: 'The frame payload is the four bytes <code>A B ESC FLAG</code>. The supplied byte values are A=<code>01000111</code>, B=<code>11100011</code>, ESC=<code>11100000</code>, and FLAG=<code>01111110</code>.',
+    intro: 'Framing is the primary function of the Data Link Layer (Layer 2) that packages the continuous raw physical bitstream into discrete, recognizable transmission units called frames with clearly demarcated beginnings and ends.',
+    diagrams: [
+      {
+        title: 'Three Classical Framing Techniques Compared',
+        ascii:
+`1. CHARACTER COUNT:
+[ Header Count: 5 | A | B | C | D ]  [ Header Count: 3 | E | F ]
+(Count includes itself. Catastrophic flaw: 1 corrupted count bit de-syncs ALL following frames!)
+
+2. BYTE STUFFING (Character-Oriented):
+[ FLAG | Payload: Data | ESC | FLAG | ESC | ESC | More Data | FLAG ]
+(Sender inserts ESC byte before accidental FLAG or ESC bytes in payload; receiver strips ESC)
+
+3. BIT STUFFING (Bit-Oriented, HDLC):
+Flag (01111110) [ 011011111(0)1011111(0)00 ] Flag (01111110)
+(Sender injects '0' after five consecutive '1's; receiver strips '0' automatically in hardware)`
+      }
+    ],
     table: {
-      title: 'Transmitted Sequences (spaces separate bytes)',
-      headers: ['Framing method', 'Sequence'],
+      title: 'Transmitted Frame Bit Sequences for Payload: A B ESC FLAG',
+      headers: ['Framing Technique', 'Transmitted Byte / Bit Stream Representation'],
       rows: [
-        ['Character count', '00000101 01000111 11100011 11100000 01111110'],
-        ['Flag bytes with byte stuffing', '01111110 01000111 11100011 11100000 11100000 11100000 01111110 01111110'],
-        ['Flag bytes with bit stuffing', '01111110 | 01000111110100011111000000011111010 | 01111110'],
-      ],
+        ['Character Count', '00000101 01000111 11100011 11100000 01111110 (5 bytes total: 1 count + 4 payload)'],
+        ['Byte Stuffing', '01111110 01000111 11100011 11100000 11100000 11100000 01111110 01111110'],
+        ['Bit Stuffing', '01111110 | 01000111110100011111000000011111010 | 01111110']
+      ]
     },
     sections: [
-      {heading: '1. Character count', points: ['Using the convention that the count byte includes itself, the frame contains five bytes total: one count byte plus four payload bytes. Thus the count is decimal 5, or <code>00000101</code>. If a course text defines the count as payload bytes only, it writes 4; state the convention used.']},
-      {heading: '2. Byte stuffing', points: ['Surround the payload with FLAG bytes. Insert an ESC before each payload byte equal to ESC or FLAG. The original ESC becomes <code>ESC ESC</code>, and the original FLAG becomes <code>ESC FLAG</code>.']},
-      {heading: '3. Bit stuffing', points: ['Surround the unmodified 32-bit payload with FLAG delimiters. Within the payload only, insert a 0 after every run of five consecutive 1 bits; do not stuff the delimiter bits. The stuffed payload is <code>01000111110100011111000000011111010</code>.']},
+      {
+        heading: '1. Character Count Framing & Fatal Desynchronization',
+        points: [
+          'Uses a field in the frame header to declare total bytes in the frame (including the count byte).',
+          'For 4 payload bytes (A, B, ESC, FLAG), count byte is <code>5</code> (<code>00000101</code>).',
+          '<b>Fatal Flaw:</b> If a single bit in the count field is corrupted during transmission (e.g., 5 becomes 7), the receiver reads past the frame boundary and all subsequent frame synchronization is permanently lost.'
+        ]
+      },
+      {
+        heading: '2. Byte Stuffing (Character-Oriented Framing)',
+        points: [
+          'Delineates frames using dedicated flag bytes: <code>FLAG = 01111110</code> (0x7E).',
+          'Whenever a byte equal to FLAG or ESC appears inside payload, sender prefixes it with an Escape byte: <code>ESC = 11100000</code>.',
+          'Payload <code>A B ESC FLAG</code> transforms to: <code>FLAG A B (ESC ESC) (ESC FLAG) FLAG</code> (total 8 bytes).'
+        ]
+      },
+      {
+        heading: '3. Bit Stuffing (Bit-Oriented Framing, HDLC Standard)',
+        points: [
+          'Framed between standard flag patterns: <code>01111110</code>.',
+          '<b>Rule:</b> Whenever the sender encounters five consecutive <code>1</code> bits in payload, it automatically injects a <code>0</code> bit.',
+          'When receiver sees five 1s followed by a 0, it removes (destuffs) the 0. If followed by 10, it recognizes the true end-of-frame FLAG delimiter.',
+          'Operates transparently at the hardware layer regardless of character encoding.'
+        ]
+      }
     ],
-    conclusion: 'Character count uses a length field, byte stuffing escapes reserved bytes, and bit stuffing inserts a zero after five consecutive data 1s.',
+    conclusion: 'While Character Count is vulnerable to framing collapse and Byte Stuffing is tied to 8-bit character boundaries, Bit Stuffing is the universal industry standard in modern HDLC and PPP protocols due to its full hardware transparency.',
     markingScheme: [
-      {component: 'Correct character-count convention and sequence', marks: '1.5'},
-      {component: 'Correct flag-byte framing and escaped payload', marks: '2'},
-      {component: 'Correct bit-stuffing rule and payload', marks: '2'},
-      {component: 'Clear delimiters and comparison', marks: '1.5'},
+      { component: 'Framing Definition & Frame Delineation Purpose', marks: '1.0' },
+      { component: 'Character Count Explanation, Sequence & Framing Collapse Flaw', marks: '1.5' },
+      { component: 'Byte Stuffing Explanation, ESC Insertion & Worked Sequence', marks: '1.5' },
+      { component: 'Bit Stuffing Rule (5 ones → stuff 0) & Transmitted Bitstream', marks: '1.5' },
+      { component: 'Comparison Table & Industry Standard Conclusion', marks: '1.5' }
     ],
-    examTip: 'Show each FLAG and ESC byte clearly. For bit stuffing, apply the rule only to the payload and keep delimiter flags unchanged.',
+    examTip: 'For bit stuffing, emphasize that the stuffed 0 is inserted only into the data payload and never into the opening or closing 01111110 flag bytes.'
   },
   {
     id: 'cn-original-2025-100602-q9b',
     verified: 'BEU 2025 · Q.9(b) · 7 Marks · Cross-checked scan',
-    intro: 'Token Ring is a controlled-access LAN method standardized by IEEE 802.5. Stations form a logical ring and transmit only when they hold a circulating token.',
+    intro: 'Token Ring is a deterministic, controlled-access Local Area Network (LAN) technology standardized under IEEE 802.5 (originally developed by IBM). Stations are logically connected in a closed ring topology, and channel access is regulated by a small circulating control frame called the Token.',
+    diagrams: [
+      {
+        title: 'IEEE 802.5 Token Ring Topology & Frame Circulation Architecture',
+        ascii:
+`                    +-----> [ STATION A ] ---->+
+                    |       (Transmitter)      |
+                    |                          v
+              [ STATION D ]              [ STATION B ]
+              (Passes frame)             (Destination: Copies data,
+                    ^                     sets A & C bits to 1)
+                    |                          |
+                    +-----< [ STATION C ] <----+
+                            (Passes frame)`
+      },
+      {
+        title: 'Token Frame (3 Bytes) vs Data Frame Architecture',
+        ascii:
+`1. TOKEN FRAME (3 Bytes):
++-----------------------+-----------------------+-----------------------+
+| Starting Delimiter SD | Access Control (AC)   | Ending Delimiter (ED) |
+| 1 Byte (0b10000000)   | PPP T RRR (1 Byte)    | 1 Byte (0b10000000)   |
++-----------------------+-----------------------+-----------------------+
+
+2. DATA / COMMAND FRAME:
++----+----+----+----------+----------+----------------+-----+----+----+
+| SD | AC | FC | Dest MAC | Src MAC  | Data Payload   | FCS | ED | FS |
+| 1B | 1B | 1B | 6 Bytes  | 6 Bytes  | Up to 4500 B   | 4 B | 1B | 1B |
++----+----+----+----------+----------+----------------+-----+----+----+`
+      }
+    ],
+    table: {
+      title: 'Comparative Analysis: Token Ring (IEEE 802.5) vs Ethernet (IEEE 802.3)',
+      headers: ['Evaluation Parameter', 'Token Ring (IEEE 802.5)', 'Ethernet (IEEE 802.3)'],
+      rows: [
+        ['Media Access Strategy', 'Controlled access (token passing)', 'Random access (CSMA/CD / Switched full-duplex)'],
+        ['Collision Possibility', 'Completely collision-free', 'Collisions occur in shared bus (none in full-duplex switch)'],
+        ['Throughput Under Heavy Load', 'Stable, deterministic, bounded delay', 'Degrades under heavy load in shared media'],
+        ['Priority Support', 'Built-in 3-bit priority levels (8 classes)', 'Requires 802.1p VLAN priority tags'],
+        ['Cable Topology', 'Logical ring (wired as physical Star via MAU)', 'Bus (legacy) / Star (switched twisted pair)'],
+        ['Cost & Market Dominance', 'High cost, complex NICs; now legacy', 'Extremely cheap, ubiquitous global standard']
+      ]
+    },
     sections: [
-      {heading: '1. Working', points: [
-        'When the network is idle, a free token circulates from station to station. A station with data captures the token, marks it busy, and sends a frame containing destination and source addresses plus payload and error-checking fields.',
-        'The frame moves around the ring. The destination recognizes its address and copies the data; the frame continues until it returns to the sender, which removes it and releases a new free token.',
-        'Because only the token holder transmits, ordinary data collisions are avoided. Token rotation gives stations an orderly opportunity to transmit, although waiting time rises with ring load and token rotation time.',
-      ]},
-      {heading: '2. Advantages and limitations', points: [
-        'Advantages include predictable access, bounded access delay under normal operation, and no contention collisions.',
-        'Limitations include token-management overhead, more complex operation than a simple switched star, and susceptibility to ring or token faults unless bypass and monitoring mechanisms are used. Modern switched Ethernet has largely replaced Token Ring.',
-      ]},
+      {
+        heading: '1. Complete Operational Life Cycle',
+        points: [
+          '<b>1. Token Circulation:</b> When the ring is idle, a 3-byte "Free Token" (with Token bit <code>T = 0</code> in the AC field) circulates continuously from station to station.',
+          '<b>2. Token Capture & Frame Transmission:</b> A station wishing to transmit captures the token as it passes through its buffer, changes the Token bit from 0 to 1 (transforming it into a Start-of-Frame delimiter), appends destination address, source address, payload, and FCS, and transmits the data frame onto the ring.',
+          '<b>3. Destination Reception & Verification:</b> Intermediate stations regenerate the frame. When destination Station B recognizes its MAC address, it copies the data and modifies the Frame Status (FS) byte at the tail: setting <code>Address Recognized (A = 1)</code> and <code>Frame Copied (C = 1)</code>.',
+          '<b>4. Frame Stripping & Token Release:</b> The frame circulates back to transmitting Station A. Station A verifies the A and C bits, strips the frame from the ring (preventing infinite circulation), and issues a fresh Free Token (<code>T = 0</code>) for the next station.'
+        ]
+      },
+      {
+        heading: '2. Priority & Fault Tolerance Mechanisms',
+        points: [
+          '<b>Priority Reservation:</b> The Access Control (AC) byte contains 3 Priority bits (PPP) and 3 Reservation bits (RRR), supporting 8 priority levels (0 to 7) to prioritize voice/video traffic over background data.',
+          '<b>Active Monitor & Beaconing:</b> An Active Monitor station detects lost tokens or continuously circulating orphan frames and issues replacement tokens. If a ring cable breaks, beacon frames trigger MAU (Multistation Access Unit) bypass relays.'
+        ]
+      }
     ],
-    conclusion: 'Token Ring provides orderly, collision-free access by granting transmission to the station holding the token, at the cost of token and ring-management overhead.',
+    conclusion: 'Token Ring provides guaranteed, deterministic, collision-free channel access with built-in hardware prioritization, though modern high-speed switched Ethernet has superseded it due to lower cost and simpler administration.',
     markingScheme: [
-      {component: 'Definition and IEEE 802.5 context', marks: '1'},
-      {component: 'Token circulation and transmission procedure', marks: '2.5'},
-      {component: 'Destination reception and sender token release', marks: '1'},
-      {component: 'Advantages and predictable access', marks: '1'},
-      {component: 'Limitations and conclusion', marks: '1.5'},
+      { component: 'Token Ring Definition, Topology & IEEE 802.5 Standards', marks: '1.5' },
+      { component: 'Neat Ring Architecture & Frame Circulation Diagram', marks: '1.5' },
+      { component: 'Token & Data Frame Format Layouts (SD, AC, FC, FS)', marks: '1.5' },
+      { component: 'Four-Step Operational Cycle (Capture, Copy, Strip, Release)', marks: '1.5' },
+      { component: 'Comparison Table (Token Ring vs Ethernet) & Conclusion', marks: '1.0' }
     ],
-    examTip: 'Describe the complete cycle: free token, station captures it, frame circulates, sender removes the returning frame, and a free token is released.',
+    examTip: 'Make sure to mention the Frame Status (FS) byte and the A (Address recognized) and C (Frame copied) bits; this proves to the examiner that you understand how the sender knows the transmission succeeded.'
   },
   {
     id: 'cn-original-2025-100602-q9d',
     verified: 'BEU 2025 · Q.9(d) · 7 Marks · Cross-checked scan',
-    intro: 'Multiplexing combines several independent signals or data streams so they can share one communication link. A demultiplexer separates them at the receiving end.',
-    table: {title: 'Common Multiplexing Techniques', headers: ['Technique', 'How the link is shared', 'Example'], rows: [
-      ['FDM', 'Each signal uses a different frequency band at the same time.', 'Radio stations on different carrier frequencies.'],
-      ['TDM', 'Signals take turns in assigned time slots.', 'A synchronous digital trunk carrying several voice channels.'],
-      ['WDM', 'Optical channels use different light wavelengths in one fiber.', 'Dense WDM in fiber backbones.'],
-      ['CDM', 'Users share time and frequency using distinct spreading codes.', 'CDMA radio systems.'],
-    ]},
-    sections: [{heading: '1. Multiplexer and demultiplexer', points: [
-      'At the sender, a multiplexer allocates frequency bands, time slots, wavelengths, or codes to input streams and combines them onto the shared medium.',
-      'At the receiver, a demultiplexer uses the corresponding allocation information to recover each stream. The technique must prevent overlap or distinguish streams reliably.',
-    ]}],
-    conclusion: 'FDM separates signals by frequency, TDM by time, WDM by optical wavelength, and CDM by code; each allows multiple channels to share a physical medium.',
-    markingScheme: [
-      {component: 'Definition and multiplexer/demultiplexer purpose', marks: '1.5'},
-      {component: 'FDM explanation and example', marks: '1.25'},
-      {component: 'TDM explanation and example', marks: '1.25'},
-      {component: 'WDM explanation and example', marks: '1.25'},
-      {component: 'CDM or comparison and conclusion', marks: '1.75'},
+    intro: 'Multiplexing is the physical-layer technique that combines multiple independent analog or digital signals onto a single shared transmission medium simultaneously, maximizing physical link utilization and minimizing infrastructure cabling costs.',
+    diagrams: [
+      {
+        title: 'Multiplexing Techniques Architecture: FDM, TDM, and WDM',
+        ascii:
+`[ 1. FREQUENCY DIVISION MULTIPLEXING (FDM) ]
+Frequency ^
+          |  [ Channel 1 ] (f1)
+          |  --- Guard Band ---
+          |  [ Channel 2 ] (f2)   All signals transmitted SIMULTANEOUSLY
+          |  --- Guard Band ---   over separate frequency bands!
+          |  [ Channel 3 ] (f3)
+          +-----------------------------------> Time
+
+[ 2. TIME DIVISION MULTIPLEXING (TDM) ]
+Time:     | Slot 1 | Slot 2 | Slot 3 | Slot 1 | Slot 2 | Slot 3 |
+          | Host A | Host B | Host C | Host A | Host B | Host C |
+          Each user gets the ENTIRE frequency bandwidth for a discrete time slice!
+
+[ 3. WAVELENGTH DIVISION MULTIPLEXING (WDM) ]
+λ1 (1550 nm) ---\\                                  /---> λ1 (Optical Receiver 1)
+λ2 (1310 nm) ----+===[ Optical Fiber Multiplex ]===+---> λ2 (Optical Receiver 2)
+λ3 (850 nm)  ---/    (Prism Combiner)              \\---> λ3 (Optical Receiver 3)`
+      }
     ],
-    examTip: 'Use one phrase to distinguish each technique: frequency, time, wavelength, or code.',
+    table: {
+      title: 'Comprehensive Engineering Comparison: Multiplexing Techniques',
+      headers: ['Technique', 'Domain Divided', 'Signal Nature', 'Key Medium', 'Primary Commercial Application'],
+      rows: [
+        ['FDM', 'Frequency Spectrum', 'Analog (Continuous)', 'Coaxial cable, Radio broadcast, AM/FM', 'Radio/TV broadcast, cable television, DSL'],
+        ['TDM', 'Time Duration', 'Digital (Discrete)', 'Copper twisted pair, digital backbones', 'T1/E1 telephony carriers, SONET/SDH digital trunks'],
+        ['WDM / DWDM', 'Optical Wavelength (λ)', 'Optical (Light Pulses)', 'Single-mode optical fiber', 'Trans-oceanic fiber backbones, metro core networks'],
+        ['CDM / CDMA', 'Orthogonal Chip Codes', 'Digital (Spread Spectrum)', 'Wireless radio channels', '3G Mobile communications (IS-95, CDMA2000), GPS']
+      ]
+    },
+    sections: [
+      {
+        heading: '1. In-Depth Operational Principles',
+        points: [
+          '<b>Frequency Division Multiplexing (FDM):</b> Divides total channel bandwidth into distinct non-overlapping frequency bands. Each baseband signal modulates a separate high-frequency carrier. <i>Guard Bands</i> (unused frequency intervals) are placed between adjacent channels to eliminate cross-channel crosstalk.',
+          '<b>Time Division Multiplexing (TDM):</b> Entire channel bandwidth is allocated to one signal at a time for a brief time slot. <i>Synchronous TDM</i> pre-assigns fixed slots to stations (wasted if station is idle); <i>Statistical TDM (Asynchronous)</i> dynamically allocates slots on demand, vastly improving bandwidth utilization.',
+          '<b>Wavelength Division Multiplexing (WDM):</b> Optical equivalent of FDM applied to fiber optics. Multiple laser beams of distinct optical wavelengths (e.g., 1310 nm, 1550 nm) are combined onto a single fiber strand using optical prisms or diffraction gratings. Dense WDM (DWDM) multiplexes up to 160+ wavelengths per strand, achieving terabit throughput.'
+        ]
+      }
+    ],
+    conclusion: 'Multiplexing enables cost-effective data sharing across media: FDM separates signals across frequencies, TDM across time slots, WDM across optical light wavelengths, and CDM across mathematical codes.',
+    markingScheme: [
+      { component: 'Multiplexing Definition & Physical Layer MUX/DEMUX Principles', marks: '1.5' },
+      { component: 'Neat Architectural Diagrams of FDM, TDM, and WDM', marks: '1.5' },
+      { component: 'Detailed Technical Analysis of FDM (Guard Bands) & TDM', marks: '1.5' },
+      { component: 'Wavelength Division Multiplexing (WDM/DWDM) in Optical Fiber', marks: '1.0' },
+      { component: 'Comprehensive Comparison Table & Commercial Applications', marks: '1.5' }
+    ],
+    examTip: 'Clearly state what prevents signal overlap in each technique: Guard Bands in FDM, Inter-frame Synchronization in TDM, and Prism Wavelength Separation in WDM.'
   },
   {
     id: 'cn-original-2023-100602-q6b',
     verified: 'BEU 2023 · Q.6(b) · 7 Marks · Cross-checked scan',
-    intro: 'The sliding-window protocol is a data-link flow- and error-control method that allows several frames to be sent before acknowledgements arrive.',
-    diagrams: [{
-      title: 'Sender Window Slides as Acknowledgements Arrive',
-      ascii: 'Before ACK:   [0 sent] [1 sent] [2 sent] | 3 4 5\nSender window:  ^ frames permitted in flight\nACK for 0:     [0 done] [1 sent] [2 sent] [3 now allowed]\nWindow slides forward as the oldest outstanding frame is acknowledged.',
-    }],
+    intro: 'Sliding Window protocols are foundational Data Link and Transport layer flow and error control mechanisms that allow a sender to transmit multiple data frames continuously before pausing for acknowledgements, maximizing channel utilization on high-latency links.',
+    diagrams: [
+      {
+        title: 'Sliding Window Dynamic Advancement Ladder with Acknowledgment',
+        ascii:
+`[ SENDER WINDOW: Size Ws = 4 frames (Sequence Space: 0 to 7) ]
+Before ACK:    [ 0   1   2   3 ]  4   5   6   7   (Frames 0, 1, 2, 3 in transit)
+ACK 0 Arrives:   0 [ 1   2   3   4 ]  5   6   7   (Window slides forward by 1; Frame 4 sent)
+ACK 1, 2 Arrive: 0   1   2 [ 3   4   5   6 ]  7   (Window slides forward by 2; Frames 5, 6 sent)
+
+SENDER                                           RECEIVER
+  |--- Frame 0 ------------------------------------>| Accept 0
+  |--- Frame 1 ------------------------------------>| Accept 1
+  |--- Frame 2 (LOST IN TRANSIT X)                  |
+  |--- Frame 3 ------------------------------------>| Out of order! Discarded (in GBN)
+  |<-- ACK 2 (Cumulative ACK for 0 & 1) ------------|
+  | [TIMER FOR FRAME 2 EXPIRES!]                    |
+  |=== Retransmit Frame 2 and Frame 3 =============>| Accept 2, 3`
+      }
+    ],
+    table: {
+      title: 'Comprehensive Comparison: Stop-and-Wait vs Go-Back-N vs Selective Repeat',
+      headers: ['Evaluation Parameter', 'Stop-and-Wait ARQ', 'Go-Back-N (GBN) ARQ', 'Selective Repeat (SR) ARQ'],
+      rows: [
+        ['Sender Window Size (Ws)', 'Ws = 1 frame', 'Ws = 2^m - 1 frames', 'Ws = 2^(m - 1) frames'],
+        ['Receiver Window Size (Wr)', 'Wr = 1 frame', 'Wr = 1 frame', 'Wr = Ws = 2^(m - 1) frames'],
+        ['Out-of-Order Frames', 'Impossible (only 1 frame sent)', 'Silently discarded', 'Buffered in receiver buffer'],
+        ['Acknowledgment Type', 'Individual ACK', 'Cumulative ACK', 'Individual / Selective ACK (SACK)'],
+        ['Retransmission Scope', 'Only the single timed-out frame', 'All unacknowledged frames in window', 'Strictly the lost frame only'],
+        ['Receiver Buffer Cost', 'Minimal (1 frame buffer)', 'Minimal (1 frame buffer)', 'Substantial (requires sorting buffer)'],
+        ['Link Bandwidth Efficiency', 'Very low (η = 1 / (1 + 2a))', 'High; collapses under noisy links', 'Highest efficiency under noisy links'],
+        ['Typical Applications', 'Legacy protocols, TFTP', 'HDLC, legacy satellite links', 'TCP SACK, modern high-speed networks']
+      ]
+    },
     sections: [
-      {heading: '1. Window operation', points: [
-        'Each frame carries a sequence number. The sender maintains a send window of frames it may transmit without waiting for individual acknowledgements; the receiver maintains a receive window of frame numbers it can accept.',
-        'As valid acknowledgements arrive, the sender removes acknowledged frames from the outstanding set and slides its window forward, opening room for later frames. Timers trigger retransmission if an expected acknowledgement does not arrive.',
-        'The receiver checks sequence numbers, detects duplicates or out-of-order frames according to the protocol, and sends acknowledgements. The window also limits outstanding data and provides flow control.',
-      ]},
-      {heading: '2. Common variants', points: [
-        'Stop-and-Wait is the one-frame special case. Go-Back-N uses a larger sender window and typically a one-frame receiver window; on a loss it retransmits the missing frame and later outstanding frames. Selective Repeat buffers acceptable out-of-order frames and retransmits only missing frames.',
-        'With an m-bit sequence number, Go-Back-N sender window is at most <code>2^m−1</code>; Selective Repeat sender and receiver windows are each at most <code>2^(m−1)</code> to avoid ambiguity after sequence-number wraparound.',
-      ]},
+      {
+        heading: '1. Mathematical Efficiency & Sequence Space Bounds',
+        points: [
+          '<b>Propagation Parameter (a):</b> <code>a = T_prop / T_tx</code> (ratio of propagation delay to transmission delay).',
+          '<b>Channel Efficiency Equation:</b> Maximum channel efficiency is given by: <code>η = W_s / (1 + 2a)</code>. When <code>W_s ≥ 1 + 2a</code>, channel efficiency reaches 100%!',
+          '<b>Sequence Number Constraints:</b> For an m-bit sequence number:<br>• <i>Go-Back-N:</i> <code>W_s ≤ 2^m - 1</code> and <code>W_r = 1</code>.<br>• <i>Selective Repeat:</i> <code>W_s + W_r ≤ 2^m ⇒ W_s = W_r ≤ 2^(m - 1)</code>.<br>If window sizes exceed these mathematical limits, lost ACKs cause sequence number wraparound ambiguity, corrupting data by accepting duplicates.'
+        ]
+      }
     ],
-    conclusion: 'Sliding windows pipeline frames while acknowledgements move the sender and receiver windows. This improves link utilization and supports flow and error control.',
+    conclusion: 'Sliding window protocols pipeline frame transmissions to overcome propagation delays. Go-Back-N achieves high throughput with minimal receiver complexity, whereas Selective Repeat maximizes channel efficiency over noisy links by retransmitting only damaged frames.',
     markingScheme: [
-      {component: 'Purpose and sequence-number concept', marks: '1'},
-      {component: 'Sender window and pipeline operation', marks: '2'},
-      {component: 'Receiver window, acknowledgements and retransmission', marks: '1.5'},
-      {component: 'Compare Stop-and-Wait, Go-Back-N and Selective Repeat', marks: '1.5'},
-      {component: 'Correct window-size limits and conclusion', marks: '1'},
+      { component: 'Sliding Window Concept & Pipelining Principles', marks: '1.5' },
+      { component: 'Neat Window Sliding Timing Ladder Diagram', marks: '1.5' },
+      { component: 'Mathematical Efficiency Derivation [η = Ws / (1 + 2a)]', marks: '1.0' },
+      { component: 'Window Size Limits Proof (Ws ≤ 2^m - 1 vs 2^(m-1))', marks: '1.5' },
+      { component: 'Comprehensive 8-Parameter Comparison Table & Conclusion', marks: '1.5' }
     ],
-    examTip: 'Explain how the window advances after an ACK, then distinguish Go-Back-N from Selective Repeat by their retransmission behavior.',
+    examTip: 'Examiners reward writing out the channel efficiency formula η = Ws / (1 + 2a) and clearly explaining why Selective Repeat requires Ws = 2^(m-1) to prevent duplicate acceptance.'
   },
   {
     id: 'cn-original-2025-100602-q9c',
     verified: 'BEU 2025 · Q.9(c) · 7 Marks · Cross-checked scan',
-    intro: 'A sliding-window protocol keeps track of numbered frames that may be in transit and advances its permitted range as acknowledgements arrive.',
+    intro: 'A sliding window protocol is an bidirectional flow- and error-control mechanism operating at Layer 2 and Layer 4. By maintaining sequential send and receive windows, it decouples frame transmission from instantaneous acknowledgement arrival, transforming inefficient stop-and-wait channels into continuous pipelines.',
+    diagrams: [
+      {
+        title: 'Bidirectional Sliding Window Mechanism & Dynamic Buffer Windows',
+        ascii:
+`[ SENDER WINDOW: Outstanding Frames Allowed ]
++---+---+---+---+---+---+---+---+
+| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |   (Sequence Space: Modulo 8, m = 3 bits)
++---+---+---+---+---+---+---+---+
+      [ Window: 2, 3, 4, 5 ] ===> Frames in flight; awaiting ACK
+        ^                 ^
+        LastByteAcked     LastByteSent
+
+[ RECEIVER WINDOW: Acceptable Sequence Range ]
++---+---+---+---+---+---+---+---+
+| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |
++---+---+---+---+---+---+---+---+
+      [ Window: 2, 3, 4, 5 ] ===> Acceptable incoming frames`
+      }
+    ],
+    table: {
+      title: 'Architectural Comparison: Go-Back-N vs Selective Repeat Protocols',
+      headers: ['Feature', 'Go-Back-N ARQ', 'Selective Repeat ARQ'],
+      rows: [
+        ['Receiver Window Size', 'Wr = 1 (strictly in-order reception)', 'Wr = Ws = 2^(m-1) (buffers out-of-order)'],
+        ['Sender Window Size', 'Ws = 2^m - 1', 'Ws = 2^(m-1)'],
+        ['Bandwidth Waste on Loss', 'High (discards subsequent good frames)', 'Minimal (only lost frame retransmitted)'],
+        ['Implementation Complexity', 'Very simple; no sorting logic', 'Complex; requires resequencing buffers'],
+        ['ACK Mechanism', 'Cumulative ACK (ACK n acknowledges all < n)', 'Negative ACK (NAK) or Selective ACK (SACK)']
+      ]
+    },
     sections: [
-      {heading: '1. Working principle', points: [
-        'The sender can transmit multiple frames within its send window instead of waiting after every frame. Each frame has a sequence number, and acknowledgements indicate which frames were received.',
-        'When acknowledgements arrive, the sender slides the window forward and may send new frames. A timer and retransmission rule recover from loss; the receiver uses sequence numbers to accept data in order or buffer out-of-order frames, depending on the variant.',
-      ]},
-      {heading: '2. Variants and benefits', points: [
-        'Stop-and-Wait permits one outstanding frame. Go-Back-N permits a larger send window but retransmits from a missing frame onward. Selective Repeat buffers valid out-of-order frames and retransmits only frames that are missing or damaged.',
-        'By pipelining frames, sliding windows improve throughput on links with propagation delay. Window limits also prevent a fast sender from overwhelming a receiver and provide recovery from transmission errors.',
-        'For an m-bit sequence number, Go-Back-N uses a sender window no larger than <code>2^m−1</code>; Selective Repeat uses windows no larger than <code>2^(m−1)</code> at sender and receiver to avoid confusing old and new frames after wraparound.',
-      ]},
+      {
+        heading: '1. Fundamental Window State Invariants',
+        points: [
+          '<b>Sender State Variables:</b> <code>S_f</code> (sequence number of first unacknowledged frame), <code>S_n</code> (sequence number of next frame to send), and <code>S_size</code> (maximum window size). Constraint: <code>S_n - S_f < S_size</code>.',
+          '<b>Receiver State Variables:</b> <code>R_n</code> (sequence number of next expected frame). In Go-Back-N, any incoming frame with sequence number <code>≠ R_n</code> is immediately dropped, and a cumulative ACK for the last in-order frame is re-sent.',
+          '<b>Window Sliding Action:</b> When a valid ACK arrives acknowledging frames up to k, <code>S_f</code> advances to <code>k + 1</code>. This shifts the window forward, allowing the sender to transmit fresh packets.'
+        ]
+      },
+      {
+        heading: '2. Sequence Number Wraparound Ambiguity Proof',
+        points: [
+          'If the sender window size were allowed to equal the sequence space (<code>W_s = 2^m</code>), then if all ACKs are lost, the sender retransmits the old window.',
+          'Meanwhile, the receiver window has wrapped around modulo <code>2^m</code> and is expecting the new window with the identical sequence numbers!',
+          'The receiver would mistake old retransmitted frames for brand new data, corrupting the application payload. Restricting <code>W_s + W_r ≤ 2^m</code> eliminates this ambiguity completely.'
+        ]
+      }
     ],
-    conclusion: 'Sliding-window protocols combine pipelined transmission, acknowledgements, sequence numbers, flow control, and retransmission to provide reliable link delivery.',
+    conclusion: 'Sliding window protocols achieve continuous, high-speed data flow over long-distance links. By enforcing Ws + Wr ≤ 2^m, they guarantee zero duplicate packet acceptance even amidst total acknowledgement loss.',
     markingScheme: [
-      {component: 'Definition and purpose', marks: '1'},
-      {component: 'Sender/receiver windows and ACK-driven movement', marks: '2'},
-      {component: 'Explain pipelining and flow control benefit', marks: '1'},
-      {component: 'Compare Stop-and-Wait, Go-Back-N and Selective Repeat', marks: '2'},
-      {component: 'Correct sequence-space limits and conclusion', marks: '1'},
+      { component: 'Sliding Window Operational Principles & Pipelining Benefits', marks: '1.5' },
+      { component: 'Sender & Receiver Dynamic Window State Diagram', marks: '1.5' },
+      { component: 'Go-Back-N vs Selective Repeat Comparative Table', marks: '1.5' },
+      { component: 'Mathematical Proof for Preventing Sequence Wraparound Ambiguity', marks: '1.5' },
+      { component: 'Conclusion & Practical Protocol Applications (TCP / HDLC)', marks: '1.0' }
     ],
-    examTip: 'Include sequence numbers, acknowledgements, and how the window advances; then state the key retransmission difference between Go-Back-N and Selective Repeat.',
+    examTip: 'Explain the state variables Sf, Sn, and Rn. Examiners appreciate seeing these exact standard textbook notations.'
   },
   solutionFor('cn-q5', 'cn-q31'),
   solutionFor('cn-q6', 'cn-q30'),

@@ -1,5 +1,5 @@
 export const buildId='2026-10-24';
-export const appVersion='0.7.0';
+export const appVersion='0.7.5';
 // Set these to the owner's confirmed public destinations when supplied.
 export const socialLinks=Object.freeze({
  website:'https://beudeveloper.in/',
