@@ -1,5 +1,5 @@
 const JSON_HEADERS = { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' };
-const allowedEvents = new Set(['app_opened', 'profile_saved', 'help_request']);
+const allowedEvents = new Set(['app_opened', 'profile_saved', 'desktop_login', 'device_paired', 'help_request']);
 function cleanDevice(value) {
   const os = ['Android', 'iOS', 'Windows', 'macOS', 'Linux', 'Other'].includes(value?.os) ? value.os : 'Other';
   const appMode = ['installed', 'web'].includes(value?.appMode) ? value.appMode : 'web';
@@ -25,9 +25,10 @@ export default {
 
     const device = cleanDevice(body.device);
     const lines = [`[BEU Exam Dost] ${body.event} | ${device.os} ${device.appMode}`];
-    if (body.event === 'profile_saved') {
+    if (['profile_saved', 'app_opened', 'desktop_login', 'device_paired'].includes(body.event)) {
       const profile = body.profile || {};
       lines.push(`Name: ${cleanText(profile.name)}`, `College: ${cleanText(profile.college, 200)}`, `Branch: ${cleanText(profile.branch, 120)}`);
+      if (body.event === 'desktop_login' || body.event === 'device_paired') lines.push(`Device: ${cleanText(body.device?.label || '', 120) || `${device.os} ${device.appMode}`}`);
     } else if (body.event === 'help_request') {
       const help = body.help || {};
       lines.push(`Name: ${cleanText(help.name)}`, `College: ${cleanText(help.college, 200)}`, `Branch: ${cleanText(help.branch, 120)}`, `Category: ${cleanText(help.category, 120)}`, `Subject: ${cleanText(help.subject, 160)}`, `Message: ${cleanText(help.message, 1500)}`);
