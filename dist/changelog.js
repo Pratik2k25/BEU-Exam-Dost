@@ -16,6 +16,15 @@
 
 export const changelog = [
   {
+    id: 'v0.8.0-pdf-downloads',
+    date: '2026-10-29T12:05:00+05:30',
+    version: '0.8.0',
+    type: 'feature',
+    title: '📥 PDF Solution Downloads Added',
+    body: 'You can now download complete examination model solutions in PDF format for all Original PYQs and Important Questions. Use the PDF button on any question card or solution view to save or print offline.',
+    badge: 'New Feature',
+  },
+  {
     id: 'v0.6.0-coa-pyq-solutions',
     date: '2026-10-25T11:21:52+05:30',
     version: '0.6.0',
