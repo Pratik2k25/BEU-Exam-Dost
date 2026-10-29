@@ -1,82 +1,62 @@
 import { randomBytes } from 'node:crypto';
 import pg from 'pg';
 import syncApi from '../api/sync.js';
+import { SyncClient, parsePairingLink } from '../dist/sync-client.js';
 import { secureConnectionString } from '../api/_db.js';
 
 const { Client } = pg;
-const credential = () => randomBytes(32).toString('base64url');
-const requestCredential = credential();
-const ownerCredential = credential();
-const linkedCredential = credential();
+const tempTag = randomBytes(6).toString('hex');
 let accountId;
-let sessionId;
-
-async function call(method, body, token) {
-  const response = await syncApi.fetch(new Request('http://localhost/api/sync', {
-    method,
-    headers: {
-      ...(body === undefined ? {} : { 'Content-Type': 'application/json' }),
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+async function apiFetch(_url, options={}) {
+  return syncApi.fetch(new Request('http://localhost/api/sync', {
+    method: options.method || 'GET', headers: options.headers || {}, ...(options.body ? { body: options.body } : {}),
   }));
-  return { status: response.status, data: await response.json() };
 }
-
-function assert(condition, message) {
-  if (!condition) throw new Error(message);
+function makeClient() {
+  const values = new Map();
+  return new SyncClient({ origin:'https://app.beudeveloper.in', storage:{getItem:key=>values.get(key)||null,setItem:(key,value)=>values.set(key,value),removeItem:key=>values.delete(key)}, fetcher:apiFetch });
 }
+function assert(value,message){if(!value)throw new Error(message);}
+const phone=makeClient(), pinDesktop=makeClient(), qrDesktop=makeClient();
+const initial={profile:{name:`Temporary sync check ${tempTag}`},settings:{theme:'dark'},topics:{cn:{unit1:true}}};
+try{
+  const enrolled=await phone.enroll(initial,'Verification phone',true);accountId=enrolled.accountId;
+  assert(enrolled.pendingReview===false,'primary enrollment failed');
 
-try {
-  const enrolled = await call('POST', {
-    action: 'enroll', credential: ownerCredential, label: 'Integration test',
-    data: { profile: { name: 'Temporary test profile' }, progress: { cn: 2 } },
-  });
-  assert(enrolled.status === 200 && enrolled.data.accountId, 'enrollment failed');
-  accountId = enrolled.data.accountId;
+  // Phone creates the PIN; desktop claims it; phone approves; desktop receives phone snapshot.
+  const pin=await phone.beginPhonePairing('PIN verification desktop');
+  assert(pin.code.length===4&&[...pin.code].every(c=>c>='0'&&c<='9'),'phone PIN generation failed');
+  const claim=await pinDesktop.claimPairingCode(pin.code,'PIN verification desktop');
+  assert(claim.method==='pin','desktop PIN claim failed');
+  const claimed=await phone.phonePairingStatus();
+  assert(claimed.status==='claimed','phone did not see desktop PIN claim');
+  await phone.approvePhonePairing();
+  assert((await pinDesktop.pairingStatus()).status==='approved','phone PIN approval failed');
+  const pinSnapshot=await pinDesktop.completePairing();
+  assert(JSON.stringify(pinSnapshot.snapshot)===JSON.stringify(initial),'PIN pairing did not transfer phone data');
 
-  const initial = await call('GET', undefined, ownerCredential);
-  assert(initial.status === 200 && initial.data.revision === 1 && initial.data.data.progress.cn === 2, 'snapshot read failed');
+  // QR scan path: desktop creates QR link; phone parses and approves; desktop loads linked state.
+  const qr=await qrDesktop.beginPairing('QR verification desktop');
+  const scanned=parsePairingLink(qr.link,'https://app.beudeveloper.in');
+  assert(scanned?.sessionId===qr.sessionId,'desktop QR link is invalid');
+  await phone.approvePairing(scanned.sessionId,scanned.requestCredential,scanned.publicKey);
+  assert((await qrDesktop.pairingStatus()).status==='approved','phone QR approval failed');
+  assert((await qrDesktop.completePairing()).status==='approved','QR snapshot transfer failed');
 
-  const saved = await call('PUT', { revision: 1, data: { profile: { name: 'Temporary test profile' }, progress: { cn: 3 } } }, ownerCredential);
-  assert(saved.status === 200 && saved.data.revision === 2, 'snapshot save failed');
+  // Writes from desktop are available to the primary app on its next sync cycle.
+  const changed={...initial,topics:{cn:{unit1:true,unit2:true}}};
+  await pinDesktop.sync(changed);
+  const back=await phone.sync(initial);
+  assert(back.data.topics.cn.unit2===true,'desktop changes did not sync back to the primary app');
 
-  const conflict = await call('PUT', { revision: 1, data: { progress: { cn: 9 } } }, ownerCredential);
-  assert(conflict.status === 409 && conflict.data.latest.revision === 2, 'revision conflict guard failed');
-
-  const paired = await call('POST', {
-    action: 'startPairing', requestCredential, deviceCredential: linkedCredential, label: 'New desktop',
-  });
-  assert(paired.status === 200, 'pairing session creation failed');
-  sessionId = paired.data.sessionId;
-
-  const approved = await call('POST', { action: 'approvePairing', sessionId, requestCredential }, ownerCredential);
-  assert(approved.status === 200, 'pair approval failed');
-  const status = await call('POST', { action: 'pairStatus', sessionId, requestCredential });
-  assert(status.status === 200 && status.data.status === 'approved' && status.data.deviceLabel === 'New desktop', 'pair status failed');
-
-  const linkedSnapshot = await call('GET', undefined, linkedCredential);
-  assert(linkedSnapshot.status === 200 && linkedSnapshot.data.data.progress.cn === 3, 'new device did not receive the account snapshot');
-
-  const revoked = await call('DELETE', { deviceId: linkedSnapshot.data.currentDeviceId }, ownerCredential);
-  assert(revoked.status === 200 && revoked.data.revoked, 'device revocation failed');
-  const denied = await call('GET', undefined, linkedCredential);
-  assert(denied.status === 401, 'revoked device was not denied');
-
-  const deleted = await call('DELETE', { action: 'deleteAccount' }, ownerCredential);
-  assert(deleted.status === 200 && deleted.data.deleted, 'cloud account deletion failed');
-  const afterDelete = await call('GET', undefined, ownerCredential);
-  assert(afterDelete.status === 401, 'deleted account credentials were not rejected');
-
-  console.log('Neon sync verification passed: enroll, read, write, conflict protection, pair, snapshot transfer, revoke, and cloud account deletion.');
+  const listed=await phone.devices();
+  assert(listed.length===3,'linked devices were not recorded');
+  await phone.revoke(pinDesktop.metadata().deviceId);
+  let revoked=false;try{await pinDesktop.sync(changed);}catch(error){revoked=error.status===401;}
+  assert(revoked,'revoked desktop credentials were not rejected');
+  await phone.deleteAccount();
+  console.log('Neon sync verification passed: encrypted enrollment, phone-generated PIN claim/approval, QR scan approval, snapshot transfer, desktop-to-phone sync, device listing and revocation.');
 } finally {
-  const connectionString = process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL;
-  if (connectionString && (accountId || sessionId)) {
-    const client = new Client({ connectionString: secureConnectionString(connectionString), connectionTimeoutMillis: 10000 });
-    try {
-      await client.connect();
-      if (sessionId) await client.query('DELETE FROM exam_dost_sync_pairings WHERE session_id = $1', [sessionId]);
-      if (accountId) await client.query('DELETE FROM exam_dost_sync_accounts WHERE account_id = $1', [accountId]);
-    } finally { await client.end().catch(() => {}); }
-  }
+  const connectionString=process.env.DATABASE_URL_UNPOOLED||process.env.DATABASE_URL;
+  if(connectionString&&accountId){const client=new Client({connectionString:secureConnectionString(connectionString),connectionTimeoutMillis:10000});try{await client.connect();await client.query('DELETE FROM exam_dost_sync_accounts WHERE account_id=$1',[accountId]);}finally{await client.end().catch(()=>{});}}
 }

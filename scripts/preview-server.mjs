@@ -3,9 +3,10 @@ import { readFile } from 'node:fs/promises';
 import { extname, resolve, sep } from 'node:path';
 import health from '../api/health.js';
 import sync from '../api/sync.js';
+import telemetry from '../api/telemetry.js';
 
 const buildRoot = resolve(process.cwd(), 'build');
-const handlers = new Map([['/api/health', health], ['/api/sync', sync]]);
+const handlers = new Map([['/api/health', health], ['/api/sync', sync], ['/api/telemetry', telemetry]]);
 const types = new Map([
   ['.html', 'text/html; charset=utf-8'], ['.js', 'text/javascript; charset=utf-8'],
   ['.mjs', 'text/javascript; charset=utf-8'], ['.css', 'text/css; charset=utf-8'],
