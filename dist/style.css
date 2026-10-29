@@ -208,6 +208,52 @@
   color: #8bdeb0;
 }
 
+.outline-pdf {
+  background: var(--surface);
+  border: 1.5px solid #0284c7;
+  color: #0284c7;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.outline-pdf:hover {
+  background: #e0f2fe;
+  color: #0369a1;
+  transform: translateY(-1px);
+}
+[data-theme=dark] .outline-pdf {
+  border-color: #38bdf8;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.08);
+}
+[data-theme=dark] .outline-pdf:hover {
+  background: rgba(56, 189, 248, 0.18);
+  color: #7dd3fc;
+}
+
+.download-solution-btn {
+  background: var(--forest, #16663e);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 13px;
+  transition: all 0.2s ease;
+}
+.download-solution-btn:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+}
+[data-theme=dark] .download-solution-btn {
+  background: #15803d;
+  color: #ffffff;
+}
+
 .verified-chip {
   font-size: 10px;
   padding: 3px 8px;
@@ -533,6 +579,11 @@
   .pyq-actions [data-action="toggle-solution"] {
     width: 100%;
     order: -1;
+  }
+  .download-solution-btn {
+    width: 100%;
+    justify-content: center;
+    margin-top: 6px;
   }
   .marking-table th, .marking-table td {
     padding: 8px 6px;
