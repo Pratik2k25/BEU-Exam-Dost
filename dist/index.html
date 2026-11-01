@@ -26,7 +26,7 @@
     <main class="main-content">
       <section class="hero-grid" aria-labelledby="maintenance-title">
         <figure class="hero-visual">
-          <img src="./assets/maintenance-illustration.svg" alt="Laptop with maintenance tools, a safety helmet and a traffic cone, representing improvements to BEU Exam Dost" width="760" height="600">
+          <img src="./assets/maintenance-scene.webp" alt="A realistic 3D laptop displaying a maintenance gear and crossed tools, with a safety helmet, books and orange safety cone" width="350" height="295">
         </figure>
 
         <div class="hero-content">
@@ -68,14 +68,20 @@
               <div><h2 id="updates-title">Stay Updated</h2><p>Follow our official channels for the latest updates, announcements and important information.</p></div>
             </div>
 
+            <div class="redirect-notice" data-redirect-notice role="status" aria-live="off">
+              <span class="redirect-indicator" aria-hidden="true"></span>
+              <p data-redirect-message>Opening our WhatsApp Channel in <strong><span data-redirect-countdown>10</span> seconds</strong> for live updates.</p>
+              <button class="stay-button" type="button" data-stay-button>Stay here</button>
+            </div>
+
             <nav class="social-links" aria-label="Official contact and update channels">
-              <div class="social-card social-disabled" aria-disabled="true" title="The official WhatsApp Channel URL has not been configured yet">
+              <a class="social-card" href="https://whatsapp.com/channel/0029Vb9TLSv3QxS3HzyEOf1v" data-whatsapp-link>
                 <span class="social-icon whatsapp" aria-hidden="true">
                   <svg viewBox="0 0 32 32" fill="none"><path d="M16 3.2a12.4 12.4 0 0 0-10.7 18.7L4 28l6.3-1.7A12.4 12.4 0 1 0 16 3.2Z" fill="currentColor"/><path d="M12.2 10.2c-.4-.9-.8-.9-1.2-.9h-1c-.4 0-.9.2-1.3.7s-1.7 1.7-1.7 4.1 1.8 4.8 2.1 5.1c.2.3 3.5 5.5 8.6 7.4 4.2 1.6 5.1 1.3 6 .9.9-.4 2.9-1.3 3.3-2.5.4-1.2.4-2.2.3-2.4-.1-.2-.4-.4-.9-.6l-3.1-1.5c-.4-.2-.8-.3-1.1.3-.3.5-1.2 1.5-1.5 1.9-.3.4-.6.4-1 .2-.5-.2-2-.7-3.8-2.3-1.4-1.2-2.3-2.7-2.6-3.2-.3-.5 0-.7.2-1 .2-.2.5-.6.7-.9.2-.3.3-.5.5-.9.2-.3.1-.6 0-.8l-1.4-3.6Z" fill="#fff" transform="translate(1 0) scale(.9)"/></svg>
                 </span>
-                <span class="social-copy"><strong>WhatsApp Channel</strong><small>Official channel link coming soon</small></span>
+                <span class="social-copy"><strong>WhatsApp Channel</strong><small>Get real-time updates</small></span>
                 <span class="social-arrow" aria-hidden="true">↗</span>
-              </div>
+              </a>
 
               <a class="social-card" href="https://www.linkedin.com/in/beu-developer-br" target="_blank" rel="noopener noreferrer">
                 <span class="social-icon linkedin" aria-hidden="true"><svg viewBox="0 0 32 32"><path fill="currentColor" d="M27.2 3H4.8A1.8 1.8 0 0 0 3 4.8v22.4A1.8 1.8 0 0 0 4.8 29h22.4a1.8 1.8 0 0 0 1.8-1.8V4.8A1.8 1.8 0 0 0 27.2 3ZM10.7 24.2H6.8V12h3.9v12.2ZM8.8 10.3a2.2 2.2 0 1 1 0-4.4 2.2 2.2 0 0 1 0 4.4Zm15.4 13.9h-3.9v-5.9c0-1.4 0-3.2-2-3.2s-2.3 1.5-2.3 3.1v6h-3.9V12h3.7v1.7h.1c.5-1 1.8-2 3.7-2 4 0 4.7 2.6 4.7 6v6.5Z"/></svg></span>
@@ -110,6 +116,39 @@
         });
       }, { once: true });
     }
+  </script>
+
+  <script>
+    (() => {
+      const channelUrl = "https://whatsapp.com/channel/0029Vb9TLSv3QxS3HzyEOf1v";
+      const notice = document.querySelector("[data-redirect-notice]");
+      const countdown = document.querySelector("[data-redirect-countdown]");
+      const message = document.querySelector("[data-redirect-message]");
+      const stayButton = document.querySelector("[data-stay-button]");
+      const whatsappLink = document.querySelector("[data-whatsapp-link]");
+      let seconds = 10;
+      let redirectTimer = null;
+
+      const stopRedirect = (stayed = false) => {
+        if (redirectTimer !== null) window.clearInterval(redirectTimer);
+        redirectTimer = null;
+        if (stayed && message) message.textContent = "You’re staying on this page. You can still open WhatsApp below.";
+        if (stayed && stayButton) stayButton.remove();
+        if (stayed && notice) notice.classList.add("redirect-paused");
+      };
+
+      stayButton?.addEventListener("click", () => stopRedirect(true));
+      whatsappLink?.addEventListener("click", () => stopRedirect(false));
+
+      redirectTimer = window.setInterval(() => {
+        seconds -= 1;
+        if (countdown) countdown.textContent = String(seconds);
+        if (seconds <= 0) {
+          stopRedirect(false);
+          window.location.assign(channelUrl);
+        }
+      }, 1000);
+    })();
   </script>
 </body>
 </html>
