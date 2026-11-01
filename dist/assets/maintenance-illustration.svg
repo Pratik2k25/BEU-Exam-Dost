@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 600" fill="none" role="img" aria-labelledby="title desc">
+<title id="title">BEU Exam Dost maintenance illustration</title>
+<desc id="desc">A laptop displaying the BEU Exam Dost emblem with tools, a safety helmet, traffic cone and green plants.</desc>
+<defs>
+ <linearGradient id="screenFrame" x1="230" y1="92" x2="590" y2="386" gradientUnits="userSpaceOnUse"><stop stop-color="#65758E"/><stop offset=".55" stop-color="#3F4B61"/><stop offset="1" stop-color="#253447"/></linearGradient>
+ <linearGradient id="screen" x1="250" y1="112" x2="568" y2="355" gradientUnits="userSpaceOnUse"><stop stop-color="#fff"/><stop offset="1" stop-color="#E7EEF2"/></linearGradient>
+ <linearGradient id="deck" x1="170" y1="390" x2="635" y2="510" gradientUnits="userSpaceOnUse"><stop stop-color="#D9E2EB"/><stop offset=".48" stop-color="#AABACB"/><stop offset="1" stop-color="#65778D"/></linearGradient>
+ <linearGradient id="green" x1="100" y1="330" x2="220" y2="490" gradientUnits="userSpaceOnUse"><stop stop-color="#43C576"/><stop offset="1" stop-color="#087743"/></linearGradient>
+ <linearGradient id="mint" x1="0" y1="100" x2="760" y2="590" gradientUnits="userSpaceOnUse"><stop stop-color="#E8F9F0"/><stop offset="1" stop-color="#D5F1E3"/></linearGradient>
+ <linearGradient id="helmet" x1="100" y1="400" x2="250" y2="525" gradientUnits="userSpaceOnUse"><stop stop-color="#FFE47B"/><stop offset=".55" stop-color="#FFC72C"/><stop offset="1" stop-color="#E99B12"/></linearGradient>
+ <linearGradient id="cone" x1="580" y1="380" x2="680" y2="535" gradientUnits="userSpaceOnUse"><stop stop-color="#FF9B42"/><stop offset="1" stop-color="#E75A13"/></linearGradient>
+ <filter id="shadow" x="70" y="65" width="650" height="515" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feGaussianBlur stdDeviation="14"/></filter>
+ <filter id="softShadow" x="100" y="300" width="600" height="270" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feGaussianBlur stdDeviation="8"/></filter>
+</defs>
+<ellipse cx="382" cy="510" rx="315" ry="45" fill="#A8DAC0" opacity=".28" filter="url(#softShadow)"/>
+<circle cx="378" cy="280" r="250" fill="url(#mint)" opacity=".88"/>
+<circle cx="378" cy="280" r="211" fill="#F5FCF8" opacity=".45"/>
+<path d="M65 190c-28-34 14-75 47-48 10-31 55-24 57 9 30 1 41 42 14 57H84c-9 0-15-7-19-18Zm525 20c-20-25 10-55 35-35 7-23 41-18 42 7 23 1 31 31 10 43h-73c-7 0-11-5-14-15Z" fill="#fff" opacity=".76"/>
+<!-- plants -->
+<g opacity=".98">
+ <path d="M158 431c-71-36-101-103-62-142 52 18 79 67 62 142Z" fill="#159452"/>
+ <path d="M168 444c-21-77-8-142 37-154 32 55 13 117-37 154Z" fill="#39B96B"/>
+ <path d="M180 449c6-78 42-128 89-117 10 65-30 111-89 117Z" fill="#087B42"/>
+ <path d="M179 452c-51-52-64-114-26-145 49 35 58 91 26 145Z" fill="url(#green)"/>
+ <path d="M606 444c-12-73 12-130 57-133 28 56 3 109-57 133Z" fill="#38B66D"/>
+ <path d="M613 450c27-68 77-102 116-76-9 60-55 91-116 76Z" fill="#0D8148"/>
+ <path d="M589 453c-36-64-30-124 13-139 41 48 30 104-13 139Z" fill="#168A4D"/>
+ <path d="M620 448c-2-71 32-119 77-108 18 59-14 106-77 108Z" fill="#48C77A"/>
+</g>
+<!-- plant stems -->
+<g stroke="#0C7D46" stroke-width="3" stroke-linecap="round" opacity=".5"><path d="M178 454c-4-41-10-76-29-111m30 113c-1-48 16-85 39-119m399 110c7-42 15-76 42-105m-44 108c-2-43-1-77-11-116"/></g>
+<!-- laptop shadow -->
+<ellipse cx="409" cy="480" rx="235" ry="25" fill="#496B5B" opacity=".22" filter="url(#shadow)"/>
+<!-- display frame -->
+<path d="M251 90c-17 0-30 13-32 30l-26 254c-2 18 12 34 30 34h346c18 0 32-15 30-33L570 119c-2-17-16-29-33-29H251Z" fill="url(#screenFrame)" stroke="#6B7A90" stroke-width="5"/>
+<path d="m253 111-25 249c-1 9 6 16 15 16h324c9 0 16-8 15-17l-22-248c-1-9-8-15-17-15H270c-9 0-16 6-17 15Z" fill="url(#screen)" stroke="#D3DDE5" stroke-width="5"/>
+<circle cx="394" cy="102" r="4" fill="#1F2937"/><circle cx="394" cy="102" r="1.4" fill="#95A4B7"/>
+<!-- screen glow -->
+<ellipse cx="397" cy="228" rx="123" ry="108" fill="#E7F8EF" opacity=".48"/>
+<!-- original logo emblem on screen -->
+<image href="./logo-emblem.png" x="326" y="167" width="136" height="136" preserveAspectRatio="xMidYMid meet"/>
+<!-- crossed tool motifs -->
+<g transform="translate(480 305) rotate(-18)" stroke-linecap="round" stroke-linejoin="round">
+ <path d="M0 0c-10-11-7-28 5-35 5-3 11-4 16-2l-12 13 13 13 13-12c2 6 1 13-3 18C24 7 8 8 0 0Z" fill="#91A4B8" stroke="#6D8399" stroke-width="3"/>
+ <path d="m13-12 49 48" stroke="#8598AC" stroke-width="13"/><path d="m13-12 49 48" stroke="#C5D2DD" stroke-width="7"/><path d="m52 29 13 13" stroke="#E4ECF2" stroke-width="8"/>
+</g>
+<!-- laptop lower deck -->
+<path d="m217 386 355-1 64 83c6 8 1 19-9 20H177c-10 0-15-11-9-19l49-83Z" fill="url(#deck)" stroke="#65778B" stroke-width="4"/>
+<path d="m228 400 333-1 34 42H199l29-41Z" fill="#596B83" opacity=".85"/>
+<!-- keyboard keys -->
+<g fill="#8D9FB2" stroke="#586C84" stroke-width="1.4">
+ <path d="m240 405 22 0 7 8h-26l-3-8Zm33 0h23l8 8h-26l-5-8Zm34 0h23l8 8h-26l-5-8Zm34 0h23l8 8h-26l-5-8Zm34 0h23l8 8h-26l-5-8Zm34 0h23l8 8h-26l-5-8Zm34 0h23l8 8h-26l-5-8Zm34 0h23l8 8h-26l-5-8Zm34 0h23l8 8h-26l-5-8Z"/>
+ <path d="m225 418 30 0 7 8h-33l-4-8Zm42 0h26l7 8h-28l-5-8Zm39 0h26l7 8h-28l-5-8Zm39 0h26l7 8h-28l-5-8Zm39 0h26l7 8h-28l-5-8Zm39 0h26l7 8h-28l-5-8Zm39 0h26l7 8h-28l-5-8Zm39 0h26l7 8h-28l-5-8Z"/>
+</g>
+<path d="m314 451 154-1-13 30-160 1 19-30Z" fill="#B8C7D5" stroke="#8396A9" stroke-width="2"/>
+<path d="m352 459 74-1-5 9-74 1 5-9Z" fill="#91A5B8"/>
+<!-- safety helmet -->
+<g filter="url(#softShadow)"><path d="M107 465c1-56 35-91 82-91 48 0 82 35 83 91l13 15H93l14-15Z" fill="url(#helmet)" stroke="#E89D16" stroke-width="4"/><path d="M142 390c8-29 26-43 48-43 23 0 43 14 50 43" stroke="#FFEAA0" stroke-width="10" stroke-linecap="round"/><path d="M184 376v89" stroke="#EBA21C" stroke-width="9" stroke-linecap="round"/><path d="M91 478h197c-4 17-18 25-41 25H128c-19 0-31-7-37-25Z" fill="#F6B51E" stroke="#E89B11" stroke-width="4"/><path d="M100 484h179" stroke="#FFE17A" stroke-width="5" stroke-linecap="round"/></g>
+<!-- safety cone -->
+<g filter="url(#softShadow)"><path d="m599 379 36 0 53 142c3 9-3 17-13 17H569c-10 0-16-8-13-17l43-142Z" fill="url(#cone)" stroke="#D95E18" stroke-width="4"/><path d="m590 408 58 0 11 29h-80l11-29Zm-26 72 111 0 10 26H555l9-26Z" fill="#F8FCFA" stroke="#E4EBE7" stroke-width="2"/><path d="M548 536h154" stroke="#C85B1C" stroke-width="5" stroke-linecap="round"/></g>
+<!-- tiny maintenance sparkles -->
+<g fill="#16874D"><path d="m650 75 8 20 20 8-20 8-8 20-8-20-20-8 20-8 8-20Z"/><path d="m138 120 5 12 12 5-12 5-5 12-5-12-12-5 12-5 5-12Z" opacity=".7"/></g>
+<g stroke="#16874D" stroke-width="8" stroke-linecap="round"><path d="m661 52 4-17m18 35 13-12m-2 37 17-4"/></g>
+</svg>
