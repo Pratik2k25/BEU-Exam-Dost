@@ -9,7 +9,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
@@ -35,7 +35,7 @@ function createVersionSandbox() {
   const sandbox = mkdtempSync(join(tmpdir(), 'exam-dost-version-test-'));
   mkdirSync(join(sandbox, 'scripts'), {recursive: true});
   mkdirSync(join(sandbox, 'dist'), {recursive: true});
-  for (const relPath of ['package.json', 'scripts/check-version.mjs', 'dist/app-meta.js', 'dist/index.html']) {
+  for (const relPath of ['package.json', 'package-lock.json', 'scripts/check-version.mjs', 'dist/app-meta.js', 'dist/index.html']) {
     copyFileSync(resolve(ROOT, relPath), join(sandbox, relPath));
   }
   return sandbox;
@@ -50,6 +50,20 @@ function runSandboxChecker(sandbox, ...args) {
 
 function sandboxVersion(sandbox) {
   return JSON.parse(readFileSync(join(sandbox, 'package.json'), 'utf8')).version;
+}
+
+function readLock(sandbox) {
+  return JSON.parse(readFileSync(join(sandbox, 'package-lock.json'), 'utf8'));
+}
+
+function assertSynced(sandbox, expected, previousLock) {
+  assert.equal(sandboxVersion(sandbox), expected);
+  const lock = readLock(sandbox);
+  assert.equal(lock.version, expected);
+  assert.equal(lock.packages[''].version, expected);
+  assert.match(readFileSync(join(sandbox, 'dist/app-meta.js'), 'utf8'), new RegExp(`appVersion='${expected.replaceAll('.', '\\.')}'`));
+  assert.deepEqual({...lock, version: previousLock.version, packages: {...lock.packages, '': previousLock.packages['']}}, previousLock);
+  assert.deepEqual({...lock.packages[''], version: previousLock.packages[''].version}, previousLock.packages['']);
 }
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
@@ -124,9 +138,10 @@ test('check-version --set synchronises package.json to the new version', () => {
   const sandbox = createVersionSandbox();
   try {
     const testVer = '99.88.77';
+    const lock = readLock(sandbox);
     const result = runSandboxChecker(sandbox, '--set', testVer);
     assert.equal(result.status, 0, `--set ${testVer} should succeed\n${result.stderr}`);
-    assert.equal(sandboxVersion(sandbox), testVer);
+    assertSynced(sandbox, testVer, lock);
     assert.match(readFileSync(join(sandbox, 'dist/app-meta.js'), 'utf8'), /appVersion='99\.88\.77'/);
   } finally {
     rmSync(sandbox, {recursive: true, force: true});
@@ -137,11 +152,12 @@ test('check-version --bump patch increments patch component', () => {
   const sandbox = createVersionSandbox();
   try {
     const before = sandboxVersion(sandbox);
+    const lock = readLock(sandbox);
     const parsed = before.split('.').map(Number);
     const expected = `${parsed[0]}.${parsed[1]}.${parsed[2] + 1}`;
     const result = runSandboxChecker(sandbox, '--bump', 'patch');
     assert.equal(result.status, 0, `--bump patch should succeed\n${result.stderr}`);
-    assert.equal(sandboxVersion(sandbox), expected);
+    assertSynced(sandbox, expected, lock);
   } finally {
     rmSync(sandbox, {recursive: true, force: true});
   }
@@ -151,11 +167,12 @@ test('check-version --bump minor increments minor and resets patch', () => {
   const sandbox = createVersionSandbox();
   try {
     const before = sandboxVersion(sandbox);
+    const lock = readLock(sandbox);
     const parsed = before.split('.').map(Number);
     const expected = `${parsed[0]}.${parsed[1] + 1}.0`;
     const result = runSandboxChecker(sandbox, '--bump', 'minor');
     assert.equal(result.status, 0, `--bump minor should succeed\n${result.stderr}`);
-    assert.equal(sandboxVersion(sandbox), expected);
+    assertSynced(sandbox, expected, lock);
   } finally {
     rmSync(sandbox, {recursive: true, force: true});
   }
@@ -165,12 +182,64 @@ test('check-version --bump major increments major and resets minor+patch', () =>
   const sandbox = createVersionSandbox();
   try {
     const before = sandboxVersion(sandbox);
+    const lock = readLock(sandbox);
     const parsed = before.split('.').map(Number);
     const expected = `${parsed[0] + 1}.0.0`;
     const result = runSandboxChecker(sandbox, '--bump', 'major');
     assert.equal(result.status, 0, `--bump major should succeed\n${result.stderr}`);
-    assert.equal(sandboxVersion(sandbox), expected);
+    assertSynced(sandbox, expected, lock);
   } finally {
     rmSync(sandbox, {recursive: true, force: true});
   }
 });
+
+for (const version of ['01.2.3', '1.02.3', '1.2.03', ' 1.2.3', '1.2.3 ']) {
+  test(`strict versions reject ${JSON.stringify(version)} without modifying files`, () => {
+    const sandbox = createVersionSandbox();
+    try {
+      const before = readFileSync(join(sandbox, 'package.json'), 'utf8');
+      const result = runSandboxChecker(sandbox, '--set', version);
+      assert.equal(result.status, 1);
+      assert.match(result.stderr, /not a valid/i);
+      assert.equal(readFileSync(join(sandbox, 'package.json'), 'utf8'), before);
+    } finally { rmSync(sandbox, {recursive: true, force: true}); }
+  });
+}
+
+for (const [label, change] of [
+  ['top-level mismatch', lock => { lock.version = '9.9.9'; }],
+  ['root-package mismatch', lock => { lock.packages[''].version = '9.9.9'; }],
+  ['missing top-level version', lock => { delete lock.version; }],
+  ['missing root-package version', lock => { delete lock.packages[''].version; }],
+  ['missing packages', lock => { delete lock.packages; }],
+  ['missing root package', lock => { delete lock.packages['']; }],
+  ['malformed version', lock => { lock.version = 123; }],
+]) {
+  test(`version checker rejects lockfile ${label}`, () => {
+    const sandbox = createVersionSandbox();
+    try {
+      runSandboxChecker(sandbox, '--set', sandboxVersion(sandbox));
+      const lock = readLock(sandbox);
+      change(lock);
+      writeFileSync(join(sandbox, 'package-lock.json'), JSON.stringify(lock));
+      const result = runSandboxChecker(sandbox);
+      assert.equal(result.status, 1);
+      assert.match(result.stderr, /package-lock\.json/);
+    } finally { rmSync(sandbox, {recursive: true, force: true}); }
+  });
+}
+
+for (const invalid of ['missing', 'invalid JSON']) {
+  test(`version checker reports ${invalid} lockfile before modifying version sources`, () => {
+    const sandbox = createVersionSandbox();
+    try {
+      if (invalid === 'missing') rmSync(join(sandbox, 'package-lock.json'));
+      else writeFileSync(join(sandbox, 'package-lock.json'), '{');
+      const before = readFileSync(join(sandbox, 'package.json'), 'utf8');
+      const result = runSandboxChecker(sandbox, '--set', '1.2.3');
+      assert.equal(result.status, 1);
+      assert.match(result.stderr, /package-lock\.json/);
+      assert.equal(readFileSync(join(sandbox, 'package.json'), 'utf8'), before);
+    } finally { rmSync(sandbox, {recursive: true, force: true}); }
+  });
+}
