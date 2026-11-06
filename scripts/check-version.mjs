@@ -10,6 +10,7 @@
  *  3. No build metadata suffixes (e.g. "+build.123").
  *  4. dist/app-meta.js must export APP_VERSION that matches package.json exactly.
  *  5. dist/index.html <meta name="version"> content must match package.json exactly.
+ *  6. Both package-lock.json package versions must match package.json exactly.
  *
  * Usage:
  *   node scripts/check-version.mjs             # Validate current version
@@ -44,7 +45,7 @@ function writeRoot(relPath, content) {
 
 /** Parse raw semver string. Returns { major, minor, patch } or null. */
 function parseSemVer(raw) {
-  const m = /^(\d+)\.(\d+)\.(\d+)$/.exec(String(raw).trim());
+  const m = typeof raw === 'string' && /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.exec(raw);
   if (!m) return null;
   return { major: Number(m[1]), minor: Number(m[2]), patch: Number(m[3]) };
 }
@@ -80,6 +81,18 @@ function ok(msg) {
 function getPackageVersion() {
   const pkg = JSON.parse(readRoot('package.json'));
   return { raw: pkg.version, pkg };
+}
+
+function getLockfile() {
+  let lock;
+  try { lock = JSON.parse(readRoot('package-lock.json')); }
+  catch { fail('package-lock.json is missing or invalid JSON. Restore the committed lockfile before checking or setting versions.'); }
+  if (!lock || typeof lock !== 'object' || Array.isArray(lock)
+      || !lock.packages || typeof lock.packages !== 'object' || Array.isArray(lock.packages)
+      || !lock.packages[''] || typeof lock.packages[''] !== 'object' || Array.isArray(lock.packages[''])) {
+    fail('package-lock.json must contain a packages[""] root package. Restore the committed lockfile.');
+  }
+  return lock;
 }
 
 function getAppMetaVersion() {
@@ -119,6 +132,14 @@ function validate(targetVersion) {
   }
   ok(`package.json version "${targetVersion}" is valid strict SemVer.`);
 
+  const lock = getLockfile();
+  for (const [field, value] of [['version', lock.version], ['packages[""].version', lock.packages[''].version]]) {
+    if (value !== targetVersion) {
+      console.error(`[check-version] FAIL: package-lock.json ${field}=${JSON.stringify(value)} must match package.json "${targetVersion}". Run --set ${targetVersion} to synchronise.`);
+      allOk = false;
+    } else ok(`package-lock.json ${field} matches "${targetVersion}".`);
+  }
+
   // 2. app-meta.js
   const appMetaVer = getAppMetaVersion();
   if (appMetaVer === null) {
@@ -151,6 +172,8 @@ function validate(targetVersion) {
 // ─── Synchronisation ──────────────────────────────────────────────────────────
 
 function syncAllSources(newVer) {
+  // Read and validate the lockfile structure before changing any version sources.
+  const lock = getLockfile();
   // 1. package.json
   const pkgRaw = readRoot('package.json');
   const pkg = JSON.parse(pkgRaw);
@@ -158,6 +181,11 @@ function syncAllSources(newVer) {
   pkg.version = newVer;
   writeRoot('package.json', JSON.stringify(pkg, null, 2) + '\n');
   ok(`package.json: ${oldVer} → ${newVer}`);
+
+  lock.version = newVer;
+  lock.packages[''].version = newVer;
+  writeRoot('package-lock.json', JSON.stringify(lock, null, 2) + '\n');
+  ok(`package-lock.json package versions → ${newVer}`);
 
   // 2. dist/app-meta.js (if it exists)
   try {
