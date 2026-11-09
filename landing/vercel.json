@@ -1,1 +1,1 @@
-{"framework":null,"buildCommand":"","outputDirectory":".","git":{"deploymentEnabled":false},"headers":[{"source":"/(.*)","headers":[{"key":"Cache-Control","value":"public, max-age=0, must-revalidate"}]}]}
+{"framework":null,"buildCommand":"node ../scripts/verify-maintenance-relay.mjs","outputDirectory":".","git":{"deploymentEnabled":false},"headers":[{"source":"/(.*)","headers":[{"key":"Cache-Control","value":"public, max-age=0, must-revalidate"}]}]}
