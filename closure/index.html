@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#17191d">
+  <meta name="color-scheme" content="dark">
+  <meta name="version" content="0.8.1">
+  <title>BEU Exam Dost — Service discontinued</title>
+  <meta name="description" content="BEU Developer has discontinued BEU Exam Dost. Its services are no longer available across mobile, desktop, and PWA. Thank you for being part of it.">
+  <meta property="og:title" content="BEU Exam Dost — A chapter comes to a close">
+  <meta property="og:description" content="BEU Developer has discontinued BEU Exam Dost. Thank you for being part of our learning journey.">
+  <meta property="og:type" content="website">
+  <link rel="canonical" href="https://app.beudeveloper.in/">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" type="image/png" href="/assets/icon-192.png">
+  <link rel="apple-touch-icon" href="/assets/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="BEU Exam Dost">
+  <link rel="preload" href="/assets/outfit.ttf" as="font" type="font/ttf" crossorigin>
+  <style>
+    @font-face{font-family:Outfit;src:url('/assets/outfit.ttf') format('truetype');font-weight:100 900;font-style:normal;font-display:swap}
+    :root{color-scheme:dark;background:#17191d;color:#f4f4f3;font-family:Outfit,system-ui,-apple-system,sans-serif;font-synthesis:none;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+    *{box-sizing:border-box}
+    body{margin:0;min-width:240px}
+    .page{min-height:100svh;display:flex;flex-direction:column;align-items:center;padding:max(40px,env(safe-area-inset-top)) max(24px,env(safe-area-inset-right)) max(28px,env(safe-area-inset-bottom)) max(24px,env(safe-area-inset-left))}
+    .brand{margin:0;font-size:20px;line-height:1.4;font-weight:450;letter-spacing:-.025em;text-align:center}
+    main{width:100%;flex:1;display:flex;align-items:center;justify-content:center;padding:64px 0}
+    .notice{position:relative;isolation:isolate;width:100%;max-width:540px;border:1px solid #95979b;padding:44px 28px 42px;text-align:center}
+    .ornament{position:absolute;top:0;left:50%;width:68px;height:30px;display:grid;place-items:center;transform:translate(-50%,-50%);background:#17191d;color:#b6b8bc}
+    .ornament svg{width:24px;height:24px}
+    .eyebrow{margin:0 0 30px;color:#c4c5c8;font-size:12px;line-height:1.5;font-weight:400;letter-spacing:.115em;text-transform:uppercase}
+    h1{margin:0;font-size:clamp(38px,9.8vw,54px);font-weight:300;line-height:1.13;letter-spacing:-.035em;text-wrap:balance}
+    h1 span{display:block}
+    .rule{width:34px;height:1px;background:#babbbd;margin:30px auto}
+    .message{max-width:29ch;margin:0 auto;color:#d7d8db;font-size:17px;font-weight:350;line-height:1.55;text-wrap:pretty}
+    .thanks{margin:34px 0 0;color:#e8e7e4;font-family:Georgia,'Times New Roman',serif;font-size:20px;font-style:italic;line-height:1.5;text-wrap:balance}
+    footer{color:#c4c5c8;text-align:center;font-size:14px;line-height:1.5;font-weight:350;letter-spacing:.015em}
+    ::selection{background:#d5d7db;color:#17191d}
+    @media(min-width:700px){.page{padding-top:48px;padding-bottom:34px}main{padding:68px 0}.notice{padding:50px 52px 46px}.eyebrow{font-size:13px;margin-bottom:32px}.message{font-size:18px}.rule{margin:34px auto}.thanks{margin-top:36px;font-size:22px}}
+    @media(max-width:359px){.page{padding-left:18px;padding-right:18px}.notice{padding-left:20px;padding-right:20px}h1{font-size:35px}.message{font-size:16px}.thanks{font-size:18px}}
+    @media(max-height:740px){.page{padding-top:max(28px,env(safe-area-inset-top));padding-bottom:max(20px,env(safe-area-inset-bottom))}main{padding:42px 0}.notice{padding-top:36px;padding-bottom:32px}.eyebrow{margin-bottom:24px}.rule{margin:24px auto}.thanks{margin-top:26px}}
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header><p class="brand">BEU Exam Dost</p></header>
+    <main>
+      <article class="notice" aria-labelledby="notice-title">
+        <div class="ornament" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c.8 8.6 3.4 11.2 12 12-8.6.8-11.2 3.4-12 12C11.2 15.4 8.6 12.8 0 12 8.6 11.2 11.2 8.6 12 0Z"/></svg></div>
+        <p class="eyebrow">Final announcement</p>
+        <h1 id="notice-title"><span>A chapter</span><span>comes to</span><span>a close.</span></h1>
+        <div class="rule" aria-hidden="true"></div>
+        <p class="message">BEU Developer has discontinued BEU Exam Dost. Its services are no longer available across mobile, desktop, and PWA.</p>
+        <p class="thanks">Thank you for being part of it.</p>
+      </article>
+    </main>
+    <footer>BEU Developer</footer>
+  </div>
+  <script type="module">
+    import {installUpdates} from '/updates.js';
+    installUpdates({canReload:()=>true,beforeReload:()=>true});
+  </script>
+</body>
+</html>
